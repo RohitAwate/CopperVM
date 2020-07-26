@@ -14,9 +14,24 @@
  * limitations under the License.
  */
 
-#include <iostream>
+#pragma once
 
-int main() {
-	std::cout << "hello, world!" << std::endl;
-	return 0;
+namespace Copper {
+
+	namespace ANSICodes {
+		// Color codes
+        static const char* RED = "\u001b[31m";
+		static const char* GREEN = "\u001b[32m";
+		static const char* YELLOW = "\u001b[33m";
+		static const char* BLUE = "\u001b[34m";
+		static const char* MAGENTA = "\u001b[35m";
+		static const char* CYAN = "\u001b[36m";
+		static const char* WHITE = "\u001b[37m";
+		static const char* RESET = "\u001b[0m";
+        
+        // Decoration codes
+        static const char* BOLD = "\u001b[1m";
+        static const char* UNDERLINE = "\u001b[4m";
+	}
+    
 }

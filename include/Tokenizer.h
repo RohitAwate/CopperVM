@@ -15,3 +15,38 @@
  */
 
 #pragma once
+
+#include <memory>
+#include <vector>
+
+#include "Token.h"
+
+namespace Copper {
+	
+	class Tokenizer {
+	public:
+		Tokenizer(const std::string filename, std::unique_ptr<std::string> input)
+			: m_filename(filename), m_input(std::move(input)) {}
+
+		std::vector<Token> run();
+	private:
+		std::string m_filename;
+		std::unique_ptr<std::string> m_input;
+
+		void emitToken(std::vector<Token>&, const TokenType, int);
+
+		int m_curr   { 0 };
+		int m_line   { 1 };
+		int m_column { 1 };
+
+		void skipWhitespace();
+		char peek() const;
+		char peekNext() const;
+		bool matchNext(char);
+		void advance();
+		bool atEOF() const;
+
+		void error(const char* msg) const;
+	};
+
+}   // namespace Copper
