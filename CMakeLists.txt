@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(CopperVM VERSION 0.1
-				DESCRIPTION "A JavaScript VM"
+				DESCRIPTION A bytecode virtual machine for a sensible subset of JavaScript."
 				LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
