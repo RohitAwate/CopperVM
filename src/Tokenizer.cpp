@@ -201,8 +201,31 @@ namespace Copper {
 	void Tokenizer::error(const char *msg) const {
 		std::cerr << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cerr << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
-		std::cerr << "[" << m_line << ":" << m_column << "]: ";
+		std::cerr << "(line " << m_line << "): ";
 		std::cerr << msg << std::endl;
+		std::cerr << "\t" << getLine(m_line) << std::endl;
+		std::cerr << "\t" << std::string(m_column - 1, ' ');
+		
+		std::cerr << "^" << std::endl;
+	}
+
+	std::string Tokenizer::getLine(int line) const {
+		size_t start = 0, end = 0;
+
+		int currentLine = 1;
+		for (size_t i = 0; i < m_input.get()->size(); i++) {
+			if (m_input.get()->at(i) == '\n') {
+				currentLine++;
+
+				if (currentLine == line) {
+					start = i + 1;
+				} else if (currentLine == line + 1) {
+					end = i - 1;
+				}
+			}
+		}
+
+		return m_input.get()->substr(start, end - start + 1);
 	}
 
 } // namespace Copper

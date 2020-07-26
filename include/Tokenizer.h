@@ -47,6 +47,7 @@ namespace Copper {
 		bool atEOF() const;
 
 		void error(const char* msg) const;
+		std::string getLine(int) const;
 	};
 
 }   // namespace Copper
