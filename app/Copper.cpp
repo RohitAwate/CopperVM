@@ -20,7 +20,8 @@
 #include "Tokenizer.h"
 
 int main() {
-	std::string input = "123 56.78 12412484.23123123123 + - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
+	// std::string input = "123 56.78 12412484.23123123123 + - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
+	std::string input = "123 56.78 12412484.23123123123&\n\tsfdhsdkjf&";
 
 	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(input));
 	auto tokens = tokenizer.run();

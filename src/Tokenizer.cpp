@@ -233,18 +233,34 @@ namespace Copper {
 		return m_input.get()->substr(m_column - 1, len);
 	}
 
+	static std::string getOffsetString(const std::string& line, size_t offset) {
+		std::string offsetString;
+
+		for (size_t i = 0; i < offset; i++) {
+			if (line.at(i) == '\t') {
+				offsetString.append("\t");
+			} else {
+				offsetString.append(" ");
+			}
+		}
+
+		return offsetString;
+	}
+
 	void Tokenizer::error(const char *msg) const {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
 		std::cout << "(line " << m_line << "): ";
 		std::cout << msg << std::endl;
-		std::cout << "\t" << getLine(m_line) << std::endl;
-		std::cout << "\t" << std::string(m_column - 1, ' ');
-		std::cout << "^" << std::endl;
+
+		std::string culpritLine = getLine(m_line);
+		std::cout << "\t" << culpritLine << std::endl;
+		std::cout << "\t" << getOffsetString(culpritLine, m_column - 1);
+		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 
 	std::string Tokenizer::getLine(int line) const {
-		size_t start = 0, end = 0;
+		size_t start = 0, end = m_input.get()->size();
 
 		int currentLine = 1;
 		for (size_t i = 0; i < m_input.get()->size(); i++) {
