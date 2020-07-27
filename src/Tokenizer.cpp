@@ -195,6 +195,34 @@ namespace Copper {
 								m_column = 1;
 							}
 							break;
+						case '*':
+							// Multi line comment
+							while (!atEOF()) {
+								advance();
+								m_column++;
+
+								if (peek() == '\n') {
+									m_line++;
+									m_column = 0;
+									continue;
+								}
+
+								if (peek() == '*' && peekNext() == '/') {
+									break;
+								}
+							}
+
+							if (peek() == '*' && peekNext() == '/') {
+								m_curr += 2;
+								m_column += 2;
+							} else {
+								if (atEOF()) {
+									m_line--;
+								}
+
+								error("Unterminated multi-line comment");
+							}
+							break;
 						default:
 							emitToken(tokens, TokenType::DIVIDE);
 					}

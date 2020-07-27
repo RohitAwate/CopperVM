@@ -7,3 +7,10 @@ let j = 99;
 //
 
 // this contains a synthetic newline character \n
+
+/*
+this is
+a
+multi
+line comment
+*

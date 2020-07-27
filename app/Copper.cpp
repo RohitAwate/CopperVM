@@ -41,7 +41,7 @@ static std::string readFile(const std::string& path) {
 }
 
 int main(int argc, const char* argv[]) {
-	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile("tests/js_suite/comments.js")));
+	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile(argv[1])));
 	auto tokens = tokenizer.run();
 
 	for (Copper::Token token : tokens) {
