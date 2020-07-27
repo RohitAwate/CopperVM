@@ -50,6 +50,9 @@ namespace Copper {
 		static bool isDigit(char);
 		std::string number();
 
+		static bool isAlpha(char);
+		std::string identifier();
+
 		void error(const char* msg) const;
 		std::string getLine(int) const;
 	};

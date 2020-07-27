@@ -21,7 +21,8 @@
 
 int main() {
 	// std::string input = "123 56.78 12412484.23123123123 + - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
-	std::string input = "123 56.78 12412484.23123123123&\n\tsfdhsdkjf&";
+	// std::string input = "123 56.78 12412484.23123123123&\n\tsfdhsdkjf&";
+	std::string input = "async const num = 12; let he_llo12 = true; switch case: fetch().get()";
 
 	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(input));
 	auto tokens = tokenizer.run();

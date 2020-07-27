@@ -76,6 +76,8 @@
 	TYPE_MACRO(NEGATION)             \
 	TYPE_MACRO(ASSIGNMENT)           \
 	TYPE_MACRO(SEMICOLON)            \
+	TYPE_MACRO(COLON)                \
+	TYPE_MACRO(DOT)               \
 	/* Multi character tokens */     \
 	TYPE_MACRO(PLUS_ASSIGNMENT)      \
 	TYPE_MACRO(MINUS_ASSIGNMENT)     \

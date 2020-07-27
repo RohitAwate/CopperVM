@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <unordered_map>
 
 #include "Colors.h"
 #include "Tokenizer.h"
@@ -46,6 +47,44 @@ namespace Copper {
 		m_column += lexeme.size();
 	}
 
+	static const std::unordered_map<std::string, TokenType> KEYWORDS = {
+		{"let", TokenType::LET},
+		{"const", TokenType::CONST},
+		{"if", TokenType::IF},
+		{"else", TokenType::ELSE},
+		{"switch", TokenType::SWITCH},
+		{"case", TokenType::CASE},
+		{"for", TokenType::FOR},
+		{"while", TokenType::WHILE},
+		{"do", TokenType::DO},
+		{"of", TokenType::OF},
+		{"in", TokenType::IN},
+		{"break", TokenType::BREAK},
+		{"continue", TokenType::CONTINUE},
+		{"function", TokenType::FUNCTION},
+		{"return", TokenType::RETURN},
+		{"true", TokenType::TRUE},
+		{"false", TokenType::FALSE},
+		{"null", TokenType::NULL_TYPE},
+		{"undefined", TokenType::UNDEFINED},
+		{"class", TokenType::CLASS},
+		{"this", TokenType::THIS},
+		{"new", TokenType::NEW},
+		{"static", TokenType::STATIC},
+		{"extends", TokenType::EXTENDS},
+		{"super", TokenType::SUPER},
+		{"typeof", TokenType::TYPEOF},
+		{"instanceof", TokenType::INSTANCEOF},
+		{"try", TokenType::TRY},
+		{"catch", TokenType::CATCH},
+		{"throw", TokenType::THROW},
+		{"import", TokenType::IMPORT},
+		{"export", TokenType::EXPORT},
+		{"default", TokenType::DEFAULT},
+		{"async", TokenType::ASYNC},
+		{"await", TokenType::AWAIT},
+	};
+
 	std::vector<Token> Tokenizer::run() {
 		std::vector<Token> tokens;
 
@@ -58,6 +97,18 @@ namespace Copper {
 				continue;
 			}
 
+			if (isAlpha(peek())) {
+				auto id = identifier();
+				auto iterator = KEYWORDS.find(id);
+				if (iterator != KEYWORDS.end()) {
+					emitToken(tokens, iterator->second, id);
+					continue;
+				}
+
+				emitToken(tokens, TokenType::IDENTIFIER, id);
+				continue;
+			}
+
 			switch (peek()) {
 				SINGLE_CHAR_TOKEN('%', MODULO);
 				SINGLE_CHAR_TOKEN('{', OPEN_BRACE);
@@ -66,8 +117,10 @@ namespace Copper {
 				SINGLE_CHAR_TOKEN(')', CLOSE_PAREN);
 				SINGLE_CHAR_TOKEN('[', OPEN_SQUARE_BRACKET);
 				SINGLE_CHAR_TOKEN(']', CLOSE_SQUARE_BRACKET);
+				SINGLE_CHAR_TOKEN(':', COLON);
 				SINGLE_CHAR_TOKEN(';', SEMICOLON);
-			
+				SINGLE_CHAR_TOKEN('.', DOT);
+
 				case '+': {
 					switch (peekNext()) {
 						case '+':
@@ -228,6 +281,25 @@ namespace Copper {
 				advance();
 				len++;
 			}	
+		}
+
+		return m_input.get()->substr(m_column - 1, len);
+	}
+
+	inline bool Tokenizer::isAlpha(char c) {
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+	}
+
+	std::string Tokenizer::identifier() {
+		int len = 0;
+
+		// consume the current character,
+		// which has already been verified to be
+		// alpha by the isAlpha() call in run()
+		advance(); len++;
+
+		while (isAlpha(peek()) || isDigit(peek())) {
+			advance(); len++;
 		}
 
 		return m_input.get()->substr(m_column - 1, len);
