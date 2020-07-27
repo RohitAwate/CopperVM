@@ -41,11 +41,38 @@ static std::string readFile(const std::string& path) {
 }
 
 int main(int argc, const char* argv[]) {
-	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile(argv[1])));
-	auto tokens = tokenizer.run();
+	if (argc == 1) {
+		std::cout << "CopperVM 0.1" << std::endl;
+		
+		for (;;) {
+			std::cout << "> ";
+			std::string input;
+			std::getline(std::cin, input);
 
-	for (Copper::Token token : tokens) {
-		std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+			if (std::cin.eof()) {
+				std::cout << std::endl;
+				return 0;
+			}
+
+			Copper::Tokenizer tokenizer("<stdin>", std::make_unique<std::string>(input));
+			auto tokens = tokenizer.run();
+
+			for (Copper::Token token : tokens) {
+				std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+			}
+		}
+	} else if (argc == 2) {
+		Copper::Tokenizer tokenizer(argv[1], std::make_unique<std::string>(readFile(argv[1])));
+		auto tokens = tokenizer.run();
+
+		for (Copper::Token token : tokens) {
+			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		}
+	} else {
+		std::cout << "Usage:" << std::endl;
+		std::cout << "REPL: copper" << std::endl;
+		std::cout << "Run file: copper <file_path>" << std::endl;
+		return 1;
 	}
 
 	return 0;
