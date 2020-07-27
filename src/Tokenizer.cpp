@@ -120,6 +120,7 @@ namespace Copper {
 				SINGLE_CHAR_TOKEN(':', COLON);
 				SINGLE_CHAR_TOKEN(';', SEMICOLON);
 				SINGLE_CHAR_TOKEN('.', DOT);
+				SINGLE_CHAR_TOKEN(',', COMMA);
 
 				case '+': {
 					switch (peekNext()) {
