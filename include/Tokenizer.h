@@ -33,7 +33,8 @@ namespace Copper {
 		std::string m_filename;
 		std::unique_ptr<std::string> m_input;
 
-		void emitToken(std::vector<Token>&, const TokenType, int);
+		void emitToken(std::vector<Token>&, const TokenType, int length);
+		void emitToken(std::vector<Token> &, const TokenType, std::string lexeme);
 
 		int m_curr   { 0 };
 		int m_line   { 1 };
@@ -45,6 +46,9 @@ namespace Copper {
 		bool matchNext(char);
 		void advance();
 		bool atEOF() const;
+
+		static bool isDigit(char);
+		std::string number();
 
 		void error(const char* msg) const;
 		std::string getLine(int) const;

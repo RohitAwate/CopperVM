@@ -53,6 +53,8 @@
 	TYPE_MACRO(IMPORT)               \
 	TYPE_MACRO(EXPORT)               \
 	TYPE_MACRO(DEFAULT)              \
+	TYPE_MACRO(ASYNC)                \
+	TYPE_MACRO(AWAIT)                \
 	/* Identifiers */                \
 	TYPE_MACRO(IDENTIFIER)           \
 	TYPE_MACRO(STRING)               \
@@ -75,14 +77,14 @@
 	TYPE_MACRO(ASSIGNMENT)           \
 	TYPE_MACRO(SEMICOLON)            \
 	/* Multi character tokens */     \
-	TYPE_MACRO(PLUS_ASSIGNMENT)           \
-	TYPE_MACRO(MINUS_ASSIGNMENT)          \
-	TYPE_MACRO(MULTIPLY_ASSIGNMENT)       \
-	TYPE_MACRO(DIVIDE_ASSIGNMENT)         \
+	TYPE_MACRO(PLUS_ASSIGNMENT)      \
+	TYPE_MACRO(MINUS_ASSIGNMENT)     \
+	TYPE_MACRO(MULTIPLY_ASSIGNMENT)  \
+	TYPE_MACRO(DIVIDE_ASSIGNMENT)    \
 	TYPE_MACRO(PLUS_PLUS)            \
 	TYPE_MACRO(MINUS_MINUS)          \
 	TYPE_MACRO(EQUAL_EQUAL)          \
-	TYPE_MACRO(ARROW)          		 \
+	TYPE_MACRO(ARROW)                \
 	TYPE_MACRO(NOT_EQUAL)            \
 	TYPE_MACRO(LESS_EQUAL)           \
 	TYPE_MACRO(GREATER_EQUAL)        \

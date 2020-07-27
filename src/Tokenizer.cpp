@@ -41,11 +41,22 @@ namespace Copper {
 		m_column += tokenLen;
 	}
 
+	void Tokenizer::emitToken(std::vector<Token>& tokens, const TokenType type, std::string lexeme) {
+		tokens.push_back(Token(lexeme, type, m_line, m_column));
+		m_column += lexeme.size();
+	}
+
 	std::vector<Token> Tokenizer::run() {
 		std::vector<Token> tokens;
 
 		while (!atEOF()) {
 			skipWhitespace();
+
+			if (isDigit(peek())) {
+				auto num = number();
+				emitToken(tokens, TokenType::NUMBER, num);
+				continue;
+			}
 
 			switch (peek()) {
 				SINGLE_CHAR_TOKEN('%', MODULO);
@@ -198,15 +209,38 @@ namespace Copper {
 		return m_curr >= m_input.get()->size();
 	}
 
+	inline bool Tokenizer::isDigit(char c) {
+		return c >= '0' && c <= '9';
+	}
+
+	std::string Tokenizer::number() {
+		int len = 0;
+		while (isDigit(peek())) {
+			advance();
+			len++;
+		}
+
+		if (peek() == '.' && isDigit(peekNext())) {
+			advance();
+			len++;
+
+			while (isDigit(peek())) {
+				advance();
+				len++;
+			}	
+		}
+
+		return m_input.get()->substr(m_column - 1, len);
+	}
+
 	void Tokenizer::error(const char *msg) const {
-		std::cerr << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
-		std::cerr << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
-		std::cerr << "(line " << m_line << "): ";
-		std::cerr << msg << std::endl;
-		std::cerr << "\t" << getLine(m_line) << std::endl;
-		std::cerr << "\t" << std::string(m_column - 1, ' ');
-		
-		std::cerr << "^" << std::endl;
+		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
+		std::cout << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
+		std::cout << "(line " << m_line << "): ";
+		std::cout << msg << std::endl;
+		std::cout << "\t" << getLine(m_line) << std::endl;
+		std::cout << "\t" << std::string(m_column - 1, ' ');
+		std::cout << "^" << std::endl;
 	}
 
 	std::string Tokenizer::getLine(int line) const {

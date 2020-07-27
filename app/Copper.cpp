@@ -20,13 +20,13 @@
 #include "Tokenizer.h"
 
 int main() {
-	std::string input = "+ - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
+	std::string input = "123 56.78 12412484.23123123123 + - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
 
 	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(input));
 	auto tokens = tokenizer.run();
 
 	for (Copper::Token token : tokens) {
-		std::cout << Copper::toString(token.getType()) << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
 	}
 
 	return 0;
