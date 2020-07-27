@@ -13,4 +13,6 @@ this is
 a
 multi
 line comment
-*
+*/
+
+/* multi-line comment used on a single line */let o = "CopperVM";

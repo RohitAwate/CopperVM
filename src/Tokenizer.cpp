@@ -215,6 +215,7 @@ namespace Copper {
 							if (peek() == '*' && peekNext() == '/') {
 								m_curr += 2;
 								m_column += 2;
+								continue;
 							} else {
 								if (atEOF()) {
 									m_line--;
