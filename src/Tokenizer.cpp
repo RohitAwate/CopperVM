@@ -174,10 +174,33 @@ namespace Copper {
 				}
 
 				DOUBLE_CHAR_TOKEN('*', MULTIPLY, '=', MULTIPLY_ASSIGNMENT);
-				DOUBLE_CHAR_TOKEN('/', DIVIDE, '=', DIVIDE_ASSIGNMENT);
 				DOUBLE_CHAR_TOKEN('>', GREATER_THAN, '=', GREATER_EQUAL);
 				DOUBLE_CHAR_TOKEN('<', LESS_THAN, '=', LESS_EQUAL);
 				DOUBLE_CHAR_TOKEN('!', NEGATION, '=', NOT_EQUAL);
+
+				case '/': {
+					switch (peekNext()) {
+						case '=':
+							emitToken(tokens, TokenType::DIVIDE_ASSIGNMENT, 2);
+							advance();
+							break;
+						case '/':
+							// Single line comment
+							while (!atEOF() && peek() != '\n') {
+								advance();
+							}
+							
+							if (peek() == '\n') {
+								m_line++;
+								m_column = 1;
+							}
+							break;
+						default:
+							emitToken(tokens, TokenType::DIVIDE);
+					}
+
+					break;
+				}
 				
 				case '&': {
 					if (peekNext() == '&') {
@@ -274,6 +297,7 @@ namespace Copper {
 
 	std::string Tokenizer::number() {
 		int len = 0;
+		int start = m_curr;
 		while (isDigit(peek())) {
 			advance();
 			len++;
@@ -289,7 +313,7 @@ namespace Copper {
 			}	
 		}
 
-		return m_input.get()->substr(m_column - 1, len);
+		return m_input.get()->substr(start, len);
 	}
 
 	inline bool Tokenizer::isAlpha(char c) {
@@ -302,13 +326,14 @@ namespace Copper {
 		// consume the current character,
 		// which has already been verified to be
 		// alpha by the isAlpha() call in run()
+		int start = m_curr;
 		advance(); len++;
 
 		while (isAlpha(peek()) || isDigit(peek())) {
 			advance(); len++;
 		}
 
-		return m_input.get()->substr(m_column - 1, len);
+		return m_input.get()->substr(start, len);
 	}
 
 	std::string Tokenizer::string() {
@@ -321,6 +346,7 @@ namespace Copper {
 
 		// consume the opening quotation mark
 		advance();
+		int start = m_curr;
 
 		while (!atEOF() && peek() != openingQuote && peek() != '\n') {
 			advance(); len++;
@@ -330,7 +356,7 @@ namespace Copper {
 			error("Unterminated string literal");
 		}
 
-		return m_input.get()->substr(m_column, len);
+		return m_input.get()->substr(start, len);
 	}
 
 	static std::string getOffsetString(const std::string& line, size_t offset) {

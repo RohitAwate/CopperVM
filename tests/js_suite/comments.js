@@ -1,0 +1,9 @@
+// this is a single-line comment
+let i = 10;
+
+// this contains a synthetic newline character \n
+let j = 99;
+
+//
+
+// this contains a synthetic newline character \n

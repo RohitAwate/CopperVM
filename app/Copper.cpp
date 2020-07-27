@@ -25,16 +25,23 @@ static std::string readFile(const std::string& path) {
 	std::ifstream fd;
 	fd.open(path);
 
+	if (!fd) {
+		std::cout << "Could not open file: " << path << std::endl;
+		std::exit(1);
+	}
+
 	std::string line;
 	std::ostringstream buffer;
-	while (std::getline(fd, line))
+	while (std::getline(fd, line)) {
 		buffer << line;
+		buffer << '\n';
+	}
 		
 	return buffer.str();
 }
 
-int main(int argc, char* argv[]) {
-	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile(argv[1])));
+int main(int argc, const char* argv[]) {
+	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile("tests/js_suite/comments.js")));
 	auto tokens = tokenizer.run();
 
 	for (Copper::Token token : tokens) {
