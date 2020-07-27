@@ -92,14 +92,14 @@ namespace Copper {
 			skipWhitespace();
 
 			if (isDigit(peek())) {
-				auto num = number();
+				const auto num = number();
 				emitToken(tokens, TokenType::NUMBER, num);
 				continue;
 			}
 
 			if (isAlpha(peek())) {
-				auto id = identifier();
-				auto iterator = KEYWORDS.find(id);
+				const auto id = identifier();
+				const auto iterator = KEYWORDS.find(id);
 				if (iterator != KEYWORDS.end()) {
 					emitToken(tokens, iterator->second, id);
 					continue;
@@ -199,6 +199,11 @@ namespace Copper {
 
 					break;
 				}
+
+				case '"':
+				case '\'':
+					emitToken(tokens, TokenType::STRING, string());
+					break;
 
 				default:
 					m_column++;
@@ -303,6 +308,28 @@ namespace Copper {
 		}
 
 		return m_input.get()->substr(m_column - 1, len);
+	}
+
+	std::string Tokenizer::string() {
+		int len = 0;
+
+		// string literal may use single or double
+		// quotation marks, hence we store which one
+		// was used in order to find it's pair
+		const char openingQuote = peek();
+
+		// consume the opening quotation mark
+		advance();
+
+		while (!atEOF() && peek() != openingQuote && peek() != '\n') {
+			advance(); len++;
+		}
+
+		if (atEOF() || peek() == '\n') {
+			error("Unterminated string literal");
+		}
+
+		return m_input.get()->substr(m_column, len);
 	}
 
 	static std::string getOffsetString(const std::string& line, size_t offset) {

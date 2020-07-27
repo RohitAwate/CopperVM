@@ -53,6 +53,8 @@ namespace Copper {
 		static bool isAlpha(char);
 		std::string identifier();
 
+		std::string string();
+
 		void error(const char* msg) const;
 		std::string getLine(int) const;
 	};

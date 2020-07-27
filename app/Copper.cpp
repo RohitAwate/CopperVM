@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 #include "Tokenizer.h"
 
-int main() {
-	// std::string input = "123 56.78 12412484.23123123123 + - * / % > < { } ( ) [ ] ! = ; \n == != => <= >= += -= *= /= \n && || & \n |";
-	// std::string input = "123 56.78 12412484.23123123123&\n\tsfdhsdkjf&";
-	std::string input = "async const num = 12; let he_llo12 = true; switch case: fetch().get()";
+static std::string readFile(const std::string& path) {
+	std::ifstream fd;
+	fd.open(path);
 
-	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(input));
+	std::string line;
+	std::ostringstream buffer;
+	while (std::getline(fd, line))
+		buffer << line;
+		
+	return buffer.str();
+}
+
+int main(int argc, char* argv[]) {
+	Copper::Tokenizer tokenizer("main.js", std::make_unique<std::string>(readFile(argv[1])));
 	auto tokens = tokenizer.run();
 
 	for (Copper::Token token : tokens) {
