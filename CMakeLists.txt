@@ -10,9 +10,11 @@ set(LIB_SRC
 	src/Tokenizer.cpp
 )
 
-add_library(libcopper ${LIB_SRC})
-target_include_directories(libcopper PUBLIC include)
-set_target_properties(libcopper PROPERTIES PREFIX "")
+# libcurt: Library for the Copper (Cu) Runtime
+add_library(libcurt ${LIB_SRC})
+target_include_directories(libcurt PUBLIC include)
+set_target_properties(libcurt PROPERTIES PREFIX "")
 
-add_executable(copper app/Copper.cpp)
-target_link_libraries(copper PUBLIC libcopper)
+# cu: Because Copper's symbol is Cu
+add_executable(cu app/Copper.cpp)
+target_link_libraries(cu PUBLIC libcurt)
