@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(CopperVM VERSION 0.1
-				DESCRIPTION "A bytecode virtual machine for a sensible subset of JavaScript."
+				DESCRIPTION "A bytecode virtual machine for an opinionated, sensible subset of JavaScript."
 				LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -11,7 +11,7 @@ set(LIB_SRC
 )
 
 # libcurt: Library for the Copper (Cu) Runtime
-add_library(libcurt ${LIB_SRC})
+add_library(libcurt SHARED ${LIB_SRC})
 target_include_directories(libcurt PUBLIC include)
 set_target_properties(libcurt PROPERTIES PREFIX "")
 
