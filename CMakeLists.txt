@@ -10,6 +10,7 @@ set(LIB_SRC
 	src/Bytecode.cpp
 	src/Parser.cpp
 	src/Tokenizer.cpp
+	src/VM.cpp
 )
 
 # libcurt: Library for the Copper (Cu) Runtime

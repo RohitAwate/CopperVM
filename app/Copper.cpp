@@ -19,10 +19,10 @@
 #include <memory>
 #include <sstream>
 
+#include "Bytecode.h"
 #include "Tokenizer.h"
 #include "Parser.h"
-
-// #define DEBUG_TRACE_PARSE
+#include "VM.h"
 
 static std::string readFile(const std::string& path) {
 	std::ifstream fd;
@@ -60,24 +60,23 @@ int main(int argc, const char* argv[]) {
 			Copper::Tokenizer tokenizer("<stdin>", std::make_unique<std::string>(input));
 			auto tokens = tokenizer.run();
 
-#ifdef DEBUG_TRACE_PARSE
-			for (Copper::Token token : tokens) {
-				std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
-			}
-#endif
 			Copper::Parser parser(tokens);
-			parser.parse();
+			if (parser.parse()) {
+				auto code = parser.getBytecode(); 
+				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
+				vm.run();
+			}
 		}
 	} else if (argc == 2) {
 		Copper::Tokenizer tokenizer(argv[1], std::make_unique<std::string>(readFile(argv[1])));
 		auto tokens = tokenizer.run();
 
-#ifdef DEBUG_TRACE_PARSE
-		for (Copper::Token token : tokens)
-		{
-			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		Copper::Parser parser(tokens);
+		if (parser.parse()) {
+			auto code = parser.getBytecode(); 
+			Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
+			vm.run();
 		}
-#endif
 	} else {
 		std::cout << "Usage:" << std::endl;
 		std::cout << "REPL: copper" << std::endl;
