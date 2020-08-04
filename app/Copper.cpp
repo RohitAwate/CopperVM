@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "Tokenizer.h"
+#include "Parser.h"
 
 #define DEBUG_TRACE_PARSE
 
@@ -64,6 +65,9 @@ int main(int argc, const char* argv[]) {
 				std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
 			}
 #endif
+			std::cout << std::endl;
+			Copper::Parser parser(tokens);
+			parser.parse();
 		}
 	} else if (argc == 2) {
 		Copper::Tokenizer tokenizer(argv[1], std::make_unique<std::string>(readFile(argv[1])));

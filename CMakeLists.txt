@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(LIB_SRC
+	src/Parser.cpp
 	src/Tokenizer.cpp
 )
 
