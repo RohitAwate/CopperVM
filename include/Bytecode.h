@@ -19,6 +19,8 @@
 #include <vector>
 
 namespace Copper {
+
+	typedef unsigned char byte;
 	
 	enum OpCode {
 		// Loads 
@@ -29,15 +31,18 @@ namespace Copper {
 		OP_SUB,
 		OP_MUL,
 		OP_DIV,
+
+		OP_RET
 	};
 
 	class Bytecode {
+		friend class VM;
 	public:
-		void emit(unsigned int);
-		void emitConstant(const int);
+		void emit(byte);
+		void emitConstant(const double);
 	private:
-		std::vector<unsigned int> m_blob;
-		std::vector<int> m_constants;
+		std::vector<byte> m_blob;
+		std::vector<double> m_constants;
 	};
 
 } // namespace Copper

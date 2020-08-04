@@ -92,7 +92,8 @@
 	TYPE_MACRO(LESS_EQUAL)           \
 	TYPE_MACRO(GREATER_EQUAL)        \
 	TYPE_MACRO(AND)                  \
-	TYPE_MACRO(OR)
+	TYPE_MACRO(OR)					 \
+	TYPE_MACRO(EOF_TYPE)
 
 namespace Copper {
 

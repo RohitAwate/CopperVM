@@ -28,7 +28,8 @@ namespace Copper
 	public:
 		Parser(std::vector<Token> tokens) : m_tokens(tokens) {}
 
-		Bytecode parse();
+		bool parse();
+		Bytecode getBytecode() const;
 	private:
 		std::vector<Token> m_tokens;
 		size_t m_curr { 0 }; 

@@ -265,6 +265,7 @@ namespace Copper {
 			advance();
 		}
 
+		emitToken(tokens, TokenType::EOF_TYPE, 0);
 		return tokens;
 	}
 

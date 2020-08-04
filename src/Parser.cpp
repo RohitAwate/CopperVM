@@ -20,6 +20,18 @@
 
 namespace Copper {
 
+	bool Parser::parse() {
+		if (atEOF()) return false;
+
+		auto retval = expression();
+		m_bytecode.emit(OP_RET);
+		return retval;
+	}
+
+	Bytecode Parser::getBytecode() const {
+		return m_bytecode;
+	}
+
 	const Token Parser::peek() const {
 		return m_tokens[m_curr];
 	}
@@ -32,14 +44,9 @@ namespace Copper {
 		m_curr++;
 		return m_tokens.at(m_curr - 1);
 	}
-	
-	Bytecode Parser::parse() {
-		expression();
-		return m_bytecode;
-	}
 
 	bool Parser::atEOF() const {
-		return m_curr >= m_tokens.size() - 1;
+		return peek().getType() == TokenType::EOF_TYPE;
 	}
 
 	bool Parser::expression() {

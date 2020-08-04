@@ -18,11 +18,11 @@
 
 namespace Copper {
 	
-	void Bytecode::emit(unsigned int code) {
+	void Bytecode::emit(byte code) {
 		m_blob.push_back(code);
 	}
 
-	void Bytecode::emitConstant(const int constant) {
+	void Bytecode::emitConstant(const double constant) {
 		m_constants.push_back(constant);
 		emit(OpCode::OP_LOAD_CONST);
 		emit(m_constants.size() - 1);
