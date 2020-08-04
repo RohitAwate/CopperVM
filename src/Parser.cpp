@@ -18,8 +18,6 @@
 
 #include "Parser.h"
 
-#define Log(x) std::cout << (x); std::cout.flush();
-
 namespace Copper {
 
 	const Token Parser::peek() const {
@@ -35,9 +33,9 @@ namespace Copper {
 		return m_tokens.at(m_curr - 1);
 	}
 	
-	void Parser::parse() {
+	Bytecode Parser::parse() {
 		expression();
-		std::cout << std::endl;
+		return m_bytecode;
 	}
 
 	bool Parser::atEOF() const {
@@ -55,10 +53,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::PLUS:
-					Log(" + ");
+					m_bytecode.emit(OpCode::OP_ADD);
 					break;
 				case TokenType::MINUS:
-					Log(" - ");
+					m_bytecode.emit(OpCode::OP_SUB);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -80,10 +78,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::MULTIPLY:
-					Log(" * ");
+					m_bytecode.emit(OpCode::OP_MUL);
 					break;
 				case TokenType::DIVIDE:
-					Log(" / ");
+					m_bytecode.emit(OpCode::OP_DIV);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -101,10 +99,7 @@ namespace Copper {
 				grouping();
 				break;
 			case TokenType::NUMBER:
-				Log(" " + factorToken.getLexeme() + " ");
-				break;
-			case TokenType::IDENTIFIER:
-				Log(" " + factorToken.getLexeme() + " ");
+				m_bytecode.emitConstant(std::stoi(factorToken.getLexeme()));
 				break;
 			default:
 				error("Invalid or unexpected token");
@@ -129,7 +124,7 @@ namespace Copper {
 	}
 
 	void Parser::error(const char* msg) const {
-		Log(msg);
+		std::cout << msg << std::endl;
 	}
 
 } // namespace Copper

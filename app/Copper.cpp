@@ -22,7 +22,7 @@
 #include "Tokenizer.h"
 #include "Parser.h"
 
-#define DEBUG_TRACE_PARSE
+// #define DEBUG_TRACE_PARSE
 
 static std::string readFile(const std::string& path) {
 	std::ifstream fd;
@@ -65,7 +65,6 @@ int main(int argc, const char* argv[]) {
 				std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
 			}
 #endif
-			std::cout << std::endl;
 			Copper::Parser parser(tokens);
 			parser.parse();
 		}

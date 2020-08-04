@@ -18,39 +18,26 @@
 
 #include <vector>
 
-#include "Bytecode.h"
-#include "Token.h"
-
-namespace Copper
-{
+namespace Copper {
 	
-	class Parser {
+	enum OpCode {
+		// Loads 
+		OP_LOAD_CONST,
+
+		// Basic arithmetic
+		OP_ADD,
+		OP_SUB,
+		OP_MUL,
+		OP_DIV,
+	};
+
+	class Bytecode {
 	public:
-		Parser(std::vector<Token> tokens) : m_tokens(tokens) {}
-
-		Bytecode parse();
+		void emit(unsigned int);
+		void emitConstant(const int);
 	private:
-		std::vector<Token> m_tokens;
-		size_t m_curr { 0 }; 
-
-		Bytecode m_bytecode;
-
-		const Token peek() const;
-		const Token next();
-		bool atEOF() const;
-
-		/*
-			These Boolean return values form the synchronization
-			mechanism in the parser. If an unexpected or invalid token
-			is encountered, an error is reported and we unwind the
-			call stack by returning false.
-		*/
-		bool expression();
-		bool term();
-		bool factor();
-		bool grouping();
-
-		void error(const char* msg) const;
+		std::vector<unsigned int> m_blob;
+		std::vector<int> m_constants;
 	};
 
 } // namespace Copper
