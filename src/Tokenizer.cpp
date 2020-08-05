@@ -173,7 +173,23 @@ namespace Copper {
 					break;
 				}
 
-				DOUBLE_CHAR_TOKEN('*', MULTIPLY, '=', MULTIPLY_ASSIGNMENT);
+				case '*': {
+					switch (peekNext()) {
+						case '=':
+							emitToken(tokens, TokenType::MULTIPLY_ASSIGNMENT, 2);
+							advance();
+							break;
+						case '*':
+							emitToken(tokens, TokenType::EXPONENT, 2);
+							advance();
+							break;
+						default:
+							emitToken(tokens, TokenType::MULTIPLY);
+					}
+
+					break;
+				}
+
 				DOUBLE_CHAR_TOKEN('>', GREATER_THAN, '=', GREATER_EQUAL);
 				DOUBLE_CHAR_TOKEN('<', LESS_THAN, '=', LESS_EQUAL);
 				DOUBLE_CHAR_TOKEN('!', NEGATION, '=', NOT_EQUAL);

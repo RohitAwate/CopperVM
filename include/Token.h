@@ -65,6 +65,7 @@
 	TYPE_MACRO(MULTIPLY)             \
 	TYPE_MACRO(DIVIDE)               \
 	TYPE_MACRO(MODULO)               \
+	TYPE_MACRO(EXPONENT)             \
 	TYPE_MACRO(GREATER_THAN)         \
 	TYPE_MACRO(LESS_THAN)            \
 	TYPE_MACRO(OPEN_BRACE)           \
@@ -92,7 +93,7 @@
 	TYPE_MACRO(LESS_EQUAL)           \
 	TYPE_MACRO(GREATER_EQUAL)        \
 	TYPE_MACRO(AND)                  \
-	TYPE_MACRO(OR)					 \
+	TYPE_MACRO(OR)                   \
 	TYPE_MACRO(EOF_TYPE)
 
 namespace Copper {
