@@ -30,7 +30,7 @@ namespace Copper {
 		m_stack.pop();                                \
 		const double left = m_stack.top().as.number;  \
 		m_stack.pop();                                \
-		m_stack.push(Value(left op right));           \
+		m_stack.push(left op right);                  \
 		break;                                        \
 	} while (false)
 
@@ -42,28 +42,6 @@ namespace Copper {
 		const double left = m_stack.top().as.number;  \
 		m_stack.pop();                                \
 		m_stack.push(func(left, right));              \
-		break;                                        \
-	} while (false)
-
-#define COMPARISON_OP(op)                             \
-	do                                                \
-	{                                                 \
-		const double right = m_stack.top().as.number; \
-		m_stack.pop();                                \
-		const double left = m_stack.top().as.number;  \
-		m_stack.pop();                                \
-		m_stack.push(left op right);                  \
-		break;                                        \
-	} while (false)
-
-#define EQUALITY_OP(op)                               \
-	do                                                \
-	{                                                 \
-		const double right = m_stack.top().as.number; \
-		m_stack.pop();                                \
-		const double left = m_stack.top().as.number;  \
-		m_stack.pop();                                \
-		m_stack.push(left op right);                  \
 		break;                                        \
 	} while (false)
 
@@ -92,14 +70,14 @@ namespace Copper {
 				case OP_EXP: BINARY_OP_MATH_H(std::pow); break;
 				
 				// Arithmetic comparison
-				case OP_GREATER_THAN: 	COMPARISON_OP(>); break;
-				case OP_LESSER_THAN: 	COMPARISON_OP(<); break;
-				case OP_GREATER_EQUAL: 	COMPARISON_OP(>=); break;
-				case OP_LESSER_EQUAL: 	COMPARISON_OP(<=); break;
+				case OP_GREATER_THAN: 	BINARY_OP(>); break;
+				case OP_LESSER_THAN: 	BINARY_OP(<); break;
+				case OP_GREATER_EQUAL: 	BINARY_OP(>=); break;
+				case OP_LESSER_EQUAL: 	BINARY_OP(<=); break;
 
 				// Equality comparison
-				case OP_EQUAL_EQUAL: 	EQUALITY_OP(==); break;
-				case OP_NOT_EQUAL: 		EQUALITY_OP(!=); break;
+				case OP_EQUAL_EQUAL: 	BINARY_OP(==); break;
+				case OP_NOT_EQUAL: 		BINARY_OP(!=); break;
 				
 				case OP_RET: {
 					while (!m_stack.empty()) {
@@ -112,8 +90,6 @@ namespace Copper {
 			}
 		}
 #undef BINARY_OP
-#undef BINARY_OP_MATH_H
-#undef COMPARISON_OP
 		return 0;
 	}
 
