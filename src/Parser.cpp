@@ -186,27 +186,17 @@ namespace Copper {
 	}
 
 	bool Parser::unary() {
-		bool negation = false;
-
 		if (peek().getType() == TokenType::MINUS) {
 			// Consume the - operator
 			consume();
-			negation = true;
-		}
 
-		bool retval = primary();
+			if (!unary()) return false;
 
-		/*
-			If the retval is false, i.e. if the call
-		 	to primary() fails, there's no real point in 
-		 	emitting bytecode, but it makes no real
-			difference since it won't be executed anyway.
-		*/
-		if (negation) {
 			m_bytecode.emit(OpCode::OP_NEG);
+			return true;
 		}
 
-		return retval;
+		return primary();
 	}
 
 	bool Parser::primary() {
