@@ -23,25 +23,27 @@
 namespace Copper {
 
 	int VM::run() {
-#define BINARY_OP(op)							\
-do {											\
-	const double right = m_stack.top();			\
-	m_stack.pop();								\
-	const double left = m_stack.top();			\
-	m_stack.pop();								\
-	m_stack.push(left op right);				\
-	break;										\
-} while (false)
+#define BINARY_OP(op)                                 \
+	do                                                \
+	{                                                 \
+		const double right = m_stack.top().as.number; \
+		m_stack.pop();                                \
+		const double left = m_stack.top().as.number;  \
+		m_stack.pop();                                \
+		m_stack.push(Value(left op right));           \
+		break;                                        \
+	} while (false)
 
-#define BINARY_OP_MATH_H(func)					\
-do {											\
-	const double right = m_stack.top();			\
-	m_stack.pop();								\
-	const double left = m_stack.top();			\
-	m_stack.pop();								\
-	m_stack.push(func(left, right));			\
-	break;										\
-} while (false)
+#define BINARY_OP_MATH_H(func)                        \
+	do                                                \
+	{                                                 \
+		const double right = m_stack.top().as.number; \
+		m_stack.pop();                                \
+		const double left = m_stack.top().as.number;  \
+		m_stack.pop();                                \
+		m_stack.push(Value(func(left, right)));       \
+		break;                                        \
+	} while (false)
 
 #define GET_CONSTANT(index) m_code->m_constants[code[index]]
 
@@ -53,7 +55,7 @@ do {											\
 					m_stack.push(GET_CONSTANT(++m_ip));
 					break;
 				case OP_NEG: {
-					const double value = m_stack.top() * -1;
+					const double value = m_stack.top().as.number * -1;
 					m_stack.pop();
 					m_stack.push(value);
 					break;

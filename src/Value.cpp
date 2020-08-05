@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <iostream>
 
-#include <memory>
-#include <stack>
-
-#include "Bytecode.h"
+#include "Value.h"
 
 namespace Copper {
+    
+    std::ostream& operator<<(std::ostream& stream, const Value& value) {
+        switch (value.m_type) {
+            case ValueType::NUMBER:
+                stream << value.as.number;
+                break;
+            case ValueType::BOOLEAN:
+                stream << std::boolalpha << value.as.boolean << std::noboolalpha;
+                break;
+        }
 
-	class VM {
-	public:
-		VM(std::unique_ptr<Bytecode> code) : m_code(std::move(code)) {}
-
-		int run();
-	private:
-		std::unique_ptr<Bytecode> m_code;
-		std::stack<Value> m_stack;
-
-		unsigned int m_ip { 0 };
-	};
+        return stream;
+    }
 
 }

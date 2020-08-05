@@ -22,7 +22,7 @@ namespace Copper {
 		m_blob.push_back(code);
 	}
 
-	void Bytecode::emitConstant(const double constant) {
+	void Bytecode::emitConstant(const Value constant) {
 		m_constants.push_back(constant);
 		emit(OpCode::OP_LOAD_CONST);
 		emit(m_constants.size() - 1);

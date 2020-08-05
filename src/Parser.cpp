@@ -218,7 +218,7 @@ namespace Copper {
 				grouping();
 				break;
 			case TokenType::NUMBER:
-				m_bytecode.emitConstant(std::stoi(primaryToken.getLexeme()));
+				m_bytecode.emitConstant(Value(ValueType::NUMBER, primaryToken.getLexeme()));
 				break;
 			default:
 				error("Invalid or unexpected token");

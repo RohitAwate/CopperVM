@@ -18,12 +18,18 @@
 
 #include <vector>
 
-namespace Copper {
+#include "Value.h"
 
-	typedef unsigned char byte;
+namespace Copper {
 	
 	enum OpCode {
-		// Loads 
+		/*
+			Load specified constant from constant pool
+			onto the VM stack.
+
+			Operand:
+			(1) - constant offset in bytecode's constant pool
+		*/
 		OP_LOAD_CONST,
 
 		// Basic arithmetic
@@ -38,14 +44,16 @@ namespace Copper {
 		OP_RET
 	};
 
+	typedef unsigned char byte;
+
 	class Bytecode {
 		friend class VM;
 	public:
 		void emit(byte);
-		void emitConstant(const double);
+		void emitConstant(const Value);
 	private:
 		std::vector<byte> m_blob;
-		std::vector<double> m_constants;
+		std::vector<Value> m_constants;
 	};
 
 } // namespace Copper
