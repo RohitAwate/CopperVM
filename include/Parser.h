@@ -38,6 +38,7 @@ namespace Copper
 
 		const Token peek() const;
 		const Token next();
+		void consume();
 		bool atEOF() const;
 
 		/*
@@ -47,8 +48,13 @@ namespace Copper
 			call stack by returning false.
 		*/
 		bool expression();
+		bool equality();
+		bool comparison();
 		bool term();
 		bool factor();
+		bool exponent();
+		bool unary();
+		bool primary();
 		bool grouping();
 
 		void error(const char* msg) const;

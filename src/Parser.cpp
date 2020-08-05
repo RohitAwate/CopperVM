@@ -18,6 +18,8 @@
 
 #include "Parser.h"
 
+#define Log(x) std::cout << (x); std::cout.flush()
+
 namespace Copper {
 
 	bool Parser::parse() {
@@ -45,25 +47,66 @@ namespace Copper {
 		return m_tokens.at(m_curr - 1);
 	}
 
+	void Parser::consume() {
+		next();
+	}
+
 	bool Parser::atEOF() const {
 		return peek().getType() == TokenType::EOF_TYPE;
 	}
 
 	bool Parser::expression() {
+		return equality();
+	}
+
+	bool Parser::equality() {
+		if (!comparison()) return false;
+
+		while (peek().getType() == TokenType::EQUAL_EQUAL ||
+			   peek().getType() == TokenType::NOT_EQUAL) {
+			auto const operatorToken = next();
+
+			if (!comparison()) return false;
+
+			switch (operatorToken.getType()) {
+				case TokenType::EQUAL_EQUAL:
+					Log(" == ");
+					break;
+				case TokenType::NOT_EQUAL:
+					Log(" != ");
+					break;
+				default:
+					error("Invalid or unexpected token");
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Parser::comparison() {
 		if (!term()) return false;
 
-		while (peek().getType() == TokenType::PLUS ||
-			   peek().getType() == TokenType::MINUS) {
+		while (peek().getType() == TokenType::GREATER_THAN 	||
+			   peek().getType() == TokenType::LESS_THAN 	||
+			   peek().getType() == TokenType::GREATER_EQUAL ||
+			   peek().getType() == TokenType::LESS_EQUAL) {
 			auto const operatorToken = next();
-			
+
 			if (!term()) return false;
 
 			switch (operatorToken.getType()) {
-				case TokenType::PLUS:
-					m_bytecode.emit(OpCode::OP_ADD);
+				case TokenType::GREATER_THAN:
+					Log(" > ");
 					break;
-				case TokenType::MINUS:
-					m_bytecode.emit(OpCode::OP_SUB);
+				case TokenType::LESS_THAN:
+					Log(" < ");
+					break;
+				case TokenType::GREATER_EQUAL:
+					Log(" >= ");
+					break;
+				case TokenType::LESS_EQUAL:
+					Log(" <= ");
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -77,18 +120,20 @@ namespace Copper {
 	bool Parser::term() {
 		if (!factor()) return false;
 
-		while (peek().getType() == TokenType::MULTIPLY ||
-			   peek().getType() == TokenType::DIVIDE) {
+		while (peek().getType() == TokenType::PLUS ||
+			   peek().getType() == TokenType::MINUS) {
 			auto const operatorToken = next();
-
+			
 			if (!factor()) return false;
 
 			switch (operatorToken.getType()) {
-				case TokenType::MULTIPLY:
-					m_bytecode.emit(OpCode::OP_MUL);
+				case TokenType::PLUS:
+					m_bytecode.emit(OpCode::OP_ADD);
+					Log(" + ");
 					break;
-				case TokenType::DIVIDE:
-					m_bytecode.emit(OpCode::OP_DIV);
+				case TokenType::MINUS:
+					m_bytecode.emit(OpCode::OP_SUB);
+					Log(" - ");
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -100,13 +145,72 @@ namespace Copper {
 	}
 
 	bool Parser::factor() {
-		const auto& factorToken = next();
-		switch (factorToken.getType()) {
+		if (!exponent()) return false;
+
+		while (peek().getType() == TokenType::MULTIPLY 	||
+			   peek().getType() == TokenType::DIVIDE 	||
+			   peek().getType() == TokenType::MODULO) {
+			auto const operatorToken = next();
+
+			if (!exponent()) return false;
+
+			switch (operatorToken.getType()) {
+				case TokenType::MULTIPLY:
+					m_bytecode.emit(OpCode::OP_MUL);
+					Log(" * ");
+					break;
+				case TokenType::DIVIDE:
+					m_bytecode.emit(OpCode::OP_DIV);
+					Log(" / ");
+					break;
+				case TokenType::MODULO:
+					Log(" % ");
+					break;
+				default:
+					error("Invalid or unexpected token");
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Parser::exponent() {
+		if (!unary()) return false;
+
+		if (peek().getType() == TokenType::EXPONENT) {
+			// Consume the ** operator
+			consume();
+			
+			// Process RHS of expression
+			if (!exponent()) return false;
+
+			Log(" ** ");
+		}
+
+		return true;
+	}
+
+	bool Parser::unary() {
+		if (peek().getType() == TokenType::MINUS) {
+			// Consume the - operator
+			consume();
+
+			Log(" - ");
+		}
+
+		return primary();
+	}
+
+	bool Parser::primary() {
+		const auto& primaryToken = next();
+		switch (primaryToken.getType()) {
 			case TokenType::OPEN_PAREN:
 				grouping();
 				break;
 			case TokenType::NUMBER:
-				m_bytecode.emitConstant(std::stoi(factorToken.getLexeme()));
+				Log(" " + primaryToken.getLexeme() + " ");
+				m_bytecode.emitConstant(std::stoi(primaryToken.getLexeme()));
 				break;
 			default:
 				error("Invalid or unexpected token");

@@ -56,15 +56,16 @@ int main(int argc, const char* argv[]) {
 				std::cout << std::endl;
 				return 0;
 			}
-
+			
 			Copper::Tokenizer tokenizer("<stdin>", std::make_unique<std::string>(input));
 			auto tokens = tokenizer.run();
 
 			Copper::Parser parser(tokens);
 			if (parser.parse()) {
+				std::cout << std::endl;
 				auto code = parser.getBytecode(); 
 				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
-				vm.run();
+				// vm.run();
 			}
 		}
 	} else if (argc == 2) {
