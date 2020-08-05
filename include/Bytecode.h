@@ -41,6 +41,14 @@ namespace Copper {
 		OP_EXP,
 		OP_NEG,
 
+		// Comparison
+		OP_GREATER_THAN,
+		OP_LESSER_THAN,
+		OP_GREATER_EQUAL,
+		OP_LESSER_EQUAL,
+		OP_EQUAL_EQUAL,
+		OP_NOT_EQUAL,
+
 		OP_RET
 	};
 

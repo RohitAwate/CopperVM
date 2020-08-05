@@ -191,7 +191,7 @@ namespace Copper {
 				}
 
 				DOUBLE_CHAR_TOKEN('>', GREATER_THAN, '=', GREATER_EQUAL);
-				DOUBLE_CHAR_TOKEN('<', LESS_THAN, '=', LESS_EQUAL);
+				DOUBLE_CHAR_TOKEN('<', LESSER_THAN, '=', LESSER_EQUAL);
 				DOUBLE_CHAR_TOKEN('!', NEGATION, '=', NOT_EQUAL);
 
 				case '/': {
@@ -275,6 +275,7 @@ namespace Copper {
 					break;
 
 				default:
+					error("Invalid or unexpected token: '"+ std::string(1, peek()) + "'");
 					m_column++;
 			}
 
@@ -419,7 +420,7 @@ namespace Copper {
 		return offsetString;
 	}
 
-	void Tokenizer::error(const char *msg) const {
+	void Tokenizer::error(const std::string& msg) const {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
 		std::cout << "(line " << m_line << "): ";

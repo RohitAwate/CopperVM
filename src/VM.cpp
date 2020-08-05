@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 #include "Colors.h"
 #include "VM.h"
@@ -41,7 +41,29 @@ namespace Copper {
 		m_stack.pop();                                \
 		const double left = m_stack.top().as.number;  \
 		m_stack.pop();                                \
-		m_stack.push(Value(func(left, right)));       \
+		m_stack.push(func(left, right));              \
+		break;                                        \
+	} while (false)
+
+#define COMPARISON_OP(op)                             \
+	do                                                \
+	{                                                 \
+		const double right = m_stack.top().as.number; \
+		m_stack.pop();                                \
+		const double left = m_stack.top().as.number;  \
+		m_stack.pop();                                \
+		m_stack.push(left op right);                  \
+		break;                                        \
+	} while (false)
+
+#define EQUALITY_OP(op)                               \
+	do                                                \
+	{                                                 \
+		const double right = m_stack.top().as.number; \
+		m_stack.pop();                                \
+		const double left = m_stack.top().as.number;  \
+		m_stack.pop();                                \
+		m_stack.push(left op right);                  \
 		break;                                        \
 	} while (false)
 
@@ -54,6 +76,8 @@ namespace Copper {
 				case OP_LOAD_CONST:
 					m_stack.push(GET_CONSTANT(++m_ip));
 					break;
+				
+				// Basic arithmetic
 				case OP_NEG: {
 					const double value = m_stack.top().as.number * -1;
 					m_stack.pop();
@@ -64,17 +88,32 @@ namespace Copper {
 				case OP_SUB: BINARY_OP(-); break;
 				case OP_MUL: BINARY_OP(*); break;
 				case OP_DIV: BINARY_OP(/); break;
-				case OP_MOD: BINARY_OP_MATH_H(fmod); break;
-				case OP_EXP: BINARY_OP_MATH_H(pow); break;
+				case OP_MOD: BINARY_OP_MATH_H(std::fmod); break;
+				case OP_EXP: BINARY_OP_MATH_H(std::pow); break;
+				
+				// Arithmetic comparison
+				case OP_GREATER_THAN: 	COMPARISON_OP(>); break;
+				case OP_LESSER_THAN: 	COMPARISON_OP(<); break;
+				case OP_GREATER_EQUAL: 	COMPARISON_OP(>=); break;
+				case OP_LESSER_EQUAL: 	COMPARISON_OP(<=); break;
+
+				// Equality comparison
+				case OP_EQUAL_EQUAL: 	EQUALITY_OP(==); break;
+				case OP_NOT_EQUAL: 		EQUALITY_OP(!=); break;
+				
 				case OP_RET: {
-					if (!m_stack.empty()) {
-						std::cout << ANSICodes::RED << ANSICodes::BOLD << m_stack.top() << ANSICodes::RESET << std::endl;
+					while (!m_stack.empty()) {
+						std::cout << ANSICodes::RED << ANSICodes::BOLD <<
+							m_stack.top()
+						<< ANSICodes::RESET << std::endl;
 						m_stack.pop();
 					}
 				}
 			}
 		}
 #undef BINARY_OP
+#undef BINARY_OP_MATH_H
+#undef COMPARISON_OP
 		return 0;
 	}
 

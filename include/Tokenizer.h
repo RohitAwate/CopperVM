@@ -55,7 +55,7 @@ namespace Copper {
 
 		std::string string();
 
-		void error(const char* msg) const;
+		void error(const std::string& msg) const;
 		std::string getLine(int) const;
 	};
 

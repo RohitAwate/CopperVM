@@ -20,6 +20,7 @@
 #include <string>
 
 namespace Copper {
+
     enum class ValueType {
 		BOOLEAN,
 		NUMBER,
@@ -29,32 +30,20 @@ namespace Copper {
 		bool boolean;
 		double number;
 
-		StoreAs(ValueType type, std::string lexeme) {
-			switch (type) {
-				case ValueType::BOOLEAN:
-					boolean = lexeme == "true";
-					break;
-				case ValueType::NUMBER:
-					number = std::stod(lexeme);
-					break;
-			}
-		}
-
-        StoreAs(const double num) {
-            number = num;
-		}
+		StoreAs(ValueType, std::string);
+        StoreAs(const double);
+		StoreAs(const bool);
 	};
 
 	struct Value {
-		Value(ValueType type, std::string lexeme) :
-			m_type(type), as(StoreAs(type, lexeme)) {}
+		Value(ValueType type, std::string lexeme);
+        Value(const double number);
+		Value(const bool boolean);
 
-        Value(const double number) :
-            m_type(ValueType::NUMBER), as(StoreAs(number)) {}
-	
 		const ValueType m_type;
 		const StoreAs as;
 
         friend std::ostream& operator<<(std::ostream&, const Value&);
 	};
+
 }

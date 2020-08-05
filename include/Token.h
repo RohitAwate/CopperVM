@@ -67,7 +67,7 @@
 	TYPE_MACRO(MODULO)               \
 	TYPE_MACRO(EXPONENT)             \
 	TYPE_MACRO(GREATER_THAN)         \
-	TYPE_MACRO(LESS_THAN)            \
+	TYPE_MACRO(LESSER_THAN)          \
 	TYPE_MACRO(OPEN_BRACE)           \
 	TYPE_MACRO(CLOSE_BRACE)          \
 	TYPE_MACRO(OPEN_PAREN)           \
@@ -90,7 +90,7 @@
 	TYPE_MACRO(EQUAL_EQUAL)          \
 	TYPE_MACRO(ARROW)                \
 	TYPE_MACRO(NOT_EQUAL)            \
-	TYPE_MACRO(LESS_EQUAL)           \
+	TYPE_MACRO(LESSER_EQUAL)         \
 	TYPE_MACRO(GREATER_EQUAL)        \
 	TYPE_MACRO(AND)                  \
 	TYPE_MACRO(OR)                   \
@@ -99,12 +99,12 @@
 namespace Copper {
 
 	enum class TokenType {
-		#define TYPE_MACRO(type) \
-			type,
+#define TYPE_MACRO(type) \
+	type,
 
 		TOKEN_TYPES
 
-		#undef TYPE_MACRO
+#undef TYPE_MACRO
 	};
 	
 	class Token {
@@ -129,13 +129,13 @@ namespace Copper {
 
 	static std::string toString(const TokenType& type) {
 		switch (type) {
-			#define TYPE_MACRO(type) \
-				case TokenType::type: \
-					return #type;
+#define TYPE_MACRO(type)  \
+	case TokenType::type: \
+		return #type;
 
 			TOKEN_TYPES
 
-			#undef TYPE_MACRO
+#undef TYPE_MACRO
 		}
 	}
 

@@ -18,8 +18,6 @@
 
 #include "Parser.h"
 
-#define Log(x) std::cout << (x); std::cout.flush()
-
 namespace Copper {
 
 	bool Parser::parse() {
@@ -70,10 +68,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::EQUAL_EQUAL:
-					Log(" == ");
+					m_bytecode.emit(OpCode::OP_EQUAL_EQUAL);
 					break;
 				case TokenType::NOT_EQUAL:
-					Log(" != ");
+					m_bytecode.emit(OpCode::OP_NOT_EQUAL);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -88,25 +86,25 @@ namespace Copper {
 		if (!term()) return false;
 
 		while (peek().getType() == TokenType::GREATER_THAN 	||
-			   peek().getType() == TokenType::LESS_THAN 	||
+			   peek().getType() == TokenType::LESSER_THAN 	||
 			   peek().getType() == TokenType::GREATER_EQUAL ||
-			   peek().getType() == TokenType::LESS_EQUAL) {
+			   peek().getType() == TokenType::LESSER_EQUAL) {
 			auto const operatorToken = next();
 
 			if (!term()) return false;
 
 			switch (operatorToken.getType()) {
 				case TokenType::GREATER_THAN:
-					Log(" > ");
+					m_bytecode.emit(OpCode::OP_GREATER_THAN);
 					break;
-				case TokenType::LESS_THAN:
-					Log(" < ");
+				case TokenType::LESSER_THAN:
+					m_bytecode.emit(OpCode::OP_LESSER_THAN);
 					break;
 				case TokenType::GREATER_EQUAL:
-					Log(" >= ");
+					m_bytecode.emit(OpCode::OP_GREATER_EQUAL);
 					break;
-				case TokenType::LESS_EQUAL:
-					Log(" <= ");
+				case TokenType::LESSER_EQUAL:
+					m_bytecode.emit(OpCode::OP_LESSER_EQUAL);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -219,6 +217,10 @@ namespace Copper {
 				break;
 			case TokenType::NUMBER:
 				m_bytecode.emitConstant(Value(ValueType::NUMBER, primaryToken.getLexeme()));
+				break;
+			case TokenType::TRUE:
+			case TokenType::FALSE:
+				m_bytecode.emitConstant(Value(ValueType::BOOLEAN, primaryToken.getLexeme()));
 				break;
 			default:
 				error("Invalid or unexpected token");
