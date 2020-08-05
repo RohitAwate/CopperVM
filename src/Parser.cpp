@@ -129,11 +129,9 @@ namespace Copper {
 			switch (operatorToken.getType()) {
 				case TokenType::PLUS:
 					m_bytecode.emit(OpCode::OP_ADD);
-					Log(" + ");
 					break;
 				case TokenType::MINUS:
 					m_bytecode.emit(OpCode::OP_SUB);
-					Log(" - ");
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -157,14 +155,12 @@ namespace Copper {
 			switch (operatorToken.getType()) {
 				case TokenType::MULTIPLY:
 					m_bytecode.emit(OpCode::OP_MUL);
-					Log(" * ");
 					break;
 				case TokenType::DIVIDE:
 					m_bytecode.emit(OpCode::OP_DIV);
-					Log(" / ");
 					break;
 				case TokenType::MODULO:
-					Log(" % ");
+					m_bytecode.emit(OpCode::OP_MOD);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -185,21 +181,34 @@ namespace Copper {
 			// Process RHS of expression
 			if (!exponent()) return false;
 
-			Log(" ** ");
+			m_bytecode.emit(OpCode::OP_EXP);
 		}
 
 		return true;
 	}
 
 	bool Parser::unary() {
+		bool negation = false;
+
 		if (peek().getType() == TokenType::MINUS) {
 			// Consume the - operator
 			consume();
-
-			Log(" - ");
+			negation = true;
 		}
 
-		return primary();
+		bool retval = primary();
+
+		/*
+			If the retval is false, i.e. if the call
+		 	to primary() fails, there's no real point in 
+		 	emitting bytecode, but it makes no real
+			difference since it won't be executed anyway.
+		*/
+		if (negation) {
+			m_bytecode.emit(OpCode::OP_NEG);
+		}
+
+		return retval;
 	}
 
 	bool Parser::primary() {
@@ -209,7 +218,6 @@ namespace Copper {
 				grouping();
 				break;
 			case TokenType::NUMBER:
-				Log(" " + primaryToken.getLexeme() + " ");
 				m_bytecode.emitConstant(std::stoi(primaryToken.getLexeme()));
 				break;
 			default:

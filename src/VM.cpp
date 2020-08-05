@@ -15,7 +15,9 @@
  */
 
 #include <iostream>
+#include <math.h>
 
+#include "Colors.h"
 #include "VM.h"
 
 namespace Copper {
@@ -31,6 +33,16 @@ do {											\
 	break;										\
 } while (false)
 
+#define BINARY_OP_MATH_H(func)					\
+do {											\
+	const double right = m_stack.top();			\
+	m_stack.pop();								\
+	const double left = m_stack.top();			\
+	m_stack.pop();								\
+	m_stack.push(func(left, right));			\
+	break;										\
+} while (false)
+
 #define GET_CONSTANT(index) m_code->m_constants[code[index]]
 
 		auto const& code = m_code.get()->m_blob;
@@ -40,13 +52,21 @@ do {											\
 				case OP_LOAD_CONST:
 					m_stack.push(GET_CONSTANT(++m_ip));
 					break;
+				case OP_NEG: {
+					const double value = m_stack.top() * -1;
+					m_stack.pop();
+					m_stack.push(value);
+					break;
+				}
 				case OP_ADD: BINARY_OP(+); break;
 				case OP_SUB: BINARY_OP(-); break;
 				case OP_MUL: BINARY_OP(*); break;
 				case OP_DIV: BINARY_OP(/); break;
+				case OP_MOD: BINARY_OP_MATH_H(fmod); break;
+				case OP_EXP: BINARY_OP_MATH_H(pow); break;
 				case OP_RET: {
 					if (!m_stack.empty()) {
-						std::cout << m_stack.top() << std::endl;
+						std::cout << ANSICodes::RED << ANSICodes::BOLD << m_stack.top() << ANSICodes::RESET << std::endl;
 						m_stack.pop();
 					}
 				}
