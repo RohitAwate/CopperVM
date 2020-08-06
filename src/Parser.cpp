@@ -203,7 +203,7 @@ namespace Copper {
 		const auto& primaryToken = next();
 		switch (primaryToken.getType()) {
 			case TokenType::OPEN_PAREN:
-				grouping();
+				if (!grouping()) return false;
 				break;
 			case TokenType::NUMBER:
 				m_bytecode.emitConstant(Value(ValueType::NUMBER, primaryToken.getLexeme()));

@@ -100,12 +100,13 @@ namespace Copper {
 			if (isAlpha(peek())) {
 				const auto id = identifier();
 				const auto iterator = KEYWORDS.find(id);
+				
 				if (iterator != KEYWORDS.end()) {
 					emitToken(tokens, iterator->second, id);
-					continue;
+				} else {
+					emitToken(tokens, TokenType::IDENTIFIER, id);
 				}
-
-				emitToken(tokens, TokenType::IDENTIFIER, id);
+				
 				continue;
 			}
 
