@@ -275,6 +275,9 @@ namespace Copper {
 					emitToken(tokens, TokenType::STRING, string());
 					break;
 
+				case EOF:
+					break;
+
 				default:
 					error("Invalid or unexpected token: '"+ std::string(1, peek()) + "'");
 					m_column++;
@@ -309,7 +312,7 @@ namespace Copper {
 
 	char Tokenizer::peek() const {
 		if (atEOF()) {
-			return '\0';
+			return EOF;
 		}
 
 		return m_translationUnit.m_contents.get()->at(m_curr);
