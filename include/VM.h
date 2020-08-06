@@ -33,6 +33,8 @@ namespace Copper {
 		std::stack<Value> m_stack;
 
 		unsigned int m_ip { 0 };
+
+		void error(const char* msg) const;
 	};
 
 }

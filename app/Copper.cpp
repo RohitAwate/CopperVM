@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
 			if (parser.parse()) {
 				auto code = parser.getBytecode(); 
 				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
-				vm.run();
+				if (vm.run() != 0) return 1;
 			}
 		}
 	} else if (argc == 2) {
@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
 		if (parser.parse()) {
 			auto code = parser.getBytecode(); 
 			Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
-			vm.run();
+			return vm.run();
 		}
 	} else {
 		std::cout << "Usage:" << std::endl;
