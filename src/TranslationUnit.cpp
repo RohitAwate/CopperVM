@@ -14,9 +14,24 @@
  * limitations under the License.
  */
 
+#include "Colors.h"
 #include "TranslationUnit.h"
 
 namespace Copper {
+
+	std::string TranslationUnit::getOffsetString(const std::string& line, size_t offset) {
+		std::string offsetString;
+
+		for (size_t i = 0; i < offset; i++) {
+			if (line.at(i) == '\t') {
+				offsetString.append("\t");
+			} else {
+				offsetString.append(" ");
+			}
+		}
+
+		return offsetString;
+	}
 
 	std::string TranslationUnit::getLine(int line) const {
 		size_t start = 0, end = m_contents.get()->size();

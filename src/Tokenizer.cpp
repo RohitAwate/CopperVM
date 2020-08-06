@@ -410,20 +410,6 @@ namespace Copper {
 		return m_translationUnit.m_contents->substr(start, len);
 	}
 
-	static std::string getOffsetString(const std::string& line, size_t offset) {
-		std::string offsetString;
-
-		for (size_t i = 0; i < offset; i++) {
-			if (line.at(i) == '\t') {
-				offsetString.append("\t");
-			} else {
-				offsetString.append(" ");
-			}
-		}
-
-		return offsetString;
-	}
-
 	void Tokenizer::error(const std::string& msg) const {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
@@ -432,7 +418,7 @@ namespace Copper {
 
 		std::string culpritLine = m_translationUnit.getLine(m_line);
 		std::cout << "\t" << culpritLine << std::endl;
-		std::cout << "\t" << getOffsetString(culpritLine, m_column - 1);
+		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, m_column - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 

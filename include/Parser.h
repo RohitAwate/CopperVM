@@ -20,18 +20,21 @@
 
 #include "Bytecode.h"
 #include "Token.h"
+#include "TranslationUnit.h"
 
 namespace Copper
 {
 	
 	class Parser {
 	public:
-		Parser(std::vector<Token> tokens) : m_tokens(tokens) {}
+		Parser(const TranslationUnit translationUnit, std::vector<Token> tokens) :
+			m_translationUnit(translationUnit), m_tokens(tokens) {}
 
 		bool parse();
 		Bytecode getBytecode() const;
 	private:
-		std::vector<Token> m_tokens;
+		const TranslationUnit m_translationUnit;
+		const std::vector<Token> m_tokens;
 		size_t m_curr { 0 }; 
 
 		Bytecode m_bytecode;

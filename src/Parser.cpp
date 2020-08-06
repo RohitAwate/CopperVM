@@ -16,6 +16,7 @@
 
 #include <iostream>
 
+#include "Colors.h"
 #include "Parser.h"
 
 namespace Copper {
@@ -212,6 +213,9 @@ namespace Copper {
 			case TokenType::FALSE:
 				m_bytecode.emitConstant(Value(ValueType::BOOLEAN, primaryToken.getLexeme()));
 				break;
+			case TokenType::EOF_TYPE:
+				error("Expect expression");
+				return false;
 			default:
 				error("Invalid or unexpected token");
 				return false;
@@ -235,7 +239,17 @@ namespace Copper {
 	}
 
 	void Parser::error(const char* msg) const {
+		const Token& currentToken = peek();
+
+		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
+		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
+		std::cout << "(line " << currentToken.getLine() << "): ";
 		std::cout << msg << std::endl;
+
+		std::string culpritLine = m_translationUnit.getLine(currentToken.getLine());
+		std::cout << "\t" << culpritLine << std::endl;
+		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, currentToken.getColumn() - 1);
+		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 
 } // namespace Copper

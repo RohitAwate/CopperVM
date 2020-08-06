@@ -58,10 +58,11 @@ int main(int argc, const char* argv[]) {
 				return 0;
 			}
 
-			Copper::Tokenizer tokenizer(Copper::TranslationUnit("<stdin>", input));
+			Copper::TranslationUnit translationUnit("<stdin>", input);
+			Copper::Tokenizer tokenizer(translationUnit);
 			auto tokens = tokenizer.run();
 
-			Copper::Parser parser(tokens);
+			Copper::Parser parser(translationUnit, tokens);
 			if (parser.parse()) {
 				auto code = parser.getBytecode(); 
 				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
@@ -69,10 +70,11 @@ int main(int argc, const char* argv[]) {
 			}
 		}
 	} else if (argc == 2) {
-		Copper::Tokenizer tokenizer(Copper::TranslationUnit(argv[1], readFile(argv[1])));
+		Copper::TranslationUnit translationUnit(argv[1], readFile(argv[1]));
+		Copper::Tokenizer tokenizer(translationUnit);
 		auto tokens = tokenizer.run();
 
-		Copper::Parser parser(tokens);
+		Copper::Parser parser(translationUnit, tokens);
 		if (parser.parse()) {
 			auto code = parser.getBytecode(); 
 			Copper::VM vm(std::make_unique<Copper::Bytecode>(code));

@@ -29,6 +29,7 @@ namespace Copper {
 		std::string m_filepath;
 		std::shared_ptr<std::string> m_contents;
 
+		static std::string getOffsetString(const std::string &line, size_t offset);
 		std::string getLine(int) const;
 	};
 
