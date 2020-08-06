@@ -201,17 +201,19 @@ namespace Copper {
 	}
 
 	bool Parser::primary() {
-		const auto& primaryToken = next();
+		const auto& primaryToken = peek();
 		switch (primaryToken.getType()) {
 			case TokenType::OPEN_PAREN:
 				if (!grouping()) return false;
 				break;
 			case TokenType::NUMBER:
 				m_bytecode.emitConstant(Value(ValueType::NUMBER, primaryToken.getLexeme()));
+				next();
 				break;
 			case TokenType::TRUE:
 			case TokenType::FALSE:
 				m_bytecode.emitConstant(Value(ValueType::BOOLEAN, primaryToken.getLexeme()));
+				next();
 				break;
 			case TokenType::EOF_TYPE:
 				error("Expect expression");
@@ -225,8 +227,9 @@ namespace Copper {
 	}
 
 	bool Parser::grouping() {
-		// We've already checked that OPEN_PAREN exists in Parser::factor(),
-		// hence we directly parse the expression
+		// We have already checked for the opening parenthesis '(',
+		// so directly consume it here.
+		consume();
 
 		if (!expression()) return false;
 
