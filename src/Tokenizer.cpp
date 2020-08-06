@@ -312,15 +312,15 @@ namespace Copper {
 			return '\0';
 		}
 
-		return m_input.get()->at(m_curr);
+		return m_translationUnit.m_contents.get()->at(m_curr);
 	}
 
 	char Tokenizer::peekNext() const {
-		if (m_curr + 1 >= m_input.get()->size()) {
+		if (m_curr + 1 >= m_translationUnit.m_contents->size()) {
 			return '\0';
 		}
 
-		return m_input.get()->at(m_curr + 1);
+		return m_translationUnit.m_contents->at(m_curr + 1);
 	}
 
 	bool Tokenizer::matchNext(char expected) {
@@ -336,7 +336,7 @@ namespace Copper {
 	}
 
 	bool Tokenizer::atEOF() const {
-		return m_curr >= m_input.get()->size();
+		return m_curr >= m_translationUnit.m_contents->size();
 	}
 
 	inline bool Tokenizer::isDigit(char c) {
@@ -361,7 +361,7 @@ namespace Copper {
 			}	
 		}
 
-		return m_input.get()->substr(start, len);
+		return m_translationUnit.m_contents->substr(start, len);
 	}
 
 	inline bool Tokenizer::isAlpha(char c) {
@@ -381,7 +381,7 @@ namespace Copper {
 			advance(); len++;
 		}
 
-		return m_input.get()->substr(start, len);
+		return m_translationUnit.m_contents->substr(start, len);
 	}
 
 	std::string Tokenizer::string() {
@@ -404,7 +404,7 @@ namespace Copper {
 			error("Unterminated string literal");
 		}
 
-		return m_input.get()->substr(start, len);
+		return m_translationUnit.m_contents->substr(start, len);
 	}
 
 	static std::string getOffsetString(const std::string& line, size_t offset) {
@@ -423,33 +423,14 @@ namespace Copper {
 
 	void Tokenizer::error(const std::string& msg) const {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
-		std::cout << ANSICodes::BOLD << m_filename << ANSICodes::RESET << " ";
+		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
 		std::cout << "(line " << m_line << "): ";
 		std::cout << msg << std::endl;
 
-		std::string culpritLine = getLine(m_line);
+		std::string culpritLine = m_translationUnit.getLine(m_line);
 		std::cout << "\t" << culpritLine << std::endl;
 		std::cout << "\t" << getOffsetString(culpritLine, m_column - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
-	}
-
-	std::string Tokenizer::getLine(int line) const {
-		size_t start = 0, end = m_input.get()->size();
-
-		int currentLine = 1;
-		for (size_t i = 0; i < m_input.get()->size(); i++) {
-			if (m_input.get()->at(i) == '\n') {
-				currentLine++;
-
-				if (currentLine == line) {
-					start = i + 1;
-				} else if (currentLine == line + 1) {
-					end = i - 1;
-				}
-			}
-		}
-
-		return m_input.get()->substr(start, end - start + 1);
 	}
 
 } // namespace Copper

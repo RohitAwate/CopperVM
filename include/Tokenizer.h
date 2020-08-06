@@ -20,18 +20,18 @@
 #include <vector>
 
 #include "Token.h"
+#include "TranslationUnit.h"
 
 namespace Copper {
 	
 	class Tokenizer {
 	public:
-		Tokenizer(const std::string filename, std::unique_ptr<std::string> input)
-			: m_filename(filename), m_input(std::move(input)) {}
+		Tokenizer(const TranslationUnit translationUnit)
+			: m_translationUnit(translationUnit) {}
 
 		std::vector<Token> run();
 	private:
-		std::string m_filename;
-		std::unique_ptr<std::string> m_input;
+		const TranslationUnit m_translationUnit;
 
 		void emitToken(std::vector<Token>&, const TokenType, int length);
 		void emitToken(std::vector<Token> &, const TokenType, std::string lexeme);
@@ -56,7 +56,6 @@ namespace Copper {
 		std::string string();
 
 		void error(const std::string& msg) const;
-		std::string getLine(int) const;
 	};
 
 }   // namespace Copper

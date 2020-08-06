@@ -20,8 +20,9 @@
 #include <sstream>
 
 #include "Bytecode.h"
-#include "Tokenizer.h"
 #include "Parser.h"
+#include "Tokenizer.h"
+#include "TranslationUnit.h"
 #include "VM.h"
 
 static std::string readFile(const std::string& path) {
@@ -56,8 +57,8 @@ int main(int argc, const char* argv[]) {
 				std::cout << std::endl;
 				return 0;
 			}
-			
-			Copper::Tokenizer tokenizer("<stdin>", std::make_unique<std::string>(input));
+
+			Copper::Tokenizer tokenizer(Copper::TranslationUnit("<stdin>", input));
 			auto tokens = tokenizer.run();
 
 			Copper::Parser parser(tokens);
@@ -68,7 +69,7 @@ int main(int argc, const char* argv[]) {
 			}
 		}
 	} else if (argc == 2) {
-		Copper::Tokenizer tokenizer(argv[1], std::make_unique<std::string>(readFile(argv[1])));
+		Copper::Tokenizer tokenizer(Copper::TranslationUnit(argv[1], readFile(argv[1])));
 		auto tokens = tokenizer.run();
 
 		Copper::Parser parser(tokens);
