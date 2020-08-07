@@ -132,6 +132,19 @@ namespace Copper {
                 // Equality comparison
                 case EQU: EQUALITY_OP(==); break;
                 case NEQ: EQUALITY_OP(!=); break;
+
+                // Logical
+                case NOT: {
+                    const Value val = m_stack.top();
+                    if (val.type != ValueType::BOOLEAN) {
+                        error("Operand must be a boolean.");
+                        return 1;
+                    }
+
+                    m_stack.pop();
+                    m_stack.push(!val.as.boolean);
+                    break;
+                }
                 
                 case RET: {
                     while (!m_stack.empty()) {

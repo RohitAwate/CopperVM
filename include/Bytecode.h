@@ -49,6 +49,11 @@ namespace Copper {
 		EQU,
 		NEQ,
 
+		// Logical
+		AND,
+		OR,
+		NOT,
+
 		RET
 	};
 

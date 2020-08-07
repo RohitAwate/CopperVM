@@ -53,6 +53,9 @@ namespace Copper {
 				case OpCode::EQU: printInstruction("EQU"); break;
 				case OpCode::NEQ: printInstruction("NEQ"); break;
 
+				// Logical
+				case OpCode::NOT: printInstruction("NOT"); break;
+
 				case OpCode::RET: printInstruction("RET"); break;
 			}
 		}

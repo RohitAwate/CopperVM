@@ -187,13 +187,20 @@ namespace Copper {
 	}
 
 	bool Parser::unary() {
-		if (peek().getType() == TokenType::MINUS) {
-			// Consume the - operator
-			consume();
+		if (peek().getType() == TokenType::MINUS || peek().getType() == TokenType::NEGATION) {
+			// Consume the operator
+			const auto& operatorToken = next();
 
 			if (!unary()) return false;
 
-			m_bytecode.emit(OpCode::NEG);
+			switch (operatorToken.getType()) {
+				case TokenType::MINUS:
+					m_bytecode.emit(OpCode::NEG);
+					break;
+				case TokenType::NEGATION:
+					m_bytecode.emit(OpCode::NOT);
+					break;
+			}
 			return true;
 		}
 
