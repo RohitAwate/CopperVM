@@ -66,8 +66,8 @@
 	TYPE_MACRO(DIVIDE)               \
 	TYPE_MACRO(MODULO)               \
 	TYPE_MACRO(EXPONENT)             \
-	TYPE_MACRO(GREATER_THAN)         \
-	TYPE_MACRO(LESSER_THAN)          \
+	TYPE_MACRO(GRT)         \
+	TYPE_MACRO(LST)          \
 	TYPE_MACRO(OPEN_BRACE)           \
 	TYPE_MACRO(CLOSE_BRACE)          \
 	TYPE_MACRO(OPEN_PAREN)           \
@@ -87,11 +87,11 @@
 	TYPE_MACRO(DIVIDE_ASSIGNMENT)    \
 	TYPE_MACRO(PLUS_PLUS)            \
 	TYPE_MACRO(MINUS_MINUS)          \
-	TYPE_MACRO(EQUAL_EQUAL)          \
+	TYPE_MACRO(EQU)          \
 	TYPE_MACRO(ARROW)                \
-	TYPE_MACRO(NOT_EQUAL)            \
-	TYPE_MACRO(LESSER_EQUAL)         \
-	TYPE_MACRO(GREATER_EQUAL)        \
+	TYPE_MACRO(NEQ)            \
+	TYPE_MACRO(LSE)         \
+	TYPE_MACRO(GRE)        \
 	TYPE_MACRO(AND)                  \
 	TYPE_MACRO(OR)                   \
 	TYPE_MACRO(EOF_TYPE)

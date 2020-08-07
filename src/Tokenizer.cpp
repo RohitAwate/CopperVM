@@ -160,7 +160,7 @@ namespace Copper {
 				case '=': {
 					switch (peekNext()) {
 						case '=':
-							emitToken(tokens, TokenType::EQUAL_EQUAL, 2);
+							emitToken(tokens, TokenType::EQU, 2);
 							advance();
 							break;
 						case '>':
@@ -191,9 +191,9 @@ namespace Copper {
 					break;
 				}
 
-				DOUBLE_CHAR_TOKEN('>', GREATER_THAN, '=', GREATER_EQUAL);
-				DOUBLE_CHAR_TOKEN('<', LESSER_THAN, '=', LESSER_EQUAL);
-				DOUBLE_CHAR_TOKEN('!', NEGATION, '=', NOT_EQUAL);
+				DOUBLE_CHAR_TOKEN('>', GRT, '=', GRE);
+				DOUBLE_CHAR_TOKEN('<', LST, '=', LSE);
+				DOUBLE_CHAR_TOKEN('!', NEGATION, '=', NEQ);
 
 				case '/': {
 					switch (peekNext()) {

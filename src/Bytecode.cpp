@@ -24,7 +24,7 @@ namespace Copper {
 
 	void Bytecode::emitConstant(const Value constant) {
 		m_constants.push_back(constant);
-		emit(OpCode::OP_LOAD_CONST);
+		emit(OpCode::LDC);
 		emit(m_constants.size() - 1);
 	}
 

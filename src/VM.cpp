@@ -51,7 +51,7 @@ namespace Copper {
         m_stack.push(leftVal.as.number op rightVal.as.number); \
     } while (false)
 
-#define BINARY_OP_MATH_H(func)                                     \
+#define BINARY_MATH_H(func)                                     \
     do                                                             \
     {                                                              \
         const Value rightVal = m_stack.top();                      \
@@ -90,9 +90,9 @@ namespace Copper {
 /*
     The constant is stored in the constant pool of the bytecode.
     We need to fetch the constant at the index indicated by
-    the operand of OP_LOAD_CONST. The instruction pointer is already
+    the operand of LDC. The instruction pointer is already
     incremented to point to the index in the bytecode execution handler
-    for OP_LOAD_CONST. Hence, we just read from that index.
+    for LDC. Hence, we just read from that index.
 */
 #define GET_CONSTANT(index) m_code->m_constants[code[index]]
 
@@ -100,12 +100,12 @@ namespace Copper {
 
         for (m_ip = 0; m_ip < code.size(); m_ip++) {
             switch (code[m_ip]) {
-                case OP_LOAD_CONST:
+                case LDC:
                     m_stack.push(GET_CONSTANT(++m_ip));
                     break;
                 
                 // Basic arithmetic
-                case OP_NEG: {
+                case NEG: {
                     const Value val = m_stack.top();
                     if (val.m_type != ValueType::NUMBER) {
                         error("Operand must be a number.");
@@ -116,24 +116,24 @@ namespace Copper {
                     m_stack.push(val.as.number * -1);
                     break;
                 }
-                case OP_ADD: BINARY_OP(+); break;
-                case OP_SUB: BINARY_OP(-); break;
-                case OP_MUL: BINARY_OP(*); break;
-                case OP_DIV: BINARY_OP(/); break;
-                case OP_MOD: BINARY_OP_MATH_H(std::fmod); break;
-                case OP_EXP: BINARY_OP_MATH_H(std::pow); break;
+                case ADD: BINARY_OP(+); break;
+                case SUB: BINARY_OP(-); break;
+                case MUL: BINARY_OP(*); break;
+                case DIV: BINARY_OP(/); break;
+                case MOD: BINARY_MATH_H(std::fmod); break;
+                case EXP: BINARY_MATH_H(std::pow); break;
                 
                 // Arithmetic comparison
-                case OP_GREATER_THAN: 	BINARY_OP(>); break;
-                case OP_LESSER_THAN: 	BINARY_OP(<); break;
-                case OP_GREATER_EQUAL: 	BINARY_OP(>=); break;
-                case OP_LESSER_EQUAL: 	BINARY_OP(<=); break;
+                case GRT: BINARY_OP(>); break;
+                case LST: BINARY_OP(<); break;
+                case GRE: BINARY_OP(>=); break;
+                case LSE: BINARY_OP(<=); break;
 
                 // Equality comparison
-                case OP_EQUAL_EQUAL: 	EQUALITY_OP(==); break;
-                case OP_NOT_EQUAL: 		EQUALITY_OP(!=); break;
+                case EQU: EQUALITY_OP(==); break;
+                case NEQ: EQUALITY_OP(!=); break;
                 
-                case OP_RET: {
+                case RET: {
                     while (!m_stack.empty()) {
                         std::cout << ANSICodes::RED << ANSICodes::BOLD <<
                             m_stack.top()

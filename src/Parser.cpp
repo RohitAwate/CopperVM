@@ -25,7 +25,7 @@ namespace Copper {
 		if (atEOF()) return false;
 
 		auto retval = expression();
-		m_bytecode.emit(OP_RET);
+		m_bytecode.emit(RET);
 		return retval;
 	}
 
@@ -61,18 +61,18 @@ namespace Copper {
 	bool Parser::equality() {
 		if (!comparison()) return false;
 
-		while (peek().getType() == TokenType::EQUAL_EQUAL ||
-			   peek().getType() == TokenType::NOT_EQUAL) {
+		while (peek().getType() == TokenType::EQU ||
+			   peek().getType() == TokenType::NEQ) {
 			auto const operatorToken = next();
 
 			if (!comparison()) return false;
 
 			switch (operatorToken.getType()) {
-				case TokenType::EQUAL_EQUAL:
-					m_bytecode.emit(OpCode::OP_EQUAL_EQUAL);
+				case TokenType::EQU:
+					m_bytecode.emit(OpCode::EQU);
 					break;
-				case TokenType::NOT_EQUAL:
-					m_bytecode.emit(OpCode::OP_NOT_EQUAL);
+				case TokenType::NEQ:
+					m_bytecode.emit(OpCode::NEQ);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -86,26 +86,26 @@ namespace Copper {
 	bool Parser::comparison() {
 		if (!term()) return false;
 
-		while (peek().getType() == TokenType::GREATER_THAN 	||
-			   peek().getType() == TokenType::LESSER_THAN 	||
-			   peek().getType() == TokenType::GREATER_EQUAL ||
-			   peek().getType() == TokenType::LESSER_EQUAL) {
+		while (peek().getType() == TokenType::GRT 	||
+			   peek().getType() == TokenType::LST 	||
+			   peek().getType() == TokenType::GRE ||
+			   peek().getType() == TokenType::LSE) {
 			auto const operatorToken = next();
 
 			if (!term()) return false;
 
 			switch (operatorToken.getType()) {
-				case TokenType::GREATER_THAN:
-					m_bytecode.emit(OpCode::OP_GREATER_THAN);
+				case TokenType::GRT:
+					m_bytecode.emit(OpCode::GRT);
 					break;
-				case TokenType::LESSER_THAN:
-					m_bytecode.emit(OpCode::OP_LESSER_THAN);
+				case TokenType::LST:
+					m_bytecode.emit(OpCode::LST);
 					break;
-				case TokenType::GREATER_EQUAL:
-					m_bytecode.emit(OpCode::OP_GREATER_EQUAL);
+				case TokenType::GRE:
+					m_bytecode.emit(OpCode::GRE);
 					break;
-				case TokenType::LESSER_EQUAL:
-					m_bytecode.emit(OpCode::OP_LESSER_EQUAL);
+				case TokenType::LSE:
+					m_bytecode.emit(OpCode::LSE);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -127,10 +127,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::PLUS:
-					m_bytecode.emit(OpCode::OP_ADD);
+					m_bytecode.emit(OpCode::ADD);
 					break;
 				case TokenType::MINUS:
-					m_bytecode.emit(OpCode::OP_SUB);
+					m_bytecode.emit(OpCode::SUB);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -153,13 +153,13 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::MULTIPLY:
-					m_bytecode.emit(OpCode::OP_MUL);
+					m_bytecode.emit(OpCode::MUL);
 					break;
 				case TokenType::DIVIDE:
-					m_bytecode.emit(OpCode::OP_DIV);
+					m_bytecode.emit(OpCode::DIV);
 					break;
 				case TokenType::MODULO:
-					m_bytecode.emit(OpCode::OP_MOD);
+					m_bytecode.emit(OpCode::MOD);
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -180,7 +180,7 @@ namespace Copper {
 			// Process RHS of expression
 			if (!exponent()) return false;
 
-			m_bytecode.emit(OpCode::OP_EXP);
+			m_bytecode.emit(OpCode::EXP);
 		}
 
 		return true;
@@ -193,7 +193,7 @@ namespace Copper {
 
 			if (!unary()) return false;
 
-			m_bytecode.emit(OpCode::OP_NEG);
+			m_bytecode.emit(OpCode::NEG);
 			return true;
 		}
 

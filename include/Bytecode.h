@@ -30,26 +30,26 @@ namespace Copper {
 			Operand:
 			(1) - constant offset in bytecode's constant pool
 		*/
-		OP_LOAD_CONST,
+		LDC,
 
 		// Basic arithmetic
-		OP_ADD,
-		OP_SUB,
-		OP_MUL,
-		OP_DIV,
-		OP_MOD,
-		OP_EXP,
-		OP_NEG,
+		ADD,
+		SUB,
+		MUL,
+		DIV,
+		MOD,
+		EXP,
+		NEG,
 
 		// Comparison
-		OP_GREATER_THAN,
-		OP_LESSER_THAN,
-		OP_GREATER_EQUAL,
-		OP_LESSER_EQUAL,
-		OP_EQUAL_EQUAL,
-		OP_NOT_EQUAL,
+		GRT,
+		LST,
+		GRE,
+		LSE,
+		EQU,
+		NEQ,
 
-		OP_RET
+		RET
 	};
 
 	typedef unsigned char byte;
