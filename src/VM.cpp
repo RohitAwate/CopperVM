@@ -94,14 +94,14 @@ namespace Copper {
     incremented to point to the index in the bytecode execution handler
     for LDC. Hence, we just read from that index.
 */
-#define GET_CONSTANT(index) m_code->m_constants[code[index]]
+#define GET_CONST(index) m_code->m_constants[code[index]]
 
         auto const& code = m_code.get()->m_blob;
 
         for (m_ip = 0; m_ip < code.size(); m_ip++) {
             switch (code[m_ip]) {
                 case LDC:
-                    m_stack.push(GET_CONSTANT(++m_ip));
+                    m_stack.push(GET_CONST(++m_ip));
                     break;
                 
                 // Basic arithmetic
@@ -144,6 +144,9 @@ namespace Copper {
             }
         }
 #undef BINARY_OP
+#undef BINARY_MATH_H
+#undef EQUALITY_OP
+#undef GET_CONST
         return 0;
     }
 

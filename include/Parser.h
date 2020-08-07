@@ -28,7 +28,8 @@ namespace Copper
 	class Parser {
 	public:
 		Parser(const TranslationUnit translationUnit, std::vector<Token> tokens) :
-			m_translationUnit(translationUnit), m_tokens(tokens) {}
+			m_translationUnit(translationUnit), m_tokens(tokens),
+			m_bytecode(translationUnit.m_filepath) {}
 
 		bool parse();
 		Bytecode getBytecode() const;

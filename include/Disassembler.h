@@ -16,36 +16,21 @@
 
 #pragma once
 
-#include <iostream>
-#include <string>
+#include "Bytecode.h"
 
 namespace Copper {
 
-    enum class ValueType {
-		BOOLEAN,
-		NUMBER,
-	};
+	class Disassembler {
+	public:
+		Disassembler(const Bytecode& bytecode) : m_bytecode(bytecode) {}
 
-	union StoreAs {
-		bool boolean;
-		double number;
+		void run() const;
+	private:
+		const Bytecode& m_bytecode;
 
-		StoreAs(ValueType, std::string);
-        StoreAs(const double);
-		StoreAs(const bool);
-	};
-
-	struct Value {
-		Value(ValueType type, std::string lexeme);
-        Value(const double number);
-		Value(const bool boolean);
-
-		const ValueType m_type;
-		const StoreAs as;
-
-		std::string toString() const;
-
-        friend std::ostream& operator<<(std::ostream&, const Value&);
+		static void printInstruction(const std::string& opcode,
+									 const std::string& operands = "",
+							  		 const std::string& comment = "");
 	};
 
 }

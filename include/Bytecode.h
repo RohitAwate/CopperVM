@@ -56,10 +56,13 @@ namespace Copper {
 
 	class Bytecode {
 		friend class VM;
+		friend class Disassembler;
 	public:
+		Bytecode(std::string source) : m_source(source) {}
 		void emit(byte);
 		void emitConstant(const Value);
 	private:
+		std::string m_source;
 		std::vector<byte> m_blob;
 		std::vector<Value> m_constants;
 	};

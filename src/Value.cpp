@@ -45,6 +45,15 @@ namespace Copper {
 
 	Value::Value(const bool boolean) : m_type(ValueType::BOOLEAN), as(StoreAs(boolean)) {}
 
+	std::string Value::toString() const {
+		switch (m_type) {
+			case ValueType::NUMBER:
+				return std::to_string(as.number);
+			case ValueType::BOOLEAN:
+				return as.boolean == true ? "true" : "false";
+		}
+	}
+
 	std::ostream& operator<<(std::ostream& stream, const Value& value) {
 		switch (value.m_type) {
 			case ValueType::NUMBER:

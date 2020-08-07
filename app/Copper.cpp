@@ -20,10 +20,13 @@
 #include <sstream>
 
 #include "Bytecode.h"
+#include "Disassembler.h"
 #include "Parser.h"
 #include "Tokenizer.h"
 #include "TranslationUnit.h"
 #include "VM.h"
+
+#define DISASSEMBLE
 
 static std::string readFile(const std::string& path) {
 	std::ifstream fd;
@@ -64,7 +67,11 @@ int main(int argc, const char* argv[]) {
 
 			Copper::Parser parser(translationUnit, tokens);
 			if (parser.parse()) {
-				auto code = parser.getBytecode(); 
+				auto code = parser.getBytecode();
+#ifdef DISASSEMBLE
+				Copper::Disassembler disassembler(code);
+				disassembler.run();
+#endif
 				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
 				if (vm.run() != 0) return 1;
 			}
@@ -76,7 +83,11 @@ int main(int argc, const char* argv[]) {
 
 		Copper::Parser parser(translationUnit, tokens);
 		if (parser.parse()) {
-			auto code = parser.getBytecode(); 
+			auto code = parser.getBytecode();
+#ifdef DISASSEMBLE
+			Copper::Disassembler disassembler(code);
+			disassembler.run();
+#endif
 			Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
 			return vm.run();
 		}
