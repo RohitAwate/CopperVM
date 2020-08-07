@@ -39,14 +39,14 @@ namespace Copper {
 		boolean = b;
 	}
 
-	Value::Value(ValueType type, std::string lexeme) : m_type(type), as(StoreAs(type, lexeme)) {}
+	Value::Value(ValueType type, std::string lexeme) : type(type), as(StoreAs(type, lexeme)) {}
 
-	Value::Value(const double number) : m_type(ValueType::NUMBER), as(StoreAs(number)) {}
+	Value::Value(const double number) : type(ValueType::NUMBER), as(StoreAs(number)) {}
 
-	Value::Value(const bool boolean) : m_type(ValueType::BOOLEAN), as(StoreAs(boolean)) {}
+	Value::Value(const bool boolean) : type(ValueType::BOOLEAN), as(StoreAs(boolean)) {}
 
 	std::string Value::toString() const {
-		switch (m_type) {
+		switch (type) {
 			case ValueType::NUMBER:
 				return std::to_string(as.number);
 			case ValueType::BOOLEAN:
@@ -55,7 +55,7 @@ namespace Copper {
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Value& value) {
-		switch (value.m_type) {
+		switch (value.type) {
 			case ValueType::NUMBER:
 				stream << value.as.number;
 				break;

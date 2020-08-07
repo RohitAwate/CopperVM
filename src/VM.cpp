@@ -33,7 +33,7 @@ namespace Copper {
     do                                                         \
     {                                                          \
         const Value rightVal = m_stack.top();                  \
-        if (rightVal.m_type != ValueType::NUMBER)              \
+        if (rightVal.type != ValueType::NUMBER)              \
         {                                                      \
             error("Operand must be a number.");                \
             return 1;                                          \
@@ -41,7 +41,7 @@ namespace Copper {
         m_stack.pop();                                         \
                                                                \
         const Value leftVal = m_stack.top();                   \
-        if (leftVal.m_type != ValueType::NUMBER)               \
+        if (leftVal.type != ValueType::NUMBER)               \
         {                                                      \
             error("Operand must be a number.");                \
             return 1;                                          \
@@ -55,7 +55,7 @@ namespace Copper {
     do                                                             \
     {                                                              \
         const Value rightVal = m_stack.top();                      \
-        if (rightVal.m_type != ValueType::NUMBER)                  \
+        if (rightVal.type != ValueType::NUMBER)                  \
         {                                                          \
             error("Operand must be a number.");                    \
             return 1;                                              \
@@ -63,7 +63,7 @@ namespace Copper {
         m_stack.pop();                                             \
                                                                    \
         const Value leftVal = m_stack.top();                       \
-        if (leftVal.m_type != ValueType::NUMBER)                   \
+        if (leftVal.type != ValueType::NUMBER)                   \
         {                                                          \
             error("Operand must be a number.");                    \
             return 1;                                              \
@@ -81,7 +81,7 @@ namespace Copper {
 		const Value leftVal = m_stack.top();                       \
 		m_stack.pop();                                             \
                                                                    \
-		if (leftVal.m_type != rightVal.m_type)                     \
+		if (leftVal.type != rightVal.type)                     \
 			m_stack.push(false);                                   \
 		else                                                       \
 			m_stack.push(leftVal.as.number op rightVal.as.number); \
@@ -107,7 +107,7 @@ namespace Copper {
                 // Basic arithmetic
                 case NEG: {
                     const Value val = m_stack.top();
-                    if (val.m_type != ValueType::NUMBER) {
+                    if (val.type != ValueType::NUMBER) {
                         error("Operand must be a number.");
                         return 1;
                     }

@@ -40,7 +40,7 @@ namespace Copper {
         Value(const double number);
 		Value(const bool boolean);
 
-		const ValueType m_type;
+		const ValueType type;
 		const StoreAs as;
 
 		std::string toString() const;
