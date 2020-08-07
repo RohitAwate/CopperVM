@@ -216,7 +216,7 @@ namespace Copper {
 				next();
 				break;
 			case TokenType::EOF_TYPE:
-				error("Expect expression");
+				error("Unexpected end-of-file, expect expression");
 				return false;
 			default:
 				error("Invalid or unexpected token");
@@ -233,11 +233,14 @@ namespace Copper {
 
 		if (!expression()) return false;
 
-		if (next().getType() != TokenType::CLOSE_PAREN) {
-			error("Expect ')'");
+		if (peek().getType() != TokenType::CLOSE_PAREN) {
+			if (atEOF()) error("Unexpected end-of-file, expect ')'");
+			else error("Expect ')'");
 			return false;
 		}
 
+		// Consume the closing parenthesis ')'
+		consume();
 		return true;
 	}
 
