@@ -87,6 +87,28 @@ namespace Copper {
 			m_stack.push(leftVal.as.number op rightVal.as.number); \
 	} while (false)
 
+#define BINARY_LOGICAL_OP(op)                                    \
+    do                                                           \
+    {                                                            \
+        const Value rightVal = m_stack.top();                    \
+        if (rightVal.type != ValueType::BOOLEAN)                 \
+        {                                                        \
+            error("Operand must be a boolean.");                 \
+            return 1;                                            \
+        }                                                        \
+        m_stack.pop();                                           \
+                                                                 \
+        const Value leftVal = m_stack.top();                     \
+        if (leftVal.type != ValueType::BOOLEAN)                  \
+        {                                                        \
+            error("Operand must be a boolean.");                 \
+            return 1;                                            \
+        }                                                        \
+        m_stack.pop();                                           \
+                                                                 \
+        m_stack.push(leftVal.as.boolean op rightVal.as.boolean); \
+    } while (false)
+
 /*
     The constant is stored in the constant pool of the bytecode.
     We need to fetch the constant at the index indicated by
@@ -134,6 +156,8 @@ namespace Copper {
                 case NEQ: EQUALITY_OP(!=); break;
 
                 // Logical
+                case AND: BINARY_LOGICAL_OP(&&); break;
+                case OR:  BINARY_LOGICAL_OP(||); break;
                 case NOT: {
                     const Value val = m_stack.top();
                     if (val.type != ValueType::BOOLEAN) {

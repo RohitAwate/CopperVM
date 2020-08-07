@@ -52,6 +52,8 @@ namespace Copper
 			call stack by returning false.
 		*/
 		bool expression();
+		bool logicalOR();
+		bool logicalAND();
 		bool equality();
 		bool comparison();
 		bool term();

@@ -55,7 +55,37 @@ namespace Copper {
 	}
 
 	bool Parser::expression() {
-		return equality();
+		return logicalOR();
+	}
+
+	bool Parser::logicalOR() {
+		if (!logicalAND()) return false;
+
+		while (peek().getType() == TokenType::OR) {
+			// Consume the || token
+			consume();
+
+			if (!logicalAND()) return false;
+
+			m_bytecode.emit(OpCode::OR);
+		}
+
+		return true;
+	}
+
+	bool Parser::logicalAND() {
+		if (!equality()) return false;
+
+		while (peek().getType() == TokenType::AND) {
+			// Consume the && token
+			consume();
+
+			if (!equality()) return false;
+
+			m_bytecode.emit(OpCode::AND);
+		}
+
+		return true;
 	}
 
 	bool Parser::equality() {

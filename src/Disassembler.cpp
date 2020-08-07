@@ -31,32 +31,34 @@ namespace Copper {
 
 		for (int i = 0; i < m_bytecode.m_blob.size(); i++) {
 			switch (m_bytecode.m_blob[i]) {
-				case OpCode::LDC: {
+				case LDC: {
 					const Value val = GET_CONST(++i);
 					printInstruction("LDC", std::to_string((int) m_bytecode.m_blob[i]), val.toString());
 					break;
 				}
 
 				// Arithmetic
-				case OpCode::ADD: printInstruction("ADD"); break;
-				case OpCode::SUB: printInstruction("SUB"); break;
-				case OpCode::MUL: printInstruction("MUL"); break;
-				case OpCode::DIV: printInstruction("DIV"); break;
-				case OpCode::EXP: printInstruction("EXP"); break;
-				case OpCode::NEG: printInstruction("NEG"); break;
+				case ADD: printInstruction("ADD"); break;
+				case SUB: printInstruction("SUB"); break;
+				case MUL: printInstruction("MUL"); break;
+				case DIV: printInstruction("DIV"); break;
+				case EXP: printInstruction("EXP"); break;
+				case NEG: printInstruction("NEG"); break;
 
 				// Comparison
-				case OpCode::GRT: printInstruction("GRT"); break;
-				case OpCode::LST: printInstruction("LST"); break;
-				case OpCode::GRE: printInstruction("GRE"); break;
-				case OpCode::LSE: printInstruction("LSE"); break;
-				case OpCode::EQU: printInstruction("EQU"); break;
-				case OpCode::NEQ: printInstruction("NEQ"); break;
+				case GRT: printInstruction("GRT"); break;
+				case LST: printInstruction("LST"); break;
+				case GRE: printInstruction("GRE"); break;
+				case LSE: printInstruction("LSE"); break;
+				case EQU: printInstruction("EQU"); break;
+				case NEQ: printInstruction("NEQ"); break;
 
 				// Logical
-				case OpCode::NOT: printInstruction("NOT"); break;
+				case AND: printInstruction("AND"); break;
+				case OR: printInstruction("OR"); break;
+				case NOT: printInstruction("NOT"); break;
 
-				case OpCode::RET: printInstruction("RET"); break;
+				case RET: printInstruction("RET"); break;
 			}
 		}
 
