@@ -45,6 +45,12 @@ namespace Copper
 		void consume();
 		bool atEOF() const;
 
+		void synchronize();
+
+		bool declaration();
+		bool statement();
+		bool expressionStatement();
+
 		/*
 			These Boolean return values form the synchronization
 			mechanism in the parser. If an unexpected or invalid token

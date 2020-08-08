@@ -21,14 +21,6 @@
 
 namespace Copper {
 
-	bool Parser::parse() {
-		if (atEOF()) return false;
-
-		auto retval = expression();
-		m_bytecode.emit(RET);
-		return retval;
-	}
-
 	Bytecode Parser::getBytecode() const {
 		return m_bytecode;
 	}
@@ -53,6 +45,61 @@ namespace Copper {
 	bool Parser::atEOF() const {
 		return peek().getType() == TokenType::EOF_TYPE;
 	}
+
+	void Parser::synchronize() {
+		while (!atEOF()) {
+			switch (peek().getType()) {
+				case TokenType::CLASS:
+				case TokenType::FUNCTION:
+				case TokenType::LET:
+				case TokenType::CONST:
+				case TokenType::FOR:
+				case TokenType::IF:
+				case TokenType::WHILE:
+				case TokenType::DO:
+				case TokenType::TRY:
+					return;
+				case TokenType::SEMICOLON:
+					consume();
+					return;
+				default:
+					consume();
+			}
+		}
+	}
+
+	bool Parser::parse() {
+		while (!atEOF()) {
+			if (!declaration()) {
+				synchronize();
+			}
+		}
+
+		return true;
+	}
+
+	bool Parser::declaration() {
+		return statement();
+	}
+
+	bool Parser::statement() {
+		return expressionStatement();
+	}
+
+	bool Parser::expressionStatement() {
+		if (!expression()) return false;
+
+		if (peek().getType() == TokenType::SEMICOLON) {
+			// consume the ; token
+			consume();
+			m_bytecode.emit(OpCode::RET);
+			return true;
+		}
+
+		error("Expect ';' after expression");
+		return false;
+	}
+
 
 	bool Parser::expression() {
 		return logicalOR();
@@ -256,7 +303,7 @@ namespace Copper {
 				error("Unexpected end-of-file, expect expression");
 				return false;
 			default:
-				error("Invalid or unexpected token");
+				error("Expect expression");
 				return false;
 		}
 
