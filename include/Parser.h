@@ -43,6 +43,7 @@ namespace Copper
 		const Token peek() const;
 		const Token next();
 		void consume();
+		bool match(TokenType);
 		bool atEOF() const;
 
 		void synchronize();

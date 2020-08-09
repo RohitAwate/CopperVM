@@ -42,6 +42,15 @@ namespace Copper {
 		next();
 	}
 
+	bool Parser::match(TokenType expectedType) {
+		if (peek().getType() == expectedType) {
+			consume();
+			return true;
+		}
+
+		return false;
+	}
+
 	bool Parser::atEOF() const {
 		return peek().getType() == TokenType::EOF_TYPE;
 	}
@@ -68,6 +77,8 @@ namespace Copper {
 		}
 	}
 
+	// TODO: parse always returns true
+	// return actual return value from declaration
 	bool Parser::parse() {
 		while (!atEOF()) {
 			if (!declaration()) {
@@ -79,8 +90,8 @@ namespace Copper {
 	}
 
 	bool Parser::declaration() {
-		return statement();
-	}
+			return statement();
+		}
 
 	bool Parser::statement() {
 		return expressionStatement();
@@ -89,9 +100,7 @@ namespace Copper {
 	bool Parser::expressionStatement() {
 		if (!expression()) return false;
 
-		if (peek().getType() == TokenType::SEMICOLON) {
-			// consume the ; token
-			consume();
+		if (match(TokenType::SEMICOLON)) {
 			m_bytecode.emit(OpCode::RET);
 			return true;
 		}
@@ -108,10 +117,7 @@ namespace Copper {
 	bool Parser::logicalOR() {
 		if (!logicalAND()) return false;
 
-		while (peek().getType() == TokenType::OR) {
-			// Consume the || token
-			consume();
-
+		while (match(TokenType::OR)) {
 			if (!logicalAND()) return false;
 
 			m_bytecode.emit(OpCode::OR);
@@ -123,10 +129,7 @@ namespace Copper {
 	bool Parser::logicalAND() {
 		if (!equality()) return false;
 
-		while (peek().getType() == TokenType::AND) {
-			// Consume the && token
-			consume();
-
+		while (match(TokenType::AND)) {
 			if (!equality()) return false;
 
 			m_bytecode.emit(OpCode::AND);
@@ -250,10 +253,7 @@ namespace Copper {
 	bool Parser::exponent() {
 		if (!unary()) return false;
 
-		if (peek().getType() == TokenType::EXPONENT) {
-			// Consume the ** operator
-			consume();
-			
+		if (match(TokenType::EXPONENT)) {
 			// Process RHS of expression
 			if (!exponent()) return false;
 
@@ -317,15 +317,14 @@ namespace Copper {
 
 		if (!expression()) return false;
 
-		if (peek().getType() != TokenType::CLOSE_PAREN) {
-			if (atEOF()) error("Unexpected end-of-file, expect ')'");
-			else error("Expect ')'");
-			return false;
-		}
+		if (match(TokenType::CLOSE_PAREN)) return true;
 
-		// Consume the closing parenthesis ')'
-		consume();
-		return true;
+		if (atEOF())
+			error("Unexpected end-of-file, expect ')'");
+		else
+			error("Expect ')'");
+		
+		return false;
 	}
 
 	void Parser::error(const char* msg) const {

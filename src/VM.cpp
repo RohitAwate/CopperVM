@@ -74,18 +74,18 @@ namespace Copper {
     } while (false)
 
 #define EQUALITY_OP(op)                                            \
-	do                                                             \
-	{                                                              \
-		const Value rightVal = m_stack.top();                      \
-		m_stack.pop();                                             \
-		const Value leftVal = m_stack.top();                       \
-		m_stack.pop();                                             \
+    do                                                             \
+    {                                                              \
+        const Value rightVal = m_stack.top();                      \
+        m_stack.pop();                                             \
+        const Value leftVal = m_stack.top();                       \
+        m_stack.pop();                                             \
                                                                    \
-		if (leftVal.type != rightVal.type)                     \
-			m_stack.push(false);                                   \
-		else                                                       \
-			m_stack.push(leftVal.as.number op rightVal.as.number); \
-	} while (false)
+        if (leftVal.type != rightVal.type)                         \
+            m_stack.push(false);                                   \
+        else                                                       \
+            m_stack.push(leftVal.as.number op rightVal.as.number); \
+    } while (false)
 
 #define BINARY_LOGICAL_OP(op)                                    \
     do                                                           \
