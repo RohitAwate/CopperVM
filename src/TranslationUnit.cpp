@@ -52,4 +52,4 @@ namespace Copper {
 		return m_contents.get()->substr(start, end - start + 1);
 	}
 
-}
+} // namespace Copper

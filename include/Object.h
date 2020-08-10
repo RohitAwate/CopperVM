@@ -101,7 +101,7 @@ namespace Copper {
 
 	class StringObject : public Object {
 	public:
-		StringObject(const std::string lexeme, const bool& isMutable = true)
+		StringObject(const std::string& lexeme, const bool& isMutable = true)
 			: Object(ObjectType::STRING, isMutable), val(std::move(lexeme)) {}
 
 		std::string toString() const;
@@ -110,4 +110,4 @@ namespace Copper {
 		std::string val;
 	};
 
-}
+} // namespace Copper

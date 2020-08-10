@@ -40,4 +40,4 @@ namespace Copper {
 		void error(const std::string& msg) const;
 	};
 
-}
+} // namespace Copper

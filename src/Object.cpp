@@ -46,4 +46,4 @@ namespace Copper {
 		return stream;
 	}
 
-}
+} // namespace Copper

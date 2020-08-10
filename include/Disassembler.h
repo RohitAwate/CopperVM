@@ -33,4 +33,4 @@ namespace Copper {
 							  		 const std::string& comment = "");
 	};
 
-}
+} // namespace Copper

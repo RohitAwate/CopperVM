@@ -33,4 +33,4 @@ namespace Copper {
 		std::string getLine(int) const;
 	};
 
-}
+} // namespace Copper

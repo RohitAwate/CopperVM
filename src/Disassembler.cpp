@@ -97,4 +97,4 @@ namespace Copper {
 		std::cout << std::endl;
 	}
 
-}
+} // namespace Copper

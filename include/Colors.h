@@ -34,4 +34,4 @@ namespace Copper {
 		static const char* UNDERLINE = "\u001b[4m";
 	}
 	
-}
+} // namespace Copper
