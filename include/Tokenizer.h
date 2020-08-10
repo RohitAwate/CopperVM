@@ -29,16 +29,22 @@ namespace Copper {
 		Tokenizer(const TranslationUnit translationUnit)
 			: m_translationUnit(translationUnit) {}
 
-		std::vector<Token> run();
+		std::vector<Token>& tokenize();
 	private:
 		const TranslationUnit m_translationUnit;
 
-		void emitToken(std::vector<Token>&, const TokenType, int length);
-		void emitToken(std::vector<Token> &, const TokenType, std::string lexeme);
+		void emitToken(const TokenType, int length);
+		void emitToken(const TokenType, std::string lexeme);
 
 		int m_curr   { 0 };
 		int m_line   { 1 };
 		int m_column { 1 };
+
+		bool m_insideInterpolatedString = false;
+
+		std::vector<Token> tokens;
+		
+		void run();
 
 		void skipWhitespace();
 		char peek() const;
@@ -54,6 +60,7 @@ namespace Copper {
 		std::string identifier();
 
 		std::string string();
+		void interpolatedString();
 
 		void error(const std::string& msg) const;
 	};

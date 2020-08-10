@@ -22,27 +22,27 @@
 
 #define SINGLE_CHAR_TOKEN(c, TYPE)                                  \
 	case c:                                                         \
-		emitToken(tokens, TokenType::TYPE);							\
+		emitToken(TokenType::TYPE);							\
 		break;
 
 #define DOUBLE_CHAR_TOKEN(firstChar, SINGLE_TYPE, secondChar, DOUBLE_TYPE)      \
 	case firstChar: {                                                           \
 		if (matchNext(secondChar)) {                                            \
-			emitToken(tokens, TokenType::DOUBLE_TYPE, 2);						\
+			emitToken(TokenType::DOUBLE_TYPE, 2);						\
 		} else {                                                                \
-			emitToken(tokens, TokenType::SINGLE_TYPE);							\
+			emitToken(TokenType::SINGLE_TYPE);							\
 		}                                                                       \
 		break;                                                                  \
 	}
 
 namespace Copper {
 
-	void Tokenizer::emitToken(std::vector<Token>& tokens, const TokenType type, int tokenLen = 1) {
+	void Tokenizer::emitToken(const TokenType type, int tokenLen = 1) {
 		tokens.push_back(Token(type, m_line, m_column));
 		m_column += tokenLen;
 	}
 
-	void Tokenizer::emitToken(std::vector<Token>& tokens, const TokenType type, std::string lexeme) {
+	void Tokenizer::emitToken(const TokenType type, std::string lexeme) {
 		tokens.push_back(Token(lexeme, type, m_line, m_column));
 		m_column += lexeme.size();
 	}
@@ -85,15 +85,36 @@ namespace Copper {
 		{"await", TokenType::AWAIT},
 	};
 
-	std::vector<Token> Tokenizer::run() {
-		std::vector<Token> tokens;
+	std::vector<Token>& Tokenizer::tokenize() {
+		run();
+		return tokens;
+	}
+
+	void Tokenizer::run() {
+		/*
+			This keeps track of the number of open curly braces
+			encountered so far. This is required for tokenizing
+			interpolated strings properly.
+
+			interpolatedString() calls run() in a mutually recursive
+			manner to scan the expressions within ${}. Thus, in the
+			recursive call, we must return on encountering a closing
+			brace i.e. }
+
+			However, the expression may contain other syntactic
+			elements such as functions and objects which also
+			contain braces. Thus, we need to keep track of the
+			balance between opening and closing braces to correctly
+			identify the closing brace of the interpolated string.
+		*/
+		unsigned int bracesOpened = 0;
 
 		while (!atEOF()) {
 			skipWhitespace();
 
 			if (isDigit(peek())) {
 				const auto num = number();
-				emitToken(tokens, TokenType::NUMBER, num);
+				emitToken(TokenType::NUMBER, num);
 				continue;
 			}
 
@@ -102,9 +123,9 @@ namespace Copper {
 				const auto iterator = KEYWORDS.find(id);
 				
 				if (iterator != KEYWORDS.end()) {
-					emitToken(tokens, iterator->second, id);
+					emitToken(iterator->second, id);
 				} else {
-					emitToken(tokens, TokenType::IDENTIFIER, id);
+					emitToken(TokenType::IDENTIFIER, id);
 				}
 				
 				continue;
@@ -112,8 +133,6 @@ namespace Copper {
 
 			switch (peek()) {
 				SINGLE_CHAR_TOKEN('%', MODULO);
-				SINGLE_CHAR_TOKEN('{', OPEN_BRACE);
-				SINGLE_CHAR_TOKEN('}', CLOSE_BRACE);
 				SINGLE_CHAR_TOKEN('(', OPEN_PAREN);
 				SINGLE_CHAR_TOKEN(')', CLOSE_PAREN);
 				SINGLE_CHAR_TOKEN('[', OPEN_SQUARE_BRACKET);
@@ -123,18 +142,48 @@ namespace Copper {
 				SINGLE_CHAR_TOKEN('.', DOT);
 				SINGLE_CHAR_TOKEN(',', COMMA);
 
+				case '{':
+					bracesOpened++;
+					emitToken(TokenType::OPEN_BRACE);
+					break;
+				
+				case '}': {
+					/*
+						If we're inside an interpolated string,
+						we are in run() to parse the expression
+						inside ${}. Thus, a } would indicate the end
+						of such an expression. We don't need to emit
+						the token for } but simply consume it and
+						return back to interpolatedString() for 
+						scanning the rest of the string.
+					*/
+					if (m_insideInterpolatedString) {
+						if (bracesOpened == 0) {
+							advance();
+							return;
+						} else {
+							emitToken(TokenType::CLOSE_BRACE);
+							bracesOpened--;
+						}
+					} else {
+						emitToken(TokenType::CLOSE_BRACE);
+					}
+
+					break;
+				}
+
 				case '+': {
 					switch (peekNext()) {
 						case '+':
-							emitToken(tokens, TokenType::PLUS_PLUS, 2);
+							emitToken(TokenType::PLUS_PLUS, 2);
 							advance();
 							break;
 						case '=':
-							emitToken(tokens, TokenType::PLUS_ASSIGNMENT, 2);
+							emitToken(TokenType::PLUS_ASSIGNMENT, 2);
 							advance();
 							break;
 						default:
-							emitToken(tokens, TokenType::PLUS);
+							emitToken(TokenType::PLUS);
 					}
 
 					break;
@@ -143,15 +192,15 @@ namespace Copper {
 				case '-': {
 					switch (peekNext()) {
 						case '-':
-							emitToken(tokens, TokenType::MINUS_MINUS, 2);
+							emitToken(TokenType::MINUS_MINUS, 2);
 							advance();
 							break;
 						case '=':
-							emitToken(tokens, TokenType::MINUS_ASSIGNMENT, 2);
+							emitToken(TokenType::MINUS_ASSIGNMENT, 2);
 							advance();
 							break;
 						default:
-							emitToken(tokens, TokenType::MINUS);
+							emitToken(TokenType::MINUS);
 					}
 
 					break;
@@ -160,15 +209,15 @@ namespace Copper {
 				case '=': {
 					switch (peekNext()) {
 						case '=':
-							emitToken(tokens, TokenType::EQU, 2);
+							emitToken(TokenType::EQU, 2);
 							advance();
 							break;
 						case '>':
-							emitToken(tokens, TokenType::ARROW, 2);
+							emitToken(TokenType::ARROW, 2);
 							advance();
 							break;
 						default:
-							emitToken(tokens, TokenType::ASSIGNMENT);
+							emitToken(TokenType::ASSIGNMENT);
 					}
 
 					break;
@@ -177,15 +226,15 @@ namespace Copper {
 				case '*': {
 					switch (peekNext()) {
 						case '=':
-							emitToken(tokens, TokenType::MULTIPLY_ASSIGNMENT, 2);
+							emitToken(TokenType::MULTIPLY_ASSIGNMENT, 2);
 							advance();
 							break;
 						case '*':
-							emitToken(tokens, TokenType::EXPONENT, 2);
+							emitToken(TokenType::EXPONENT, 2);
 							advance();
 							break;
 						default:
-							emitToken(tokens, TokenType::MULTIPLY);
+							emitToken(TokenType::MULTIPLY);
 					}
 
 					break;
@@ -198,7 +247,7 @@ namespace Copper {
 				case '/': {
 					switch (peekNext()) {
 						case '=':
-							emitToken(tokens, TokenType::DIVIDE_ASSIGNMENT, 2);
+							emitToken(TokenType::DIVIDE_ASSIGNMENT, 2);
 							advance();
 							break;
 						case '/':
@@ -242,7 +291,7 @@ namespace Copper {
 							}
 							break;
 						default:
-							emitToken(tokens, TokenType::DIVIDE);
+							emitToken(TokenType::DIVIDE);
 					}
 
 					break;
@@ -250,7 +299,7 @@ namespace Copper {
 				
 				case '&': {
 					if (peekNext() == '&') {
-						emitToken(tokens, TokenType::AND, 2);
+						emitToken(TokenType::AND, 2);
 						advance();
 					} else {
 						error("Invalid or unexpected token: '&'");
@@ -261,7 +310,7 @@ namespace Copper {
 
 				case '|': {
 					if (peekNext() == '|') {
-						emitToken(tokens, TokenType::OR, 2);
+						emitToken(TokenType::OR, 2);
 						advance();
 					} else {
 						error("Invalid or unexpected token: '|'");
@@ -272,7 +321,18 @@ namespace Copper {
 
 				case '"':
 				case '\'':
-					emitToken(tokens, TokenType::STRING, string());
+					emitToken(TokenType::STRING, string());
+					break;
+
+				// Back tick
+				case '`':
+					if (m_insideInterpolatedString) {
+						m_insideInterpolatedString = false;
+						advance();
+					} else {
+						m_insideInterpolatedString = true;
+						interpolatedString();
+					}
 					break;
 
 				case EOF:
@@ -286,8 +346,7 @@ namespace Copper {
 			advance();
 		}
 
-		emitToken(tokens, TokenType::EOF_TYPE, 0);
-		return tokens;
+		emitToken(TokenType::EOF_TYPE, 0);
 	}
 
 	void Tokenizer::skipWhitespace() {
@@ -408,6 +467,51 @@ namespace Copper {
 		}
 
 		return m_translationUnit.m_contents->substr(start, len);
+	}
+
+	void Tokenizer::interpolatedString() {
+		int len = 0;
+
+		// consume the opening back-tick `
+		advance();
+		int start = m_curr;
+
+		while (!atEOF() && peek() != '`') {
+			if (peek() == '$' && peekNext() == '{') {
+				// emit string generated so far along with + for
+				// concatenation
+				auto const& lexeme = m_translationUnit.m_contents->substr(start, len);
+				emitToken(TokenType::STRING, lexeme);
+				emitToken(TokenType::PLUS);
+
+				// consume ${
+				advance();
+				advance();
+
+				// wrap expression in parentheses
+				emitToken(TokenType::OPEN_PAREN);
+				run();
+				emitToken(TokenType::CLOSE_PAREN);
+
+				if (!atEOF() && peek() != '`')
+					emitToken(TokenType::PLUS);
+
+				// reset
+				start = m_curr;
+				len = 0;
+
+				continue;
+			}
+			
+			advance(); len++;
+		}
+
+		if (peek() == '`') {
+			auto const &lexeme = m_translationUnit.m_contents->substr(start, len);
+			emitToken(TokenType::STRING, lexeme);
+		} else if (atEOF()) {
+			error("Unterminated string literal");
+		}
 	}
 
 	void Tokenizer::error(const std::string& msg) const {

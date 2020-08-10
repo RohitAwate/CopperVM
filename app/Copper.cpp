@@ -26,6 +26,7 @@
 #include "TranslationUnit.h"
 #include "VM.h"
 
+// #define TOKENIZE
 #define DISASSEMBLE
 
 static std::string readFile(const std::string& path) {
@@ -63,7 +64,13 @@ int main(int argc, const char* argv[]) {
 
 			Copper::TranslationUnit translationUnit("<stdin>", input);
 			Copper::Tokenizer tokenizer(translationUnit);
-			auto tokens = tokenizer.run();
+			auto tokens = tokenizer.tokenize();
+		
+#ifdef TOKENIZE
+		for (const auto& token : tokens) {
+			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		}
+#endif
 
 			Copper::Parser parser(translationUnit, tokens);
 			if (parser.parse()) {
@@ -79,7 +86,13 @@ int main(int argc, const char* argv[]) {
 	} else if (argc == 2) {
 		Copper::TranslationUnit translationUnit(argv[1], readFile(argv[1]));
 		Copper::Tokenizer tokenizer(translationUnit);
-		auto tokens = tokenizer.run();
+		auto tokens = tokenizer.tokenize();
+
+#ifdef TOKENIZE
+		for (const auto& token : tokens) {
+			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		}
+#endif
 
 		Copper::Parser parser(translationUnit, tokens);
 		if (parser.parse()) {
