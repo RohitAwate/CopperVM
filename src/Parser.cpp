@@ -355,6 +355,18 @@ namespace Copper {
 				next();
 				break;
 			}
+			case TokenType::NULL_TYPE: {
+				auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
+				m_bytecode.emit(OpCode::LDC, constOffset);
+				next();
+				break;
+			}
+			case TokenType::UNDEFINED: {
+				auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
+				m_bytecode.emit(OpCode::LDC, constOffset);
+				next();
+				break;
+			}
 			case TokenType::EOF_TYPE:
 				error("Unexpected end-of-file, expect expression");
 				return false;
