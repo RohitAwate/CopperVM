@@ -89,7 +89,7 @@ namespace Copper {
 		RET
 	};
 
-	typedef uint8_t byte;
+	typedef size_t byte;
 
 	class Bytecode {
 		friend class Disassembler;
