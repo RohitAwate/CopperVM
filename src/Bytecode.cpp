@@ -22,10 +22,36 @@ namespace Copper {
 		m_blob.push_back(code);
 	}
 
-	void Bytecode::emitConstant(const Value constant) {
-		m_constants.push_back(constant);
-		emit(OpCode::LDC);
-		emit(m_constants.size() - 1);
+	void Bytecode::emit(byte b1, byte b2) {
+		emit(b1); emit(b2);
+	}
+
+	size_t Bytecode::addConstant(const Object* constant) {
+		switch (constant->type) {
+			case ObjectType::BOOLEAN:
+				m_constants.push_back(std::shared_ptr<BooleanObject>((BooleanObject*)constant));
+				break;
+			case ObjectType::NUMBER:
+				m_constants.push_back(std::shared_ptr<NumberObject>((NumberObject*)constant));
+				break;
+			case ObjectType::STRING:
+				m_constants.push_back(std::shared_ptr<StringObject>((StringObject*)constant));
+				break;
+		}
+
+		return m_constants.size() - 1;
+	}
+
+	bool Bytecode::addIdentifier(const std::string& identifier, const bool isMutable) {
+		if (m_identifers.find(identifier) != m_identifers.end())
+			return false;
+
+		m_identifers.insert(identifier);
+		auto const &identifierOffset = addConstant(new StringObject(identifier, isMutable));
+		
+		// This might need to change for locals
+		emit(OpCode::DEFGL, identifierOffset);
+		return true;
 	}
 
 } // namespace Copper

@@ -14,38 +14,27 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <iostream>
-#include <string>
+
+#include "Object.h"
 
 namespace Copper {
 
-    enum class ValueType {
-		BOOLEAN,
-		NUMBER,
-	};
+	std::string BooleanObject::toString() const {
+		return val == true ? "true" : "false";
+	}
 
-	union StoreAs {
-		bool boolean;
-		double number;
+	std::string NumberObject::toString() const {
+		return std::to_string(val);
+	}
 
-		StoreAs(ValueType, std::string);
-        StoreAs(const double);
-		StoreAs(const bool);
-	};
+	std::string StringObject::toString() const {
+		return val;
+	}
 
-	struct Value {
-		Value(ValueType type, std::string lexeme);
-        Value(const double number);
-		Value(const bool boolean);
-
-		const ValueType type;
-		const StoreAs as;
-
-		std::string toString() const;
-
-        friend std::ostream& operator<<(std::ostream&, const Value&);
-	};
+	std::ostream& operator<<(std::ostream& stream, const Object& obj) {
+		stream << obj.toString();
+		return stream;
+	}
 
 }

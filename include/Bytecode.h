@@ -16,21 +16,38 @@
 
 #pragma once
 
+#include <memory>
+#include <unordered_set>
 #include <vector>
 
-#include "Value.h"
+#include "Object.h"
 
 namespace Copper {
 	
 	enum OpCode {
-		/*
-			Load specified constant from constant pool
-			onto the VM stack.
-
-			Operand:
-			(1) - constant offset in bytecode's constant pool
-		*/
+		/**
+		 * Load specified constant from constant pool
+		 * onto the VM stack.
+		 * 
+		 * Operand:
+		 * (1) - constant offset in bytecode's constant pool
+		 */
 		LDC,
+
+		/**
+		 * Defines a global object.
+		 * 
+		 * First, the name of the symbol is loaded from the constants
+		 * pool.
+		 * 
+		 * The value of the symbol is already expected to be loaded
+		 * by LDC, which we now pop from the stack and add to the
+		 * VM's global symbol table.
+		 *  
+		 * Operand:
+		 * (1) - identifier offset in bytecode's constant pool
+		 */
+		DEFGL,
 
 		// Basic arithmetic
 		ADD,
@@ -60,16 +77,19 @@ namespace Copper {
 	typedef unsigned char byte;
 
 	class Bytecode {
-		friend class VM;
 		friend class Disassembler;
+		friend class VM;
 	public:
 		Bytecode(std::string source) : m_source(source) {}
 		void emit(byte);
-		void emitConstant(const Value);
+		size_t addConstant(const Object*);
+		void emit(byte, byte);
+		bool addIdentifier(const std::string&, const bool isMutable);
 	private:
 		std::string m_source;
 		std::vector<byte> m_blob;
-		std::vector<Value> m_constants;
+		std::vector<std::shared_ptr<Object>> m_constants;
+		std::unordered_set<std::string> m_identifers;
 	};
 
 } // namespace Copper
