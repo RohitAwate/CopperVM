@@ -21,6 +21,18 @@
 
 namespace Copper {
 
+	// TODO: parse always returns true
+	// return actual return value from declaration
+	bool Parser::parse() {
+		while (!atEOF()) {
+			if (!declaration()) {
+				synchronize();
+			}
+		}
+
+		return true;
+	}
+
 	Bytecode Parser::getBytecode() const {
 		return m_bytecode;
 	}
@@ -77,21 +89,49 @@ namespace Copper {
 		}
 	}
 
-	// TODO: parse always returns true
-	// return actual return value from declaration
-	bool Parser::parse() {
-		while (!atEOF()) {
-			if (!declaration()) {
-				synchronize();
-			}
+	bool Parser::declaration() {
+		if (match(TokenType::LET)) {
+			return letDeclarationList();
+		}
+
+		return statement();
+	}
+
+	bool Parser::letDeclarationList() {
+		while (peek().getType() == TokenType::IDENTIFIER) {
+			if (!singleLetDeclaration()) return false;
+
+			if (!match(TokenType::COMMA)) break; 
+		}
+
+		if (!match(TokenType::SEMICOLON)) {
+			error("Expect ';' after declaration");
+			return false;
 		}
 
 		return true;
 	}
 
-	bool Parser::declaration() {
-			return statement();
+	bool Parser::singleLetDeclaration() {
+		const auto& identifier = peek().getLexeme();
+		consume();
+
+		if (match(TokenType::ASSIGNMENT)) {
+			if (!expression()) return false;
+		} else {
+			auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
+			m_bytecode.emit(OpCode::LDC, constOffset);
 		}
+
+		// isMutable set to true because we're parsing
+		// 'let' declarations
+		if (!m_bytecode.addIdentifier(identifier, true)) {
+			error(std::string("Redeclaration of ") + identifier);
+			return false;
+		}
+
+		return true;
+	}
 
 	bool Parser::statement() {
 		return expressionStatement();
@@ -290,15 +330,31 @@ namespace Copper {
 			case TokenType::OPEN_PAREN:
 				if (!grouping()) return false;
 				break;
-			case TokenType::NUMBER:
-				m_bytecode.emitConstant(Value(ValueType::NUMBER, primaryToken.getLexeme()));
+			case TokenType::NUMBER: {
+				auto const &constOffset = m_bytecode.addConstant(new NumberObject(primaryToken.getLexeme(), false));
+				m_bytecode.emit(OpCode::LDC, constOffset);
 				next();
 				break;
+			}
 			case TokenType::TRUE:
-			case TokenType::FALSE:
-				m_bytecode.emitConstant(Value(ValueType::BOOLEAN, primaryToken.getLexeme()));
+			case TokenType::FALSE: {
+				auto const &constOffset = m_bytecode.addConstant(new BooleanObject(primaryToken.getLexeme(), false));
+				m_bytecode.emit(OpCode::LDC, constOffset);
 				next();
 				break;
+			}
+			case TokenType::STRING: {
+				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
+				m_bytecode.emit(OpCode::LDC, constOffset);
+				next();
+				break;
+			}
+			case TokenType::IDENTIFIER: {
+				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
+				m_bytecode.emit(OpCode::LDGL, constOffset);
+				next();
+				break;
+			}
 			case TokenType::EOF_TYPE:
 				error("Unexpected end-of-file, expect expression");
 				return false;
@@ -327,7 +383,7 @@ namespace Copper {
 		return false;
 	}
 
-	void Parser::error(const char* msg) const {
+	void Parser::error(const std::string& msg) const {
 		const Token& currentToken = peek();
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;

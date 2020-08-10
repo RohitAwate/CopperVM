@@ -49,6 +49,8 @@ namespace Copper
 		void synchronize();
 
 		bool declaration();
+		bool letDeclarationList();
+		bool singleLetDeclaration();
 		bool statement();
 		bool expressionStatement();
 
@@ -70,7 +72,7 @@ namespace Copper
 		bool primary();
 		bool grouping();
 
-		void error(const char* msg) const;
+		void error(const std::string&) const;
 	};
 
 } // namespace Copper
