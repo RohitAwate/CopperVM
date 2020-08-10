@@ -37,6 +37,10 @@ namespace Copper {
 			case ObjectType::STRING:
 				m_constants.push_back(std::shared_ptr<StringObject>((StringObject*)constant));
 				break;
+			case ObjectType::UNDEFINED:
+			case ObjectType::NULL_TYPE:
+				m_constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject *)constant));
+				break;
 		}
 
 		return m_constants.size() - 1;

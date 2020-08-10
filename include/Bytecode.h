@@ -48,6 +48,7 @@ namespace Copper {
 		 * (1) - identifier offset in bytecode's constant pool
 		 */
 		DEFGL,
+		
 		/**
 		 * Load specified global variable from the VM's global table.
 		 * 
@@ -88,7 +89,7 @@ namespace Copper {
 		RET
 	};
 
-	typedef unsigned char byte;
+	typedef uint8_t byte;
 
 	class Bytecode {
 		friend class Disassembler;
