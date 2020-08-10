@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <stack>
+#include <unordered_map>
 
 #include "Bytecode.h"
 
@@ -30,11 +31,13 @@ namespace Copper {
 		int run();
 	private:
 		std::unique_ptr<Bytecode> m_code;
-		std::stack<Value> m_stack;
+		
+		std::stack<std::shared_ptr<Object>> m_stack;
+		std::unordered_map<std::string, std::shared_ptr<Object>> m_globals;
 
 		unsigned int m_ip { 0 };
 
-		void error(const char* msg) const;
+		void error(const std::string& msg) const;
 	};
 
 }
