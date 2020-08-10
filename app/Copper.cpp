@@ -26,7 +26,7 @@
 #include "TranslationUnit.h"
 #include "VM.h"
 
-// #define TOKENIZE
+#define TOKENIZE
 #define DISASSEMBLE
 
 static std::string readFile(const std::string& path) {
@@ -50,8 +50,8 @@ static std::string readFile(const std::string& path) {
 
 int main(int argc, const char* argv[]) {
 	if (argc == 1) {
-		std::cout << "CopperVM 0.1" << std::endl;
-		
+		printf("CopperVM %s (%s %s on %s)\n", COPPER_VERSION, COMPILER_NAME, COMPILER_VERSION, PLATFORM);
+
 		for (;;) {
 			std::cout << "> ";
 			std::string input;
