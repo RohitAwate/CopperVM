@@ -20,6 +20,15 @@
 
 namespace Copper {
 
+	std::string EmptyObject::toString() const {
+		switch (type) {
+			case ObjectType::NULL_TYPE:
+				return "null";
+			case ObjectType::UNDEFINED:
+				return "undefined";
+		}
+	}
+
 	std::string BooleanObject::toString() const {
 		return val == true ? "true" : "false";
 	}

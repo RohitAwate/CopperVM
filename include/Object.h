@@ -26,6 +26,8 @@ namespace Copper {
 		BOOLEAN,
 		NUMBER,
 		STRING,
+		UNDEFINED,
+		NULL_TYPE,
 	};
 
 	class Object {
@@ -37,6 +39,14 @@ namespace Copper {
 
 		const ObjectType type;
 		const bool isMutable;
+	};
+
+	class EmptyObject : public Object {
+	public:
+		EmptyObject(const ObjectType& type, const bool &isMutable = true)
+			: Object(type, isMutable) {}
+
+		std::string toString() const;
 	};
 
 	class BooleanObject : public Object {
