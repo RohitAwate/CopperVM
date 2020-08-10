@@ -34,7 +34,22 @@ namespace Copper {
 	}
 
 	std::string NumberObject::toString() const {
-		return std::to_string(val);
+		// Check if value is integral, convert to long
+		// so that we don't see the fractional part.
+		double temp;
+		if (std::modf(val, &temp) == 0.0) {
+			return std::to_string((long) val);
+		}
+
+		/*
+			If not integral, call to std::to_string
+			produces trailing zeroes in the string.
+			For example, 61.6 appears as 61.600000.
+
+			To avoid this, we erase the trailing zeroes.
+		*/
+		auto str = std::to_string(val);
+		return str.erase(str.find_last_not_of('0') + 1, std::string::npos);
 	}
 
 	std::string StringObject::toString() const {
