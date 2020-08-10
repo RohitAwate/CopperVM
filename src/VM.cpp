@@ -32,7 +32,7 @@ namespace Copper {
 #define BINARY_OP(op, ResultObjectType)                                      \
     do                                                                       \
     {                                                                        \
-        auto rightVal = m_stack.top().get();                                 \
+        auto rightVal = m_stack.top();                                       \
         if (rightVal->type != ObjectType::NUMBER)                            \
         {                                                                    \
             error("Operand must be a number.");                              \
@@ -40,7 +40,7 @@ namespace Copper {
         }                                                                    \
         m_stack.pop();                                                       \
                                                                              \
-        auto leftVal = m_stack.top().get();                                  \
+        auto leftVal = m_stack.top();                                        \
         if (leftVal->type != ObjectType::NUMBER)                             \
         {                                                                    \
             error("Operand must be a number.");                              \
@@ -48,31 +48,31 @@ namespace Copper {
         }                                                                    \
         m_stack.pop();                                                       \
                                                                              \
-        NumberObject *left = (NumberObject *)leftVal;                        \
-        NumberObject *right = (NumberObject *)rightVal;                      \
+        auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);        \
+        auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);      \
         m_stack.push(std::make_shared<ResultObjectType>((*left)op(*right))); \
     } while (false)
 
 #define EQUALITY_OP(op)                                                       \
     do                                                                        \
     {                                                                         \
-        Object *rightVal = m_stack.top().get();                               \
+        auto rightVal = m_stack.top();                                        \
         m_stack.pop();                                                        \
-        Object *leftVal = m_stack.top().get();                                \
+        auto leftVal = m_stack.top();                                         \
         m_stack.pop();                                                        \
                                                                               \
         if (leftVal->type != rightVal->type)                                  \
             m_stack.push(std::make_shared<BooleanObject>(false, false));      \
         else if (leftVal->type == ObjectType::BOOLEAN)                        \
         {                                                                     \
-            BooleanObject *left = (BooleanObject *)leftVal;                   \
-            BooleanObject *right = (BooleanObject *)rightVal;                 \
+            auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);    \
+            auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);  \
             m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
         }                                                                     \
         else if (leftVal->type == ObjectType::NUMBER)                         \
         {                                                                     \
-            NumberObject *left = (NumberObject *)leftVal;                     \
-            NumberObject *right = (NumberObject *)rightVal;                   \
+            auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);     \
+            auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);   \
             m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
         }                                                                     \
     } while (false)
@@ -80,7 +80,7 @@ namespace Copper {
 #define BINARY_LOGICAL_OP(op)                                             \
     do                                                                    \
     {                                                                     \
-        Object *rightVal = m_stack.top().get();                           \
+        auto rightVal = m_stack.top();                                    \
         if (rightVal->type != ObjectType::BOOLEAN)                        \
         {                                                                 \
             error("Operand must be a boolean.");                          \
@@ -88,7 +88,7 @@ namespace Copper {
         }                                                                 \
         m_stack.pop();                                                    \
                                                                           \
-        Object *leftVal = m_stack.top().get();                            \
+        auto leftVal = m_stack.top();                                     \
         if (leftVal->type != ObjectType::BOOLEAN)                         \
         {                                                                 \
             error("Operand must be a boolean.");                          \
@@ -96,8 +96,8 @@ namespace Copper {
         }                                                                 \
         m_stack.pop();                                                    \
                                                                           \
-        BooleanObject *left = (BooleanObject *)leftVal;                   \
-        BooleanObject *right = (BooleanObject *)rightVal;                 \
+        auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);    \
+        auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);  \
         m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
     } while (false)
 
@@ -109,7 +109,7 @@ namespace Copper {
 */
 #define GET_CONST() (m_code->m_constants[code[++m_ip]])
 
-#define GET_STRING() (StringObject*) GET_CONST().get()
+#define GET_STRING() std::dynamic_pointer_cast<StringObject>(GET_CONST())
 
         auto const& code = m_code.get()->m_blob;
 
@@ -120,14 +120,14 @@ namespace Copper {
                     break;
 
                 case DEFGL: {
-                    StringObject* identifier = GET_STRING();
+                    auto identifier = GET_STRING();
                     m_globals[identifier->get()] = m_stack.top();
                     m_stack.pop();
                     break;
                 }
 
                 case LDGL: {
-                    StringObject* identifier = GET_STRING();
+                    auto identifier = GET_STRING();
                     if (m_globals.find(identifier->get()) == m_globals.end()) {
                         error("Undefined variable: " + identifier->get());
                         return 1;
@@ -139,7 +139,7 @@ namespace Copper {
                 
                 // Basic arithmetic
                 case NEG: {
-                    Object* obj = m_stack.top().get();
+                    auto obj = m_stack.top();
                     if (obj->type != ObjectType::NUMBER) {
                         error("Operand must be a number.");
                         return 1;
@@ -147,7 +147,7 @@ namespace Copper {
 
                     m_stack.pop();
 
-                    NumberObject* numObj = (NumberObject*) obj;
+                    auto numObj = std::dynamic_pointer_cast<NumberObject>(obj);
                     m_stack.push(std::make_shared<NumberObject>(-*numObj));
                     break;
                 }
@@ -178,23 +178,22 @@ namespace Copper {
                 case DIV: BINARY_OP(/, NumberObject); break;
                 case MOD: BINARY_OP(%, NumberObject); break;
                 case EXP: {
-                    Object *rightVal = m_stack.top().get();
+                    auto rightVal = m_stack.top();
                     if (rightVal->type != ObjectType::NUMBER) {
                         error("Operand must be a number.");
                         return 1;
                     }
                     m_stack.pop();
 
-                    Object *leftVal = m_stack.top().get();
+                    auto leftVal = m_stack.top();
                     if (leftVal->type != ObjectType::NUMBER) {
                         error("Operand must be a number.");
                         return 1;
                     }
                     m_stack.pop();
 
-                    NumberObject *left = (NumberObject *)leftVal;
-                    NumberObject *right = (NumberObject *)rightVal;
-
+                    auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);
+                    auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);
                     m_stack.push(std::make_shared<NumberObject>(left->toPower(*right)));  
                     break;
                 }
@@ -213,14 +212,14 @@ namespace Copper {
                 case AND: BINARY_LOGICAL_OP(&&); break;
                 case OR:  BINARY_LOGICAL_OP(||); break;
                 case NOT: {
-                    Object* obj = m_stack.top().get();
+                    auto obj = m_stack.top();
                     if (obj->type != ObjectType::BOOLEAN) {
                         error("Operand must be a boolean.");
                         return 1;
                     }
 
                     m_stack.pop();
-                    BooleanObject *numObj = (BooleanObject *)obj;
+                    auto numObj = std::dynamic_pointer_cast<BooleanObject>(obj);
                     m_stack.push(std::make_shared<BooleanObject>(!*numObj));
                     break;
                 }
@@ -242,4 +241,4 @@ namespace Copper {
         return 0;
     }
 
-}
+} // namespace Copper
