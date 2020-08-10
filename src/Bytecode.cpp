@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <iostream>
+
 #include "Bytecode.h"
 
 namespace Copper {
@@ -41,6 +43,10 @@ namespace Copper {
 			case ObjectType::NULL_TYPE:
 				m_constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject *)constant));
 				break;
+			default:
+				// TODO: Get rid of this eventually
+				std::cout << "addConstant case missing: " << (int) constant->type << std::endl;
+				std::exit(1);
 		}
 
 		return m_constants.size() - 1;
