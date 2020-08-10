@@ -9,10 +9,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(LIB_SRC
 	src/Bytecode.cpp
 	src/Disassembler.cpp
+	src/Object.cpp
 	src/Parser.cpp
 	src/Tokenizer.cpp
 	src/TranslationUnit.cpp
-	src/Value.cpp
 	src/VM.cpp
 )
 

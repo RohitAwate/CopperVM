@@ -23,7 +23,7 @@
 #include "Object.h"
 
 namespace Copper {
-	
+
 	enum OpCode {
 		/**
 		 * Load specified constant from constant pool
@@ -48,6 +48,20 @@ namespace Copper {
 		 * (1) - identifier offset in bytecode's constant pool
 		 */
 		DEFGL,
+		/**
+		 * Load specified global variable from the VM's global table.
+		 * 
+		 * First, the name of the symbol is loaded from the constants
+		 * pool.
+		 * 
+		 * The value of the symbol is already expected to be defined
+		 * in the VM's global table by DEFGL, which we now push onto
+		 * the VM's execution stack.
+		 * 
+		 * Operand:
+		 * (1) - StringObject representing the identifier of the global
+		 */
+		LDGL,
 
 		// Basic arithmetic
 		ADD,

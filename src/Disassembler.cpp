@@ -32,8 +32,20 @@ namespace Copper {
 		for (int i = 0; i < m_bytecode.m_blob.size(); i++) {
 			switch (m_bytecode.m_blob[i]) {
 				case LDC: {
-					const Value val = GET_CONST(++i);
-					printInstruction("LDC", std::to_string((int) m_bytecode.m_blob[i]), val.toString());
+					Object* val = GET_CONST(++i).get();
+					printInstruction("LDC", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
+					break;
+				}
+
+				case DEFGL: {
+					Object* val = GET_CONST(++i).get();
+					printInstruction("DEFGL", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
+					break;
+				}
+
+				case LDGL: {
+					Object* val = GET_CONST(++i).get();
+					printInstruction("LDGL", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
 					break;
 				}
 
