@@ -151,7 +151,28 @@ namespace Copper {
                     m_stack.push(std::make_shared<NumberObject>(-*numObj));
                     break;
                 }
-                case ADD: BINARY_OP(+, NumberObject); break;
+                case ADD: {
+                    auto rightVal = m_stack.top();
+                    m_stack.pop();
+                    auto leftVal = m_stack.top();
+                    m_stack.pop();
+
+                    if (leftVal->type == ObjectType::STRING || rightVal->type == ObjectType::STRING) {
+                        auto concat = leftVal->toString() + rightVal->toString();
+                        m_stack.push(std::make_shared<StringObject>(concat));
+                    }
+                    else if (leftVal->type == ObjectType::NUMBER && rightVal->type == ObjectType::NUMBER) {
+                        auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);
+                        auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);
+                        m_stack.push(std::make_shared<NumberObject>((*left) + (*right)));
+                    }
+                    else {
+                        error("Invalid operand types for operator +");
+                        return 1;
+                    }
+
+                    break;
+                }
                 case SUB: BINARY_OP(-, NumberObject); break;
                 case MUL: BINARY_OP(*, NumberObject); break;
                 case DIV: BINARY_OP(/, NumberObject); break;
