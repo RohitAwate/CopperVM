@@ -52,16 +52,11 @@ namespace Copper {
 		return m_constants.size() - 1;
 	}
 
-	bool Bytecode::addIdentifier(const std::string& identifier, const bool isMutable) {
-		if (m_identifers.find(identifier) != m_identifers.end())
-			return false;
-
-		m_identifers.insert(identifier);
+	void Bytecode::addIdentifier(const std::string& identifier, const bool isMutable) {
 		auto const &identifierOffset = addConstant(new StringObject(identifier, isMutable));
-		
+				
 		// This might need to change for locals
 		emit(OpCode::DEFGL, identifierOffset);
-		return true;
 	}
 
 } // namespace Copper

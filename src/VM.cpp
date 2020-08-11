@@ -121,6 +121,11 @@ namespace Copper {
 
                 case DEFGL: {
                     auto identifier = GET_STRING();
+                    if (m_globals.find(identifier->get()) != m_globals.end()) {
+                        error("Redeclaration of variable: " + identifier->get());
+                        return 1;
+                    }
+                    
                     m_globals[identifier->get()] = m_stack.top();
                     m_stack.pop();
                     break;

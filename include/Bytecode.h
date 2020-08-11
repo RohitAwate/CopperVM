@@ -17,7 +17,6 @@
 #pragma once
 
 #include <memory>
-#include <unordered_set>
 #include <vector>
 
 #include "Object.h"
@@ -99,12 +98,11 @@ namespace Copper {
 		void emit(byte);
 		size_t addConstant(const Object*);
 		void emit(byte, byte);
-		bool addIdentifier(const std::string&, const bool isMutable);
+		void addIdentifier(const std::string&, const bool isMutable);
 	private:
 		std::string m_source;
 		std::vector<byte> m_blob;
 		std::vector<std::shared_ptr<Object>> m_constants;
-		std::unordered_set<std::string> m_identifers;
 	};
 
 } // namespace Copper

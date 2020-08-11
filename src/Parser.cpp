@@ -125,10 +125,7 @@ namespace Copper {
 
 		// isMutable set to true because we're parsing
 		// 'let' declarations
-		if (!m_bytecode.addIdentifier(identifier, true)) {
-			error(std::string("Redeclaration of ") + identifier);
-			return false;
-		}
+		m_bytecode.addIdentifier(identifier, true);
 
 		return true;
 	}
