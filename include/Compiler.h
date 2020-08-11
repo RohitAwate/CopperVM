@@ -16,25 +16,14 @@
 
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <string>
+#include "Bytecode.h"
+#include "TranslationUnit.h"
 
 namespace Copper {
 
-	struct TranslationUnit {
-		TranslationUnit(const std::string& filepath) :
-			m_filepath(filepath), m_contents(std::make_shared<std::string>(readFile(filepath))) {}
-
-		TranslationUnit(const std::string& filepath, std::string contents) :
-			m_filepath(filepath), m_contents(std::make_shared<std::string>(contents)) {}
-
-		std::string m_filepath;
-		std::shared_ptr<std::string> m_contents;
-
-		static std::string readFile(const std::string &path);
-		static std::string getOffsetString(const std::string &line, size_t offset);
-		std::string getLine(int) const;
+	class Compiler {
+	public:
+		Bytecode compile(const TranslationUnit&);
 	};
 
 } // namespace Copper

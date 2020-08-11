@@ -14,41 +14,17 @@
  * limitations under the License.
  */
 
-#include <fstream>
 #include <iostream>
 #include <memory>
-#include <sstream>
 
 #include "Bytecode.h"
-#include "Disassembler.h"
-#include "Parser.h"
-#include "Tokenizer.h"
+#include "Compiler.h"
 #include "TranslationUnit.h"
 #include "VM.h"
 
-#define TOKENIZE
-#define DISASSEMBLE
-
-static std::string readFile(const std::string& path) {
-	std::ifstream fd;
-	fd.open(path);
-
-	if (!fd) {
-		std::cout << "Could not open file: " << path << std::endl;
-		std::exit(1);
-	}
-
-	std::string line;
-	std::ostringstream buffer;
-	while (std::getline(fd, line)) {
-		buffer << line;
-		buffer << '\n';
-	}
-		
-	return buffer.str();
-}
-
 int main(int argc, const char* argv[]) {
+	Copper::Compiler compiler;
+
 	if (argc == 1) {
 		printf("CopperVM %s (%s %s on %s)\n", COPPER_VERSION, COMPILER_NAME, COMPILER_VERSION, PLATFORM);
 
@@ -61,49 +37,15 @@ int main(int argc, const char* argv[]) {
 				std::cout << std::endl;
 				return 0;
 			}
-
-			Copper::TranslationUnit translationUnit("<stdin>", input);
-			Copper::Tokenizer tokenizer(translationUnit);
-			auto tokens = tokenizer.tokenize();
-		
-#ifdef TOKENIZE
-		for (const auto& token : tokens) {
-			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
-		}
-#endif
-
-			Copper::Parser parser(translationUnit, tokens);
-			if (parser.parse()) {
-				auto code = parser.getBytecode();
-#ifdef DISASSEMBLE
-				Copper::Disassembler disassembler(code);
-				disassembler.run();
-#endif
-				Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
-				if (vm.run() != 0) return 1;
-			}
+			
+			auto bytecode = compiler.compile(Copper::TranslationUnit("<stdin>", input));
+			Copper::VM vm(std::make_unique<Copper::Bytecode>(bytecode));
+			if (vm.run() != 0) return 1;
 		}
 	} else if (argc == 2) {
-		Copper::TranslationUnit translationUnit(argv[1], readFile(argv[1]));
-		Copper::Tokenizer tokenizer(translationUnit);
-		auto tokens = tokenizer.tokenize();
-
-#ifdef TOKENIZE
-		for (const auto& token : tokens) {
-			std::cout << Copper::toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
-		}
-#endif
-
-		Copper::Parser parser(translationUnit, tokens);
-		if (parser.parse()) {
-			auto code = parser.getBytecode();
-#ifdef DISASSEMBLE
-			Copper::Disassembler disassembler(code);
-			disassembler.run();
-#endif
-			Copper::VM vm(std::make_unique<Copper::Bytecode>(code));
-			return vm.run();
-		}
+		auto bytecode = compiler.compile(Copper::TranslationUnit(argv[1]));
+		Copper::VM vm(std::make_unique<Copper::Bytecode>(bytecode));
+		return vm.run();
 	} else {
 		std::cout << "Usage:" << std::endl;
 		std::cout << "REPL: copper" << std::endl;

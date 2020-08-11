@@ -14,6 +14,7 @@ endif()
 
 set(LIB_SRC
 	src/Bytecode.cpp
+	src/Compiler.cpp
 	src/Disassembler.cpp
 	src/Object.cpp
 	src/Parser.cpp
