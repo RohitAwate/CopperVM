@@ -29,7 +29,7 @@ namespace Copper {
 		std::cout << ANSICodes::BOLD << ANSICodes::WHITE;
 		std::cout << m_bytecode.m_source << ANSICodes::RESET << std::endl;
 
-		for (int i = 0; i < m_bytecode.m_blob.size(); i++) {
+		for (size_t i = 0; i < m_bytecode.m_blob.size(); i++) {
 			switch (m_bytecode.m_blob[i]) {
 				case LDC: {
 					Object* val = GET_CONST(++i).get();

@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.10.2)
 project(CopperVM VERSION 0.1
 				DESCRIPTION "A bytecode virtual machine for an opinionated, sensible subset of JavaScript."
 				LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
+
+if (MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra -pedantic)
+endif()
 
 set(LIB_SRC
 	src/Bytecode.cpp
