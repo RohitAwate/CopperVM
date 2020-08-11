@@ -113,7 +113,7 @@ namespace Copper {
 	}
 
 	bool Parser::singleLetDeclaration() {
-		const auto& identifier = peek().getLexeme();
+		const auto identifier = peek().getLexeme();
 		consume();
 
 		if (match(TokenType::ASSIGNMENT)) {
