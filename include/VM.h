@@ -26,12 +26,8 @@ namespace Copper {
 
 	class VM {
 	public:
-		VM(std::unique_ptr<Bytecode> code) : m_code(std::move(code)) {}
-
-		int run();
+		int run(const Bytecode&);
 	private:
-		std::unique_ptr<Bytecode> m_code;
-		
 		std::stack<std::shared_ptr<Object>> m_stack;
 		std::unordered_map<std::string, std::shared_ptr<Object>> m_globals;
 

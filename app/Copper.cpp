@@ -24,6 +24,7 @@
 
 int main(int argc, const char* argv[]) {
 	Copper::Compiler compiler;
+	Copper::VM vm;
 
 	if (argc == 1) {
 		printf("CopperVM %s (%s %s on %s)\n", COPPER_VERSION, COMPILER_NAME, COMPILER_VERSION, PLATFORM);
@@ -39,13 +40,11 @@ int main(int argc, const char* argv[]) {
 			}
 			
 			auto bytecode = compiler.compile(Copper::TranslationUnit("<stdin>", input));
-			Copper::VM vm(std::make_unique<Copper::Bytecode>(bytecode));
-			if (vm.run() != 0) return 1;
+			vm.run(bytecode);
 		}
 	} else if (argc == 2) {
 		auto bytecode = compiler.compile(Copper::TranslationUnit(argv[1]));
-		Copper::VM vm(std::make_unique<Copper::Bytecode>(bytecode));
-		return vm.run();
+		return vm.run(bytecode);
 	} else {
 		std::cout << "Usage:" << std::endl;
 		std::cout << "REPL: copper" << std::endl;

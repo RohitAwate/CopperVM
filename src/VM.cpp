@@ -27,7 +27,7 @@ namespace Copper {
         std::cout << ANSICodes::RED << msg << ANSICodes::RESET << std::endl;
     }
 
-    int VM::run() {
+    int VM::run(const Bytecode& bytecode) {
 
 #define BINARY_OP(op, ResultObjectType)                                      \
     do                                                                       \
@@ -107,11 +107,11 @@ namespace Copper {
     the operand of LDC. Thus, we increment the instruction pointer
     to fetch Object at the constant offset in the pool.
 */
-#define GET_CONST() (m_code->m_constants[code[++m_ip]])
+#define GET_CONST() (bytecode.m_constants[code[++m_ip]])
 
 #define GET_STRING() std::dynamic_pointer_cast<StringObject>(GET_CONST())
 
-        auto const& code = m_code.get()->m_blob;
+        auto const& code = bytecode.m_blob;
 
         for (m_ip = 0; m_ip < code.size(); m_ip++) {
             switch (code[m_ip]) {
@@ -238,6 +238,7 @@ namespace Copper {
 #undef BINARY_MATH_H
 #undef EQUALITY_OP
 #undef GET_CONST
+#undef GET_STRING
         return 0;
     }
 

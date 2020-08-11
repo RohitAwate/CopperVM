@@ -21,9 +21,6 @@
 #include "Parser.h"
 #include "Tokenizer.h"
 
-#define DISASSEMBLE
-#define TOKENIZE
-
 namespace Copper {
 
 	Bytecode Compiler::compile(const TranslationUnit& unit) {

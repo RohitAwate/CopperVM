@@ -19,6 +19,9 @@
 #include "Bytecode.h"
 #include "TranslationUnit.h"
 
+// #define DISASSEMBLE
+// #define TOKENIZE
+
 namespace Copper {
 
 	class Compiler {
