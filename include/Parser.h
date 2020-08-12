@@ -71,6 +71,7 @@ namespace Copper
 		bool unary();
 		bool primary();
 		bool grouping();
+		bool stringTemplate();
 
 		void error(const std::string&) const;
 	};

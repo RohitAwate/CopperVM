@@ -346,6 +346,18 @@ namespace Copper {
 				next();
 				break;
 			}
+			case TokenType::INTERPOLATION_START: {
+				consume();
+				if (!expression()) return false;
+				if (!match(TokenType::CLOSE_BRACE)) {
+					error("Expect '}' after template expression");
+					return false;
+				}
+				break;
+			}
+			// String Template Literal aka String Interpolation
+			case TokenType::BACK_TICK:
+				return stringTemplate();
 			case TokenType::IDENTIFIER: {
 				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
 				m_bytecode.emit(OpCode::LDGL, constOffset);
@@ -390,6 +402,28 @@ namespace Copper {
 			error("Expect ')'");
 		
 		return false;
+	}
+
+	bool Parser::stringTemplate() {
+		consume();	// the back tick `
+
+		while (peek().getType() != TokenType::BACK_TICK) {
+			switch (peek().getType()) {
+				case TokenType::STRING: {
+					if (!expression()) return false;
+					break;
+				}
+				case TokenType::EOF_TYPE:
+					error("Unexpected end-of-file, unterminated string template literal");
+					return false;
+				default:
+					error("Unexpected token");
+					return false;
+			}
+		}
+		
+		consume();	// the back tick `
+		return true;
 	}
 
 	void Parser::error(const std::string& msg) const {

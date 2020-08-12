@@ -98,9 +98,9 @@ namespace Copper {
 		/*
 			This keeps track of the number of open curly braces
 			encountered so far. This is required for tokenizing
-			interpolated strings properly.
+			template string literals properly.
 
-			interpolatedString() calls run() in a mutually recursive
+			stringTemplate() calls run() in a mutually recursive
 			manner to scan the expressions within ${}. Thus, in the
 			recursive call, we must return on encountering a closing
 			brace i.e. }
@@ -111,7 +111,7 @@ namespace Copper {
 			balance between opening and closing braces to correctly
 			identify the closing brace of the interpolated string.
 		*/
-		unsigned int bracesOpened = 0;
+		size_t bracesOpened = 0;
 
 		while (!atEOF()) {
 			skipWhitespace();
@@ -161,16 +161,12 @@ namespace Copper {
 						return back to interpolatedString() for 
 						scanning the rest of the string.
 					*/
-					if (m_insideInterpolatedString) {
-						if (bracesOpened == 0) {
-							advance();
-							return;
-						} else {
-							emitToken(TokenType::CLOSE_BRACE);
-							bracesOpened--;
-						}
+					emitToken(TokenType::CLOSE_BRACE);
+					if (m_interpolationDepth > 0 && bracesOpened == 0) {
+						advance();
+						return;
 					} else {
-						emitToken(TokenType::CLOSE_BRACE);
+						bracesOpened--;
 					}
 
 					break;
@@ -330,19 +326,14 @@ namespace Copper {
 
 				// Back tick
 				case '`':
-					if (m_insideInterpolatedString) {
-						m_insideInterpolatedString = false;
-						advance();
-					} else {
-						m_insideInterpolatedString = true;
-						interpolatedString();
-					}
+					stringTemplate();
 					break;
 
 				case EOF:
 					break;
 
 				default:
+					// TODO: This is just disgustingly bad and inefficient
 					error("Invalid or unexpected token: '"+ std::string(1, peek()) + "'");
 					m_column++;
 			}
@@ -410,8 +401,9 @@ namespace Copper {
 	}
 
 	std::string Tokenizer::number() {
-		int len = 0;
-		int start = m_curr;
+		size_t len = 0;
+		size_t start = m_curr;
+
 		while (isDigit(peek())) {
 			advance();
 			len++;
@@ -435,12 +427,12 @@ namespace Copper {
 	}
 
 	std::string Tokenizer::identifier() {
-		int len = 0;
+		size_t len = 0;
 
 		// consume the current character,
 		// which has already been verified to be
 		// alpha by the isAlpha() call in run()
-		int start = m_curr;
+		size_t start = m_curr;
 		advance(); len++;
 
 		while (isAlpha(peek()) || isDigit(peek())) {
@@ -451,7 +443,7 @@ namespace Copper {
 	}
 
 	std::string Tokenizer::string() {
-		int len = 0;
+		size_t len = 0;
 
 		// string literal may use single or double
 		// quotation marks, hence we store which one
@@ -460,7 +452,7 @@ namespace Copper {
 
 		// consume the opening quotation mark
 		advance();
-		int start = m_curr;
+		size_t start = m_curr;
 
 		while (!atEOF() && peek() != openingQuote && peek() != '\n') {
 			advance(); len++;
@@ -473,53 +465,57 @@ namespace Copper {
 		return m_translationUnit.m_contents->substr(start, len);
 	}
 
-	void Tokenizer::interpolatedString() {
-		int len = 0;
+	void Tokenizer::stringTemplate() {
+		emitToken(TokenType::BACK_TICK);
+		advance();	// consume `
 
-		// consume the opening back-tick `
-		advance();
-		int start = m_curr;
+		size_t len = 0;
+		size_t start = m_curr;
 
-		while (!atEOF() && peek() != '`') {
-			if (peek() == '$' && peekNext() == '{') {
-				// emit string generated so far along with + for
-				// concatenation
-				auto const& lexeme = m_translationUnit.m_contents->substr(start, len);
-				emitToken(TokenType::STRING, lexeme);
-				emitToken(TokenType::PLUS);
+		while (!atEOF()) {
+			switch (peek()) {
+				case '$': {
+					if (peekNext() == '{') {
+						auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
+						emitToken(TokenType::STRING, stringLiteral);
+						emitToken(TokenType::PLUS, 0);
 
-				// consume ${
-				advance();
-				advance();
+						emitToken(TokenType::INTERPOLATION_START, 2);
+						advance(); advance();	// consume ${
+				
+						m_interpolationDepth++;
+						run();	// scan expression
+						m_interpolationDepth--;
+						emitToken(TokenType::PLUS, 0);
 
-				// wrap expression in parentheses
-				emitToken(TokenType::OPEN_PAREN);
-				run();
-				emitToken(TokenType::CLOSE_PAREN);
+						len = 0;
+						start = m_curr;
+					}
+					break;
+				}
+				case '`': {
+					auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
+					emitToken(TokenType::STRING, stringLiteral);
+					emitToken(TokenType::BACK_TICK);
+					return;
+				}
 
-				if (!atEOF() && peek() != '`')
-					emitToken(TokenType::PLUS);
+				case '\n':
+					advance();
+					m_line++;
+					m_column = 1;
+					len++;
+					break;
 
-				// reset
-				start = m_curr;
-				len = 0;
-
-				continue;
+				default:
+					advance();
+					len++;
 			}
-			
-			advance(); len++;
-		}
-
-		if (peek() == '`') {
-			auto const &lexeme = m_translationUnit.m_contents->substr(start, len);
-			emitToken(TokenType::STRING, lexeme);
-		} else if (atEOF()) {
-			error("Unterminated string literal");
 		}
 	}
 
 	void Tokenizer::error(const std::string& msg) {
-		m_hadError = false;
+		m_hadError = true;
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";

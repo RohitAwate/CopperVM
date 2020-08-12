@@ -37,11 +37,11 @@ namespace Copper {
 		void emitToken(const TokenType, int length);
 		void emitToken(const TokenType, std::string lexeme);
 
-		size_t m_curr   { 0 };
-		size_t m_line   { 1 };
-		size_t m_column { 1 };
+		size_t m_curr   			= 0;
+		size_t m_line   			= 1;
+		size_t m_column 			= 1;
+		size_t m_interpolationDepth	= 0;
 
-		bool m_insideInterpolatedString = false;
 		bool m_hadError = false;
 
 		std::vector<Token> tokens;
@@ -62,7 +62,7 @@ namespace Copper {
 		std::string identifier();
 
 		std::string string();
-		void interpolatedString();
+		void stringTemplate();
 
 		void error(const std::string& msg);
 	};

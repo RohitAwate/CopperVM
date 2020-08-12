@@ -80,6 +80,7 @@
     TYPE_MACRO(COLON)                \
     TYPE_MACRO(DOT)                  \
     TYPE_MACRO(COMMA)                \
+    TYPE_MACRO(BACK_TICK)            \
     /* Multi character tokens */     \
     TYPE_MACRO(PLUS_ASSIGNMENT)      \
     TYPE_MACRO(MINUS_ASSIGNMENT)     \
@@ -94,6 +95,8 @@
     TYPE_MACRO(GRE)                  \
     TYPE_MACRO(AND)                  \
     TYPE_MACRO(OR)                   \
+    /*  ${ */                        \
+    TYPE_MACRO(INTERPOLATION_START)  \
     TYPE_MACRO(EOF_TYPE)
 
 namespace Copper {
