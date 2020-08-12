@@ -15,7 +15,6 @@
  */
 
 #include <fstream>
-#include <sstream>
 
 #include "Colors.h"
 #include "TranslationUnit.h"
@@ -26,23 +25,13 @@ namespace Copper {
 		std::ifstream fd;
 		fd.open(path);
 
-		if (!fd)
-		{
+		if (!fd) {
 			std::cout << "Could not open file: " << path << std::endl;
 			std::exit(1);
 		}
 
-		std::string line;
-		std::ostringstream buffer;
-		while (std::getline(fd, line))
-		{
-			buffer << line;
-			buffer << '\n';
-		}
-
-		return buffer.str();
-	}
-
+		return std::string((std::istreambuf_iterator<char>(fd)), (std::istreambuf_iterator<char>()));
+	}	
 
 	std::string TranslationUnit::getOffsetString(const std::string& line, size_t offset) {
 		std::string offsetString;
