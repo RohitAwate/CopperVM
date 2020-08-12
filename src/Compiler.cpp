@@ -23,27 +23,34 @@
 
 namespace Copper {
 
+	static void errorAndExit() {
+		std::cout << "Compilation failed." << std::endl;
+		std::exit(1);
+	}
+
 	Bytecode Compiler::compile(const TranslationUnit& unit) {
 		Tokenizer tokenizer(unit);
-		auto tokens = tokenizer.tokenize();
+		if (!tokenizer.tokenize()) errorAndExit();
+		auto tokens = tokenizer.getTokens();
 
 #ifdef TOKENIZE
-		for (const auto &token : tokens)
-			std::cout << toString(token.getType()) << " " << token.getLexeme() << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		for (const auto &token : tokens) {
+			std::cout << toString(token.getType()) << " ";
+			std::cout << (token.getType() == TokenType::STRING ? "'" : "");
+			std::cout << token.getLexeme();
+			std::cout << (token.getType() == TokenType::STRING ? "'" : "");
+			std::cout << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
+		}
 #endif
 
 		Parser parser(unit, tokens);
-		if (parser.parse()) {
-			auto bytecode = parser.getBytecode();
+		if (!parser.parse()) errorAndExit();
+		auto bytecode = parser.getBytecode();
 #ifdef DISASSEMBLE
-			Copper::Disassembler disassembler(bytecode);
-			disassembler.run();
+		Copper::Disassembler disassembler(bytecode);
+		disassembler.run();
 #endif
-			return bytecode;
-		}
-
-		std::cout << "Compilation failed." << std::endl;
-		std::exit(1);
+		return bytecode;
 	}
 
 } // namespace Copper

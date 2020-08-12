@@ -85,8 +85,12 @@ namespace Copper {
 		{"await", TokenType::AWAIT},
 	};
 
-	std::vector<Token>& Tokenizer::tokenize() {
+	bool Tokenizer::tokenize() {
 		run();
+		return !m_hadError;
+	}
+
+	std::vector<Token>& Tokenizer::getTokens() {
 		return tokens;
 	}
 
@@ -514,7 +518,9 @@ namespace Copper {
 		}
 	}
 
-	void Tokenizer::error(const std::string& msg) const {
+	void Tokenizer::error(const std::string& msg) {
+		m_hadError = false;
+
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
 		std::cout << "(line " << m_line << "): ";
