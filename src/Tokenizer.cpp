@@ -431,7 +431,7 @@ namespace Copper {
 	}
 
 	inline bool Tokenizer::isAlpha(char c) {
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '$';
 	}
 
 	std::string Tokenizer::identifier() {
