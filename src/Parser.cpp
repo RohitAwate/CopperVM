@@ -360,8 +360,15 @@ namespace Copper {
 				return stringTemplate();
 			case TokenType::IDENTIFIER: {
 				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
-				m_bytecode.emit(OpCode::LDGL, constOffset);
-				next();
+				consume();
+
+				if (match(TokenType::ASSIGNMENT)) {
+					if (!expression()) return false;
+					m_bytecode.emit(OpCode::SETGL, constOffset);
+				} else {
+					m_bytecode.emit(OpCode::LDGL, constOffset);
+				}
+
 				break;
 			}
 			case TokenType::NULL_TYPE: {

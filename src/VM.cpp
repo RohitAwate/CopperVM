@@ -147,6 +147,19 @@ namespace Copper {
                     m_stack.push(m_globals[identifier->get()]);
                     break;
                 }
+
+                case SETGL: {
+                    auto identifier = GET_STRING();
+                    if (m_globals.find(identifier->get()) == m_globals.end()) {
+                        error("Undefined variable: " + identifier->get());
+                        return 1;
+                    }
+
+                    m_globals[identifier->get()] = m_stack.top();
+                    m_stack.pop();
+
+                    break;
+                }
                 
                 // Basic arithmetic
                 case NEG: {

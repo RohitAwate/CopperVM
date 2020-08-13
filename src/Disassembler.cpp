@@ -49,6 +49,12 @@ namespace Copper {
 					break;
 				}
 
+				case SETGL: {
+					Object *val = GET_CONST(++i).get();
+					printInstruction("SETGL", std::to_string((int)m_bytecode.m_blob[i]), val->toString());
+					break;
+				}
+
 				// Arithmetic
 				case ADD: printInstruction("ADD"); break;
 				case SUB: printInstruction("SUB"); break;

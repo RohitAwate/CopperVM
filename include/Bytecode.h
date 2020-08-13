@@ -63,6 +63,8 @@ namespace Copper {
 		 */
 		LDGL,
 
+		SETGL,
+
 		// Basic arithmetic
 		ADD,
 		SUB,
