@@ -162,7 +162,7 @@ namespace Copper {
                         return 1;
                     }
 
-                        m_globals[identifier->get()].first = m_stack.top();
+                    m_globals[identifier->get()].first = m_stack.top();
                     m_stack.pop();
 
                     break;

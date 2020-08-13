@@ -24,54 +24,159 @@
 namespace Copper {
 
 	enum OpCode {
+
 		/**
-		 * Load specified constant from constant pool
-		 * onto the VM stack.
+		 * NAME:
+		 * Load Constant
 		 * 
-		 * Operand:
-		 * (1) - constant offset in bytecode's constant pool
+		 * DESCRIPTION:
+		 * Loads a constant value onto the stack.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The constant must be defined in the bytecode's constant pool.
+		 * 
+		 * OPERATION:
+		 * - The value at the operand index is read.
+		 * - The read value is loaded onto the VM's execution stack.
+		 *  
+		 * OPERANDS:
+		 * (1) - offset into the bytecode's constant pool
 		 */
 		LDC,
 
 		/**
-		 * Defines a global object.
+		 * NAME:
+		 * Define Global
 		 * 
-		 * First, the name of the symbol is loaded from the constants
-		 * pool.
+		 * DESCRIPTION:
+		 * Defines a new global variable.
 		 * 
-		 * The value of the symbol is already expected to be loaded
-		 * by LDC, which we now pop from the stack and add to the
-		 * VM's global symbol table.
+		 * PRE-CONDITIONS:
+		 * - The identifier string must already be loaded by LDC.
+		 * - The variable's value must already be loaded by LDC.
+		 * 
+		 * OPERATION:
+		 * - The identifier string is loaded from the constants pool.
+		 * - Checks if identifier has been already defined.
+		 * - Adds identifier and corresponding value to the VM's global
+		 *   symbol table along with the constness of the variable.
+		 * - We now pop the value from the stack.
 		 *  
-		 * Operand:
-		 * (1) - identifier offset in bytecode's constant pool
+		 * OPERANDS:
+		 * (1) - identifier offset into the bytecode's constant pool
 		 */
 		DEFGL,
-		
+
 		/**
-		 * Load specified global variable from the VM's global table.
+		 * NAME:
+		 * Load Global
 		 * 
-		 * First, the name of the symbol is loaded from the constants
-		 * pool.
+		 * DESCRIPTION:
+		 * Loads the value of a global variable on the stack.
 		 * 
-		 * The value of the symbol is already expected to be defined
-		 * in the VM's global table by DEFGL, which we now push onto
-		 * the VM's execution stack.
+		 * PRE-CONDITIONS:
+		 * - The variable must already be defined.
+		 * - The identifier string must already be loaded by LDC.
 		 * 
-		 * Operand:
-		 * (1) - StringObject representing the identifier of the global
+		 * OPERATION:
+		 * - The identifier string is loaded from the constants pool.
+		 * - Checks if identifier has actually been defined.
+		 * - Pushes the value of the variable onto the stack.
+		 * - We now pop the value from the stack.
+		 *  
+		 * OPERANDS:
+		 * (1) - identifier offset into the bytecode's constant pool
 		 */
 		LDGL,
 
+		/**
+		 * NAME:
+		 * Set Global
+		 * 
+		 * DESCRIPTION:
+		 * Sets the value of a global variable.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The variable must already be defined.
+		 * - The identifier string must already be loaded by LDC.
+		 * - The variable's value must already be loaded by LDC.
+		 * 
+		 * OPERATION:
+		 * - The identifier string is loaded from the constants pool.
+		 * - Checks if variable has actually been defined.
+		 * - Checks if the variable is non-const.
+		 * - New value is assigned to the variable.
+		 * - We now pop the value from the stack.
+		 *  
+		 * OPERANDS:
+		 * (1) - identifier offset into the bytecode's constant pool
+		 */
 		SETGL,
 
-		// Basic arithmetic
+		/**
+		 * ARITHMETIC ADDITION & STRING CONCATENATION
+		 * 
+		 * DESCRIPTION:
+		 * Performs numeric addition when both operands are numeric,
+		 * or a string conversion of both followed by a concatenation
+		 * if even one of them is string.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The two operands must already be loaded by LDC.
+		 * 
+		 * OPERATION:
+		 * - The two operand values are popped from the stack.
+		 * - Checked if any of the two are string. In this case,
+		 *   a string concatenation is produced as result.
+		 * - If both are numeric, addition is performed resulting in a sum.
+		 * - Result is pushed onto the stack.
+		 * 
+		 * OPERANDS:
+		 * None. Required operands are popped from the stack.
+		 */
 		ADD,
+
+		/**
+		 * BASIC ARITHMETIC OPERATIONS
+		 * Applies to SUB -> EXP
+		 * 
+		 * DESCRIPTION:
+		 * Performs the specified arithmetic operation.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The two operands must already be loaded by LDC.
+		 * 
+		 * OPERATION:
+		 * - The two operand values are popped from the stack.
+		 * - Check for numeric types is performed.
+		 * - The arithmetic operation is performed.
+		 * - Result is pushed onto the stack.
+		 * 
+		 * OPERANDS:
+		 * None. Required operands are popped from the stack.
+		 */
 		SUB,
 		MUL,
 		DIV,
 		MOD,
 		EXP,
+
+		/**
+		 * DESCRIPTION:
+		 * Negates a numeric value.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The operand must already be loaded by LDC.
+		 * 
+		 * OPERATION:
+		 * - The operand value is popped from the stack.
+		 * - Check for numeric type is performed.
+		 * - Value is negated.
+		 * - Result is pushed onto the stack.
+		 * 
+		 * OPERANDS:
+		 * None. Required operand is popped from the stack.
+		 */
 		NEG,
 
 		// Comparison
