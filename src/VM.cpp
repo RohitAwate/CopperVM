@@ -53,28 +53,34 @@ namespace Copper {
         m_stack.push(std::make_shared<ResultObjectType>((*left)op(*right))); \
     } while (false)
 
-#define EQUALITY_OP(op)                                                       \
-    do                                                                        \
-    {                                                                         \
-        auto rightVal = m_stack.top();                                        \
-        m_stack.pop();                                                        \
-        auto leftVal = m_stack.top();                                         \
-        m_stack.pop();                                                        \
-                                                                              \
-        if (leftVal->type != rightVal->type)                                  \
-            m_stack.push(std::make_shared<BooleanObject>(false, false));      \
-        else if (leftVal->type == ObjectType::BOOLEAN)                        \
-        {                                                                     \
-            auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);    \
-            auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);  \
-            m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
-        }                                                                     \
-        else if (leftVal->type == ObjectType::NUMBER)                         \
-        {                                                                     \
-            auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);     \
-            auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);   \
-            m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
-        }                                                                     \
+#define EQUALITY_OP(op)                                                                            \
+    do                                                                                             \
+    {                                                                                              \
+        auto rightVal = m_stack.top();                                                             \
+        m_stack.pop();                                                                             \
+        auto leftVal = m_stack.top();                                                              \
+        m_stack.pop();                                                                             \
+                                                                                                   \
+        if (leftVal->type != rightVal->type)                                                       \
+            m_stack.push(std::make_shared<BooleanObject>(leftVal->type op rightVal->type, false)); \
+        else if (leftVal->type == ObjectType::BOOLEAN)                                             \
+        {                                                                                          \
+            auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);                         \
+            auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);                       \
+            m_stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
+        }                                                                                          \
+        else if (leftVal->type == ObjectType::NUMBER)                                              \
+        {                                                                                          \
+            auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);                          \
+            auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);                        \
+            m_stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
+        }                                                                                          \
+        else if (leftVal->type == ObjectType::STRING)                                              \
+        {                                                                                          \
+            auto left = std::dynamic_pointer_cast<StringObject>(leftVal);                          \
+            auto right = std::dynamic_pointer_cast<StringObject>(rightVal);                        \
+            m_stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
+        }                                                                                          \
     } while (false)
 
 #define BINARY_LOGICAL_OP(op)                                             \

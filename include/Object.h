@@ -106,6 +106,9 @@ namespace Copper {
 
 		std::string toString() const;
 		std::string get() const { return val; }
+
+		BooleanObject operator==(StringObject &o) { return {val == o.val, false}; }
+		BooleanObject operator!=(StringObject &o) { return {val != o.val, false}; }
 	private:
 		std::string val;
 	};
