@@ -477,7 +477,12 @@ namespace Copper {
 				case '$': {
 					if (peekNext() == '{') {
 						auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
-						emitToken(TokenType::STRING, stringLiteral);
+
+						// We don't use emitToken() for emitting the string literal since it could
+						// be multi-line. emitToken() automatically increments m_column based on
+						// the length of the lexeme to be emitted. This, obviously poses a problem when
+						// emitting a multi-line string. Hence, we do it manually.
+						tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column));
 						emitToken(TokenType::PLUS, 0);
 
 						emitToken(TokenType::INTERPOLATION_START, 2);
@@ -495,7 +500,8 @@ namespace Copper {
 				}
 				case '`': {
 					auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
-					emitToken(TokenType::STRING, stringLiteral);
+					// Not using emitToken for the same reason as above
+					tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column));
 					emitToken(TokenType::BACK_TICK);
 					return;
 				}
@@ -509,6 +515,7 @@ namespace Copper {
 
 				default:
 					advance();
+					m_column++;
 					len++;
 			}
 		}
