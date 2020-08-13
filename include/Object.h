@@ -32,30 +32,30 @@ namespace Copper {
 
 	class Object {
 	public:
-		Object(ObjectType type, bool isMutable = true) : type(type), isMutable(isMutable) {}
+		Object(ObjectType type, bool isConst = true) : type(type), isConst(isConst) {}
 		
 		virtual std::string toString() const = 0;
 		friend std::ostream &operator<<(std::ostream&, const Object&);
 
 		const ObjectType type;
-		const bool isMutable;
+		const bool isConst;
 	};
 
 	class EmptyObject : public Object {
 	public:
-		EmptyObject(const ObjectType& type, const bool &isMutable = true)
-			: Object(type, isMutable) {}
+		EmptyObject(const ObjectType& type, const bool &isConst = true)
+			: Object(type, isConst) {}
 
 		std::string toString() const;
 	};
 
 	class BooleanObject : public Object {
 	public:
-		BooleanObject(const std::string& lexeme, const bool& isMutable = true)
-			: Object(ObjectType::BOOLEAN, isMutable), val(lexeme == "true") {}
+		BooleanObject(const std::string& lexeme, const bool& isConst = true)
+			: Object(ObjectType::BOOLEAN, isConst), val(lexeme == "true") {}
 
-		BooleanObject(const bool& val, const bool &isMutable)
-			: Object(ObjectType::BOOLEAN, isMutable), val(val) {}
+		BooleanObject(const bool& val, const bool &isConst)
+			: Object(ObjectType::BOOLEAN, isConst), val(val) {}
 
 		std::string toString() const;
 		bool get() const { return val; }
@@ -71,11 +71,11 @@ namespace Copper {
 
 	class NumberObject : public Object {
 	public:
-		NumberObject(const std::string& lexeme, const bool& isMutable = true)
-			: Object(ObjectType::NUMBER, isMutable), val(std::stod(lexeme)) {}
+		NumberObject(const std::string& lexeme, const bool& isConst = true)
+			: Object(ObjectType::NUMBER, isConst), val(std::stod(lexeme)) {}
 			
-		NumberObject(const double &val, const bool &isMutable)
-			: Object(ObjectType::NUMBER, isMutable), val(val) {}
+		NumberObject(const double &val, const bool &isConst)
+			: Object(ObjectType::NUMBER, isConst), val(val) {}
 			
 		std::string toString() const;
 		double get() const { return val; }
@@ -101,8 +101,8 @@ namespace Copper {
 
 	class StringObject : public Object {
 	public:
-		StringObject(const std::string& lexeme, const bool& isMutable = true)
-			: Object(ObjectType::STRING, isMutable), val(std::move(lexeme)) {}
+		StringObject(const std::string& lexeme, const bool& isConst = true)
+			: Object(ObjectType::STRING, isConst), val(std::move(lexeme)) {}
 
 		std::string toString() const;
 		std::string get() const { return val; }

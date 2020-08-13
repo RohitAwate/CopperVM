@@ -29,9 +29,15 @@ namespace Copper {
 		int run(const Bytecode&);
 	private:
 		std::stack<std::shared_ptr<Object>> m_stack;
-		std::unordered_map<std::string, std::shared_ptr<Object>> m_globals;
 
-		unsigned int m_ip { 0 };
+		/**
+		 * Stores the global variables.
+		 * Map from identifier to a pair constituting the actual object
+		 * and a flag indicating if the variable is const.
+		 */ 
+		std::unordered_map<std::string, std::pair<std::shared_ptr<Object>, bool>> m_globals;
+
+		size_t m_ip = 0;
 
 		void error(const std::string& msg) const;
 	};

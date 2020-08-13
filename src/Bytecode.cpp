@@ -52,8 +52,8 @@ namespace Copper {
 		return m_constants.size() - 1;
 	}
 
-	void Bytecode::addIdentifier(const std::string& identifier, const bool isMutable) {
-		auto const &identifierOffset = addConstant(new StringObject(identifier, isMutable));
+	void Bytecode::addIdentifier(const std::string& identifier, const bool isConst) {
+		auto const &identifierOffset = addConstant(new StringObject(identifier, isConst));
 				
 		// This might need to change for locals
 		emit(OpCode::DEFGL, identifierOffset);

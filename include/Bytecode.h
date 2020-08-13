@@ -100,7 +100,7 @@ namespace Copper {
 		void emit(byte);
 		size_t addConstant(const Object*);
 		void emit(byte, byte);
-		void addIdentifier(const std::string&, const bool isMutable);
+		void addIdentifier(const std::string&, const bool isConst);
 	private:
 		std::string m_source;
 		std::vector<byte> m_blob;

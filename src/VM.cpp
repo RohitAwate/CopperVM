@@ -132,7 +132,8 @@ namespace Copper {
                         return 1;
                     }
                     
-                    m_globals[identifier->get()] = m_stack.top();
+                    m_globals[identifier->get()].first = m_stack.top();
+                    m_globals[identifier->get()].second = identifier->isConst;
                     m_stack.pop();
                     break;
                 }
@@ -144,7 +145,7 @@ namespace Copper {
                         return 1;
                     }
 
-                    m_stack.push(m_globals[identifier->get()]);
+                    m_stack.push(m_globals[identifier->get()].first);
                     break;
                 }
 
@@ -155,7 +156,13 @@ namespace Copper {
                         return 1;
                     }
 
-                    m_globals[identifier->get()] = m_stack.top();
+                    // check if const
+                    if (m_globals[identifier->get()].second) {
+                        error("Assignment to const variable: "+ identifier->get());
+                        return 1;
+                    }
+
+                        m_globals[identifier->get()].first = m_stack.top();
                     m_stack.pop();
 
                     break;

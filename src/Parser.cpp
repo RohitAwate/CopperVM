@@ -91,15 +91,17 @@ namespace Copper {
 
 	bool Parser::declaration() {
 		if (match(TokenType::LET)) {
-			return letDeclarationList();
+			return declarationList(false);
+		} else if (match(TokenType::CONST)) {
+			return declarationList(true);
 		}
 
 		return statement();
 	}
 
-	bool Parser::letDeclarationList() {
+	bool Parser::declarationList(const bool& isConst) {
 		while (peek().getType() == TokenType::IDENTIFIER) {
-			if (!singleLetDeclaration()) return false;
+			if (!singleDeclaration(isConst)) return false;
 
 			if (!match(TokenType::COMMA)) break; 
 		}
@@ -112,20 +114,24 @@ namespace Copper {
 		return true;
 	}
 
-	bool Parser::singleLetDeclaration() {
+
+	bool Parser::singleDeclaration(const bool& isConst) {
 		const auto identifier = peek().getLexeme();
 		consume();
 
 		if (match(TokenType::ASSIGNMENT)) {
 			if (!expression()) return false;
 		} else {
+			if (isConst) {
+				error("Missing initializer in const declaration");
+				return false;
+			}
+			
 			auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
 			m_bytecode.emit(OpCode::LDC, constOffset);
 		}
 
-		// isMutable set to true because we're parsing
-		// 'let' declarations
-		m_bytecode.addIdentifier(identifier, true);
+		m_bytecode.addIdentifier(identifier, isConst);
 
 		return true;
 	}
@@ -328,20 +334,20 @@ namespace Copper {
 				if (!grouping()) return false;
 				break;
 			case TokenType::NUMBER: {
-				auto const &constOffset = m_bytecode.addConstant(new NumberObject(primaryToken.getLexeme(), false));
+				auto const &constOffset = m_bytecode.addConstant(new NumberObject(primaryToken.getLexeme()));
 				m_bytecode.emit(OpCode::LDC, constOffset);
 				next();
 				break;
 			}
 			case TokenType::TRUE:
 			case TokenType::FALSE: {
-				auto const &constOffset = m_bytecode.addConstant(new BooleanObject(primaryToken.getLexeme(), false));
+				auto const &constOffset = m_bytecode.addConstant(new BooleanObject(primaryToken.getLexeme()));
 				m_bytecode.emit(OpCode::LDC, constOffset);
 				next();
 				break;
 			}
 			case TokenType::STRING: {
-				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
+				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
 				m_bytecode.emit(OpCode::LDC, constOffset);
 				next();
 				break;
@@ -359,7 +365,7 @@ namespace Copper {
 			case TokenType::BACK_TICK:
 				return stringTemplate();
 			case TokenType::IDENTIFIER: {
-				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme(), false));
+				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
 				consume();
 
 				if (match(TokenType::ASSIGNMENT)) {

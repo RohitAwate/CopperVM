@@ -49,8 +49,8 @@ namespace Copper
 		void synchronize();
 
 		bool declaration();
-		bool letDeclarationList();
-		bool singleLetDeclaration();
+		bool declarationList(const bool& isConst);
+		bool singleDeclaration(const bool& isConst);
 		bool statement();
 		bool expressionStatement();
 
