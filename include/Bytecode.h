@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "Object.h"
 
@@ -201,15 +202,18 @@ namespace Copper {
 		friend class Disassembler;
 		friend class VM;
 	public:
-		Bytecode(std::string source) : m_source(source) {}
-		void emit(byte);
-		size_t addConstant(const Object*);
-		void emit(byte, byte);
-		void addIdentifier(const std::string&, const bool isConst);
+		void emit(byte opcode, unsigned int line, unsigned int column);
+		void emit(byte b1, byte b2, unsigned int line, unsigned int column);
+		size_t addConstant(const Object *);
+		void addIdentifier(const std::string &, const bool isConst, unsigned int line, unsigned int column);
+		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
 	private:
-		std::string m_source;
 		std::vector<byte> m_blob;
+		std::map<unsigned int, std::vector<unsigned int>> m_locations;
 		std::vector<std::shared_ptr<Object>> m_constants;
+
+		void addInstructionLocation(const unsigned int &line, const unsigned int &column);
+
 	};
 
 } // namespace Copper

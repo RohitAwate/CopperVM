@@ -19,13 +19,15 @@
 #include "Bytecode.h"
 
 namespace Copper {
-	
-	void Bytecode::emit(byte code) {
-		m_blob.push_back(code);
+
+	void Bytecode::emit(byte opcode, unsigned int line, unsigned int column) {
+		m_blob.push_back(opcode);
+		addInstructionLocation(line, column);
 	}
 
-	void Bytecode::emit(byte b1, byte b2) {
-		emit(b1); emit(b2);
+	void Bytecode::emit(byte b1, byte b2, unsigned int line, unsigned int column) {
+		emit(b1, line, column);
+		emit(b2, line, column);
 	}
 
 	size_t Bytecode::addConstant(const Object* constant) {
@@ -41,7 +43,7 @@ namespace Copper {
 				break;
 			case ObjectType::UNDEFINED:
 			case ObjectType::NULL_TYPE:
-				m_constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject *)constant));
+				m_constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject*)constant));
 				break;
 			default:
 				// TODO: Get rid of this eventually
@@ -52,11 +54,34 @@ namespace Copper {
 		return m_constants.size() - 1;
 	}
 
-	void Bytecode::addIdentifier(const std::string& identifier, const bool isConst) {
+	void Bytecode::addIdentifier(const std::string &identifier, const bool isConst, unsigned int line, unsigned int column) {
 		auto const &identifierOffset = addConstant(new StringObject(identifier, isConst));
 				
 		// This might need to change for locals
-		emit(OpCode::DEFGL, identifierOffset);
+		emit(OpCode::DEFGL, identifierOffset, line, column);
+	}
+
+	std::pair<unsigned int, unsigned int> Bytecode::getSourceLocation(byte opcodeIndex) const {
+		for (auto lineItr = m_locations.begin(); lineItr != m_locations.end(); lineItr++) {
+			auto& lineLocations = lineItr->second;
+
+			if (opcodeIndex < lineLocations.size()) {
+				return {lineItr->first, lineLocations[opcodeIndex]};
+			} else {
+				opcodeIndex -= lineLocations.size();
+			}
+		}
+
+		return {0, 0};
+	}
+
+	void Bytecode::addInstructionLocation(const unsigned int& line, const unsigned int& column) {
+		if (m_locations.find(line) != m_locations.end()) {
+			m_locations[line].push_back(column);
+		} else {
+			m_locations[line] = {};
+			m_locations[line].push_back(column);
+		}
 	}
 
 } // namespace Copper
