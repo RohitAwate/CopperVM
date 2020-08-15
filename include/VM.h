@@ -21,12 +21,13 @@
 #include <unordered_map>
 
 #include "Bytecode.h"
+#include "TranslationUnit.h"
 
 namespace Copper {
 
 	class VM {
 	public:
-		int run(const Bytecode&);
+		int run(const Bytecode&, const TranslationUnit&);
 	private:
 		std::stack<std::shared_ptr<Object>> m_stack;
 
@@ -39,7 +40,7 @@ namespace Copper {
 
 		size_t m_ip = 0;
 
-		void error(const std::string& msg) const;
+		void error(const TranslationUnit&, const Bytecode& bytecode, const std::string& msg) const;
 	};
 
 } // namespace Copper

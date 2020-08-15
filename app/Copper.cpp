@@ -38,13 +38,15 @@ int main(int argc, const char* argv[]) {
 				std::cout << std::endl;
 				return 0;
 			}
-			
-			auto bytecode = compiler.compile(Copper::TranslationUnit("<stdin>", input));
-			vm.run(bytecode);
+
+			auto translationUnit = Copper::TranslationUnit("<stdin>", input);
+			auto bytecode = compiler.compile(translationUnit);
+			vm.run(bytecode, translationUnit);
 		}
 	} else if (argc == 2) {
-		auto bytecode = compiler.compile(Copper::TranslationUnit(argv[1]));
-		return vm.run(bytecode);
+		auto translationUnit = Copper::TranslationUnit(argv[1]);
+		auto bytecode = compiler.compile(translationUnit);
+		return vm.run(bytecode, translationUnit);
 	} else {
 		std::cout << "Usage:" << std::endl;
 		std::cout << "REPL: copper" << std::endl;

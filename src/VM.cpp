@@ -23,11 +23,21 @@
 
 namespace Copper {
 
-    void VM::error(const std::string& msg) const {
-        std::cout << ANSICodes::RED << msg << ANSICodes::RESET << std::endl;
+    void VM::error(const TranslationUnit& translationUnit, const Bytecode& bytecode, const std::string& msg) const {
+        std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
+        std::cout << ANSICodes::BOLD << translationUnit.m_filepath << ANSICodes::RESET << " ";
+        
+        const auto& location = bytecode.getSourceLocation(m_ip);
+        std::cout << "(line " << location.first << "): ";
+        std::cout << msg << std::endl;
+
+        const auto& culpritLine = translationUnit.getLine(location.first);
+        std::cout << "\t" << culpritLine << std::endl;
+        std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, location.second - 1);
+        std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
     }
 
-    int VM::run(const Bytecode& bytecode) {
+    int VM::run(const Bytecode& bytecode, const TranslationUnit& translationUnit) {
 
 #define BINARY_OP(op, ResultObjectType)                                      \
     do                                                                       \
@@ -35,7 +45,7 @@ namespace Copper {
         auto rightVal = m_stack.top();                                       \
         if (rightVal->type != ObjectType::NUMBER)                            \
         {                                                                    \
-            error("Operand must be a number.");                              \
+            error(translationUnit, bytecode, "Operand must be a number.");   \
             return 1;                                                        \
         }                                                                    \
         m_stack.pop();                                                       \
@@ -43,7 +53,7 @@ namespace Copper {
         auto leftVal = m_stack.top();                                        \
         if (leftVal->type != ObjectType::NUMBER)                             \
         {                                                                    \
-            error("Operand must be a number.");                              \
+            error(translationUnit, bytecode, "Operand must be a number.");   \
             return 1;                                                        \
         }                                                                    \
         m_stack.pop();                                                       \
@@ -83,28 +93,28 @@ namespace Copper {
         }                                                                                          \
     } while (false)
 
-#define BINARY_LOGICAL_OP(op)                                             \
-    do                                                                    \
-    {                                                                     \
-        auto rightVal = m_stack.top();                                    \
-        if (rightVal->type != ObjectType::BOOLEAN)                        \
-        {                                                                 \
-            error("Operand must be a boolean.");                          \
-            return 1;                                                     \
-        }                                                                 \
-        m_stack.pop();                                                    \
-                                                                          \
-        auto leftVal = m_stack.top();                                     \
-        if (leftVal->type != ObjectType::BOOLEAN)                         \
-        {                                                                 \
-            error("Operand must be a boolean.");                          \
-            return 1;                                                     \
-        }                                                                 \
-        m_stack.pop();                                                    \
-                                                                          \
-        auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);    \
-        auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);  \
-        m_stack.push(std::make_shared<BooleanObject>((*left)op(*right))); \
+#define BINARY_LOGICAL_OP(op)                                               \
+    do                                                                      \
+    {                                                                       \
+        auto rightVal = m_stack.top();                                      \
+        if (rightVal->type != ObjectType::BOOLEAN)                          \
+        {                                                                   \
+            error(translationUnit, bytecode, "Operand must be a boolean."); \
+            return 1;                                                       \
+        }                                                                   \
+        m_stack.pop();                                                      \
+                                                                            \
+        auto leftVal = m_stack.top();                                       \
+        if (leftVal->type != ObjectType::BOOLEAN)                           \
+        {                                                                   \
+            error(translationUnit, bytecode, "Operand must be a boolean."); \
+            return 1;                                                       \
+        }                                                                   \
+        m_stack.pop();                                                      \
+                                                                            \
+        auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);      \
+        auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);    \
+        m_stack.push(std::make_shared<BooleanObject>((*left)op(*right)));   \
     } while (false)
 
 /*
@@ -128,7 +138,7 @@ namespace Copper {
                 case DEFGL: {
                     auto identifier = GET_STRING();
                     if (m_globals.find(identifier->get()) != m_globals.end()) {
-                        error("Redeclaration of variable: " + identifier->get());
+                        error(translationUnit, bytecode, "Redeclaration of variable: " + identifier->get());
                         return 1;
                     }
                     
@@ -141,7 +151,7 @@ namespace Copper {
                 case LDGL: {
                     auto identifier = GET_STRING();
                     if (m_globals.find(identifier->get()) == m_globals.end()) {
-                        error("Undefined variable: " + identifier->get());
+                        error(translationUnit, bytecode, "Undefined variable: " + identifier->get());
                         return 1;
                     }
 
@@ -152,13 +162,13 @@ namespace Copper {
                 case SETGL: {
                     auto identifier = GET_STRING();
                     if (m_globals.find(identifier->get()) == m_globals.end()) {
-                        error("Undefined variable: " + identifier->get());
+                        error(translationUnit, bytecode, "Undefined variable: " + identifier->get());
                         return 1;
                     }
 
                     // check if const
                     if (m_globals[identifier->get()].second) {
-                        error("Assignment to const variable: "+ identifier->get());
+                        error(translationUnit, bytecode, "Assignment to const variable: "+ identifier->get());
                         return 1;
                     }
 
@@ -172,7 +182,7 @@ namespace Copper {
                 case NEG: {
                     auto obj = m_stack.top();
                     if (obj->type != ObjectType::NUMBER) {
-                        error("Operand must be a number.");
+                        error(translationUnit, bytecode, "Operand must be a number.");
                         return 1;
                     }
 
@@ -198,7 +208,7 @@ namespace Copper {
                         m_stack.push(std::make_shared<NumberObject>((*left) + (*right)));
                     }
                     else {
-                        error("Invalid operand types for operator +");
+                        error(translationUnit, bytecode, "Invalid operand types for operator +");
                         return 1;
                     }
 
@@ -211,14 +221,14 @@ namespace Copper {
                 case EXP: {
                     auto rightVal = m_stack.top();
                     if (rightVal->type != ObjectType::NUMBER) {
-                        error("Operand must be a number.");
+                        error(translationUnit, bytecode, "Operand must be a number.");
                         return 1;
                     }
                     m_stack.pop();
 
                     auto leftVal = m_stack.top();
                     if (leftVal->type != ObjectType::NUMBER) {
-                        error("Operand must be a number.");
+                        error(translationUnit, bytecode, "Operand must be a number.");
                         return 1;
                     }
                     m_stack.pop();
@@ -245,7 +255,7 @@ namespace Copper {
                 case NOT: {
                     auto obj = m_stack.top();
                     if (obj->type != ObjectType::BOOLEAN) {
-                        error("Operand must be a boolean.");
+                        error(translationUnit, bytecode, "Operand must be a boolean.");
                         return 1;
                     }
 
