@@ -322,6 +322,9 @@ namespace Copper {
 				case '"':
 				case '\'':
 					emitToken(TokenType::STRING, string());
+					
+					// adjust for the opening and closing quotes
+					m_column += 2;
 					break;
 
 				// Back tick
@@ -452,6 +455,7 @@ namespace Copper {
 
 		// consume the opening quotation mark
 		advance();
+
 		size_t start = m_curr;
 
 		while (!atEOF() && peek() != openingQuote && peek() != '\n') {
@@ -482,7 +486,7 @@ namespace Copper {
 						// be multi-line. emitToken() automatically increments m_column based on
 						// the length of the lexeme to be emitted. This, obviously poses a problem when
 						// emitting a multi-line string. Hence, we do it manually.
-						tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column));
+						tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column - stringLiteral.length()));
 						emitToken(TokenType::PLUS, 0);
 
 						emitToken(TokenType::INTERPOLATION_START, 2);
@@ -501,7 +505,7 @@ namespace Copper {
 				case '`': {
 					auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
 					// Not using emitToken for the same reason as above
-					tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column));
+					tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column - stringLiteral.length()));
 					emitToken(TokenType::BACK_TICK);
 					return;
 				}
