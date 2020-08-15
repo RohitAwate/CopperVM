@@ -17,17 +17,15 @@
 #pragma once
 
 #include "Bytecode.h"
+#include "TranslationUnit.h"
 
 namespace Copper {
 
 	class Disassembler {
 	public:
-		Disassembler(const Bytecode& bytecode) : m_bytecode(bytecode) {}
+		void disassemble(const Bytecode&, const TranslationUnit&) const;
 
-		void run() const;
 	private:
-		const Bytecode& m_bytecode;
-
 		static void printInstruction(const std::string& opcode,
 									 const std::string& operands = "",
 							  		 const std::string& comment = "");

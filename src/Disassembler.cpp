@@ -21,37 +21,38 @@
 
 namespace Copper {
 
-	void Disassembler::run() const {
+	void Disassembler::disassemble(const Bytecode &bytecode, const TranslationUnit &translationUnit) const
+	{
 
-#define GET_CONST(index) m_bytecode.m_constants[m_bytecode.m_blob[index]]
+#define GET_CONST(index) bytecode.m_constants[bytecode.m_blob[index]]
 
 		// Printing the source of the bytecode
 		std::cout << ANSICodes::BOLD << ANSICodes::WHITE;
-		std::cout << m_bytecode.m_source << ANSICodes::RESET << std::endl;
+		std::cout << translationUnit.m_filepath << ANSICodes::RESET << std::endl;
 
-		for (size_t i = 0; i < m_bytecode.m_blob.size(); i++) {
-			switch (m_bytecode.m_blob[i]) {
+		for (size_t i = 0; i < bytecode.m_blob.size(); i++) {
+			switch (bytecode.m_blob[i]) {
 				case LDC: {
 					Object* val = GET_CONST(++i).get();
-					printInstruction("LDC", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
+					printInstruction("LDC", std::to_string((int) bytecode.m_blob[i]), val->toString());
 					break;
 				}
 
 				case DEFGL: {
 					Object* val = GET_CONST(++i).get();
-					printInstruction("DEFGL", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
+					printInstruction("DEFGL", std::to_string((int) bytecode.m_blob[i]), val->toString());
 					break;
 				}
 
 				case LDGL: {
 					Object* val = GET_CONST(++i).get();
-					printInstruction("LDGL", std::to_string((int) m_bytecode.m_blob[i]), val->toString());
+					printInstruction("LDGL", std::to_string((int) bytecode.m_blob[i]), val->toString());
 					break;
 				}
 
 				case SETGL: {
 					Object *val = GET_CONST(++i).get();
-					printInstruction("SETGL", std::to_string((int)m_bytecode.m_blob[i]), val->toString());
+					printInstruction("SETGL", std::to_string((int)bytecode.m_blob[i]), val->toString());
 					break;
 				}
 

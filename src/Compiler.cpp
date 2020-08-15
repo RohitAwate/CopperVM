@@ -28,8 +28,8 @@ namespace Copper {
 		std::exit(1);
 	}
 
-	Bytecode Compiler::compile(const TranslationUnit& unit) {
-		Tokenizer tokenizer(unit);
+	Bytecode Compiler::compile(const TranslationUnit& translationUnit) {
+		Tokenizer tokenizer(translationUnit);
 		if (!tokenizer.tokenize()) errorAndExit();
 		auto tokens = tokenizer.getTokens();
 
@@ -43,12 +43,12 @@ namespace Copper {
 		}
 #endif
 
-		Parser parser(unit, tokens);
+		Parser parser(translationUnit, tokens);
 		if (!parser.parse()) errorAndExit();
 		auto bytecode = parser.getBytecode();
 #ifdef DISASSEMBLE
-		Copper::Disassembler disassembler(bytecode);
-		disassembler.run();
+		Copper::Disassembler disassembler;
+		disassembler.disassemble(bytecode, translationUnit);
 #endif
 		return bytecode;
 	}
