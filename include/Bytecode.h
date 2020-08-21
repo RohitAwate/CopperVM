@@ -106,7 +106,7 @@ namespace Copper {
 
 		/**
 		 * NAME:
-		 * Load Global
+		 * Load Global Variable
 		 * 
 		 * DESCRIPTION:
 		 * Loads the value of a global variable on the stack.
@@ -128,7 +128,7 @@ namespace Copper {
 
 		/**
 		 * NAME:
-		 * Set Global
+		 * Set Global Variable
 		 * 
 		 * DESCRIPTION:
 		 * Sets the value of a global variable.
@@ -149,6 +149,46 @@ namespace Copper {
 		 * (1) - identifier offset into the bytecode's constant pool
 		 */
 		SETGL,
+
+		/**
+		 * NAME:
+		 * Load Local Variable
+		 * 
+		 * DESCRIPTION:
+		 * Loads the value of a local variable on the stack.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The value must already be loaded by LDC.
+		 * - The stack offset of the value must be known.
+		 * 
+		 * OPERATION:
+		 * - The value of the variable is read from the stack offset.
+		 * - The read value is pushed onto the stack.
+		 * 
+		 * OPERANDS:
+		 * (1) - stack offset to the variable
+		 */
+		LDLOCAL,
+
+		/**
+		 * NAME:
+		 * Set Local Variable
+		 * 
+		 * DESCRIPTION:
+		 * Sets the value of a local variable on the stack.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The new value must already be loaded by LDC on the top of the stack.
+		 * - The stack offset of the target variable must be known.
+		 * 
+		 * OPERATION:
+		 * - The value on the top of the stack is assigned to the variable
+		 * at the given stack offset.
+		 * 
+		 * OPERANDS:
+		 * (1) - stack offset to the variable
+		 */
+		SETLOCAL,
 
 		/**
 		 * ARITHMETIC ADDITION & STRING CONCATENATION

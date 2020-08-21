@@ -62,6 +62,16 @@ namespace Copper {
 					break;
 				}
 
+				case LDLOCAL: {
+					printInstruction("LDLOCAL", std::to_string((int)bytecode.m_blob[++m_ip]));
+					break;
+				}
+
+				case SETLOCAL: {
+					printInstruction("SETLOCAL", std::to_string((int)bytecode.m_blob[++m_ip]));
+					break;
+				}
+
 				// Arithmetic
 				case ADD: printInstruction("ADD"); break;
 				case SUB: printInstruction("SUB"); break;

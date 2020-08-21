@@ -19,11 +19,11 @@
 #include <vector>
 
 #include "Bytecode.h"
+#include "Environment.h"
 #include "Token.h"
 #include "TranslationUnit.h"
 
-namespace Copper
-{
+namespace Copper {
 	
 	class Parser {
 	public:
@@ -38,6 +38,7 @@ namespace Copper
 		size_t m_curr { 0 }; 
 
 		Bytecode m_bytecode;
+		Environment m_env;
 
 		const Token& previous() const;
 		const Token& peek() const;
@@ -54,6 +55,7 @@ namespace Copper
 		bool statement();
 		bool printStatement();
 		bool expressionStatement();
+		bool block();
 
 		/*
 			These Boolean return values form the synchronization

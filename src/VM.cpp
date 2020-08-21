@@ -191,6 +191,18 @@ namespace Copper {
 
                     break;
                 }
+
+                case LDLOCAL: {
+                    auto stackIndex = READ_OPERAND();
+                    m_stack.push(m_stack[stackIndex]);
+                    break;
+                }
+
+                case SETLOCAL: {
+                    auto stackIndex = READ_OPERAND();
+                    m_stack[stackIndex] = m_stack.top();
+                    break;
+                }
                 
                 // Basic arithmetic
                 case NEG: {

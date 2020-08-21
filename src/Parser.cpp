@@ -137,12 +137,21 @@ namespace Copper {
 			m_bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
 		}
 
-		m_bytecode.addIdentifier(identifierToken.getLexeme(), isConst, identifierToken.getLine(), identifierToken.getColumn());
+		if (m_env.isGlobal())
+			m_bytecode.addIdentifier(identifierToken.getLexeme(), isConst, identifierToken.getLine(), identifierToken.getColumn());
+		else if (!m_env.addNewLocal(identifierToken.getLexeme(), isConst)) {
+			error("Redeclaration of local variable: " + identifierToken.getLexeme());
+			return false;
+		}
 
 		return true;
 	}
 
 	bool Parser::statement() {
+		if (match(TokenType::OPEN_BRACE)) {
+			return block();
+		}
+
 		return expressionStatement();
 	}
 
@@ -172,6 +181,22 @@ namespace Copper {
 		return false;
 	}
 
+	bool Parser::block() {
+		m_env.beginScope();
+
+		while (!atEOF() && peek().getType() != TokenType::CLOSE_BRACE) {
+			if (!declaration()) return false;
+		}
+
+		if (!match(TokenType::CLOSE_BRACE)) {
+			error("Expect '}' after block");
+			return false;
+		}
+
+		auto popCount = m_env.closeScope();
+		m_bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		return true;
+	}
 
 	bool Parser::expression() {
 		return logicalOR();
@@ -389,14 +414,32 @@ namespace Copper {
 			case TokenType::BACK_TICK:
 				return stringTemplate();
 			case TokenType::IDENTIFIER: {
-				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
 				consume();
+				auto stackIndex = m_env.resolveLocal(primaryToken.getLexeme());
 
-				if (match(TokenType::ASSIGNMENT)) {
-					if (!expression()) return false;
-					m_bytecode.emit(OpCode::SETGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				if (stackIndex == -1) {
+					// possibly global
+					auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
+
+					if (match(TokenType::ASSIGNMENT)) {
+						if (!expression()) return false;
+						m_bytecode.emit(OpCode::SETGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+					} else {
+						m_bytecode.emit(OpCode::LDGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+					}
 				} else {
-					m_bytecode.emit(OpCode::LDGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+					// local
+					if (match(TokenType::ASSIGNMENT)) {
+						if (m_env.isLocalConst(stackIndex)) {
+							error("Assignment to const variable: " + primaryToken.getLexeme());
+							return false;
+						}
+
+						if (!expression()) return false;
+						m_bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+					} else {
+						m_bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+					}
 				}
 
 				break;
