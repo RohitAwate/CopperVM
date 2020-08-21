@@ -47,6 +47,42 @@ namespace Copper {
 
 		/**
 		 * NAME:
+		 * Pop Stack
+		 * 
+		 * DESCRIPTION:
+		 * Pops the top value from the stack.
+		 *
+		 * PRE-CONDITIONS:
+		 * None.
+		 * 
+		 * OPERATION:
+		 * - Topmost element of the stack is discarded.
+		 * 
+		 * OPERANDS:
+		 * None.
+		 */
+		POP,
+
+		/**
+		 * NAME:
+		 * Multi-Pop Stack
+		 * 
+		 * DESCRIPTION:
+		 * Pops the N-topmost values from the stack.
+		 *
+		 * PRE-CONDITIONS:
+		 * None.
+		 * 
+		 * OPERATION:
+		 * - The N-topmost elements on the stack are discarded.
+		 * 
+		 * OPERANDS:
+		 * (1) - number of elements to pop
+		 */
+		POPN,
+
+		/**
+		 * NAME:
 		 * Define Global
 		 * 
 		 * DESCRIPTION:

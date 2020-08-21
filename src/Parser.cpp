@@ -164,7 +164,7 @@ namespace Copper {
 		if (!expression()) return false;
 
 		if (match(TokenType::SEMICOLON)) {
-			m_bytecode.emit(OpCode::RET, previous().getLine(), previous().getColumn());
+			m_bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
 			return true;
 		}
 

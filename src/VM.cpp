@@ -127,13 +127,27 @@ namespace Copper {
 
 #define GET_STRING() std::dynamic_pointer_cast<StringObject>(GET_CONST())
 
+#define READ_OPERAND() code[++m_ip]
+
         auto const& code = bytecode.m_blob;
 
         for (m_ip = 0; m_ip < code.size(); m_ip++) {
             switch (code[m_ip]) {
-                case LDC:
+                case LDC: {
                     m_stack.push(GET_CONST());
                     break;
+                }
+
+                case POP: {
+                    m_stack.pop();
+                    break;
+                }
+
+                case POPN: {
+                    auto popCount = READ_OPERAND();
+                    m_stack.multipop(popCount);
+                    break;
+                }
 
                 case DEFGL: {
                     auto identifier = GET_STRING();

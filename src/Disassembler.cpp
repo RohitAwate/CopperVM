@@ -37,6 +37,13 @@ namespace Copper {
 					break;
 				}
 
+				case POP: printInstruction("POP"); break;
+
+				case POPN: {
+					printInstruction("POPN", std::to_string((int) bytecode.m_blob[++m_ip]));
+					break;
+				}
+
 				case DEFGL: {
 					Object* val = GET_CONST(++m_ip).get();
 					printInstruction("DEFGL", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
