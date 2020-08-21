@@ -23,10 +23,10 @@ namespace Copper {
 
 	class Disassembler {
 	public:
-		void disassemble(const Bytecode&, const TranslationUnit&) const;
-
+		void disassemble(const Bytecode&, const TranslationUnit&);
 	private:
-		static void printInstruction(const std::string& opcode,
+		size_t m_ip;
+		void printInstruction(const std::string& opcode,
 									 const std::string& operands = "",
 							  		 const std::string& comment = "");
 	};

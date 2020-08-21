@@ -21,8 +21,7 @@
 
 namespace Copper {
 
-	void Disassembler::disassemble(const Bytecode &bytecode, const TranslationUnit &translationUnit) const
-	{
+	void Disassembler::disassemble(const Bytecode &bytecode, const TranslationUnit &translationUnit) {
 
 #define GET_CONST(index) bytecode.m_constants[bytecode.m_blob[index]]
 
@@ -30,29 +29,29 @@ namespace Copper {
 		std::cout << ANSICodes::BOLD << ANSICodes::WHITE;
 		std::cout << translationUnit.m_filepath << ANSICodes::RESET << std::endl;
 
-		for (size_t i = 0; i < bytecode.m_blob.size(); i++) {
-			switch (bytecode.m_blob[i]) {
+		for (m_ip = 0; m_ip < bytecode.m_blob.size(); m_ip++) {
+			switch (bytecode.m_blob[m_ip]) {
 				case LDC: {
-					Object* val = GET_CONST(++i).get();
-					printInstruction("LDC", std::to_string((int) bytecode.m_blob[i]), val->toString());
+					Object* val = GET_CONST(++m_ip).get();
+					printInstruction("LDC", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
 					break;
 				}
 
 				case DEFGL: {
-					Object* val = GET_CONST(++i).get();
-					printInstruction("DEFGL", std::to_string((int) bytecode.m_blob[i]), val->toString());
+					Object* val = GET_CONST(++m_ip).get();
+					printInstruction("DEFGL", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
 					break;
 				}
 
 				case LDGL: {
-					Object* val = GET_CONST(++i).get();
-					printInstruction("LDGL", std::to_string((int) bytecode.m_blob[i]), val->toString());
+					Object* val = GET_CONST(++m_ip).get();
+					printInstruction("LDGL", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
 					break;
 				}
 
 				case SETGL: {
-					Object *val = GET_CONST(++i).get();
-					printInstruction("SETGL", std::to_string((int)bytecode.m_blob[i]), val->toString());
+					Object *val = GET_CONST(++m_ip).get();
+					printInstruction("SETGL", std::to_string((int)bytecode.m_blob[m_ip]), val->toString());
 					break;
 				}
 
@@ -87,8 +86,9 @@ namespace Copper {
 
 	void Disassembler::printInstruction(const std::string& opcode,
 			const std::string& operands, const std::string& comment) {
+		std::cout << m_ip << " ";
 		std::cout << ANSICodes::BOLD << ANSICodes::GREEN;
-		printf("%-5s", opcode.c_str());
+		printf("%-10s", opcode.c_str());
 		std::cout << ANSICodes::RESET;
 
 		
