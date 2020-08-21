@@ -193,6 +193,7 @@ namespace Copper {
 		OR,
 		NOT,
 
+		PRINT,
 		RET
 	};
 

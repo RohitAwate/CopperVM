@@ -98,6 +98,8 @@ namespace Copper {
 			return declarationList(false);
 		} else if (match(TokenType::CONST)) {
 			return declarationList(true);
+		} else if (match(TokenType::PRINT)) {
+			return printStatement();
 		}
 
 		return statement();
@@ -142,6 +144,20 @@ namespace Copper {
 
 	bool Parser::statement() {
 		return expressionStatement();
+	}
+
+	bool Parser::printStatement() {
+		const auto& printToken = previous();
+
+		if(!expression()) return false;
+		m_bytecode.emit(OpCode::PRINT, printToken.getLine(), printToken.getColumn());
+		
+		if (!match(TokenType::SEMICOLON)) {
+			error("Expect ';' after statement");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool Parser::expressionStatement() {

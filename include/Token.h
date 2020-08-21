@@ -55,6 +55,7 @@
     TYPE_MACRO(DEFAULT)              \
     TYPE_MACRO(ASYNC)                \
     TYPE_MACRO(AWAIT)                \
+    TYPE_MACRO(PRINT)                \
     /* Identifiers */                \
     TYPE_MACRO(IDENTIFIER)           \
     TYPE_MACRO(STRING)               \

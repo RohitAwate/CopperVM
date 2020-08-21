@@ -83,6 +83,7 @@ namespace Copper {
 		{"default", TokenType::DEFAULT},
 		{"async", TokenType::ASYNC},
 		{"await", TokenType::AWAIT},
+		{"print", TokenType::PRINT},
 	};
 
 	bool Tokenizer::tokenize() {

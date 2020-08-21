@@ -264,14 +264,12 @@ namespace Copper {
                     m_stack.push(std::make_shared<BooleanObject>(!*numObj));
                     break;
                 }
-                
-                case RET: {
-                    while (!m_stack.empty()) {
-                        std::cout << ANSICodes::RED << ANSICodes::BOLD <<
-                            m_stack.top()->toString()
-                        << ANSICodes::RESET << std::endl;
-                        m_stack.pop();
-                    }
+
+                case PRINT: {
+                    std::cout << ANSICodes::BOLD << ANSICodes::WHITE <<
+                        m_stack.top()->toString() << ANSICodes::RESET << std::endl;
+                    m_stack.pop();
+                    break;
                 }
             }
         }

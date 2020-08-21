@@ -52,6 +52,7 @@ namespace Copper
 		bool declarationList(const bool& isConst);
 		bool singleDeclaration(const bool& isConst);
 		bool statement();
+		bool printStatement();
 		bool expressionStatement();
 
 		/*

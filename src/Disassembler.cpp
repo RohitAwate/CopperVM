@@ -77,6 +77,7 @@ namespace Copper {
 				case OR: printInstruction("OR"); break;
 				case NOT: printInstruction("NOT"); break;
 
+				case PRINT: printInstruction("PRINT"); break;
 				case RET: printInstruction("RET"); break;
 			}
 		}
