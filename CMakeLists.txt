@@ -12,26 +12,16 @@ else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-set(LIB_SRC
-	src/Bytecode.cpp
-	src/Compiler.cpp
-	src/Disassembler.cpp
-	src/Environment.cpp
-	src/Object.cpp
-	src/Parser.cpp
-	src/Tokenizer.cpp
-	src/TranslationUnit.cpp
-	src/VM.cpp
+add_subdirectory(libcurt)
+
+SET(APP_SRC
+    cu/Copper.cpp
 )
 
-# libcurt: Library for the Copper (Cu) Runtime
-add_library(libcurt SHARED ${LIB_SRC})
-target_include_directories(libcurt PUBLIC include)
-set_target_properties(libcurt PROPERTIES PREFIX "")
+add_executable(cu ${APP_SRC})
 
-# cu: Because Copper's symbol is Cu
-add_executable(cu app/Copper.cpp)
-target_link_libraries(cu PUBLIC libcurt)
+target_include_directories(cu PUBLIC libcurt/include)
+target_link_libraries(cu PUBLIC curt)
 
 target_compile_definitions(cu PRIVATE
 	COMPILER_NAME="${CMAKE_CXX_COMPILER_ID}"
@@ -39,3 +29,4 @@ target_compile_definitions(cu PRIVATE
 	PLATFORM="${CMAKE_HOST_SYSTEM_NAME}"
 	COPPER_VERSION="${CopperVM_VERSION}"
 )
+
