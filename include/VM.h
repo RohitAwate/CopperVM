@@ -17,19 +17,33 @@
 #pragma once
 
 #include <memory>
-#include <stack>
+#include <vector>
 #include <unordered_map>
 
 #include "Bytecode.h"
 #include "TranslationUnit.h"
 
+// #define TRACE_EXECUTION
+
 namespace Copper {
+
+	template <typename T>
+	class Stack : public std::vector<T> {
+	public:
+		void push(const T& t) { this->push_back(t); }
+
+		void pop() { this->pop_back(); }
+
+		void multipop(size_t count) { this->erase(this->end() - count, this->end()); }
+
+		T& top() { return this->back(); }
+	};
 
 	class VM {
 	public:
 		int run(const Bytecode&, const TranslationUnit&);
 	private:
-		std::stack<std::shared_ptr<Object>> m_stack;
+		Stack<std::shared_ptr<Object>> m_stack;
 
 		/**
 		 * Stores the global variables.

@@ -272,12 +272,23 @@ namespace Copper {
                     break;
                 }
             }
+
+#ifdef TRACE_EXECUTION
+    printf("\n%s%s%5zu%s | ", ANSICodes::BOLD, ANSICodes::BLUE, m_ip, ANSICodes::RESET);
+
+    for (const auto& stackItem : m_stack) {
+        std::cout << stackItem->toString() << ", ";
+    }
+
+    std::cout << std::endl;
+#endif
         }
 #undef BINARY_OP
 #undef BINARY_MATH_H
 #undef EQUALITY_OP
 #undef GET_CONST
 #undef GET_STRING
+
         return 0;
     }
 
