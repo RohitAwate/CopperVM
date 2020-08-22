@@ -106,19 +106,17 @@ namespace Copper {
 	}
 
 	bool Parser::declarationList(const bool& isConst) {
-		bool declarationsSuccess = false;
+		bool identifierFound = false;
 
 		while (peek().getType() == TokenType::IDENTIFIER) {
-			if (!singleDeclaration(isConst)) {
-				declarationsSuccess = false;
-				break;
-			}
+			identifierFound = true;
 
+			if (!singleDeclaration(isConst)) return false;
 			if (!match(TokenType::COMMA)) break; 
 		}
 
 		// This might be a crutch.
-		if (!declarationsSuccess) {
+		if (!identifierFound) {
 			error("Unexpected token");
 			return false;
 		}
