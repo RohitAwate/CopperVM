@@ -128,7 +128,7 @@ namespace Copper {
 				const auto iterator = KEYWORDS.find(id);
 				
 				if (iterator != KEYWORDS.end()) {
-					emitToken(iterator->second, id);
+					emitToken(iterator->second, id.size());
 				} else {
 					emitToken(TokenType::IDENTIFIER, id);
 				}

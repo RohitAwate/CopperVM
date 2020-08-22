@@ -17,9 +17,7 @@
 #include <iostream>
 #include <memory>
 
-#include "Bytecode.h"
 #include "Compiler.h"
-#include "TranslationUnit.h"
 #include "VM.h"
 
 int main(int argc, const char* argv[]) {
