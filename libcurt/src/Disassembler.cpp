@@ -23,52 +23,52 @@ namespace Copper {
 
 	void Disassembler::disassemble(const Bytecode &bytecode, const TranslationUnit &translationUnit) {
 
-#define GET_CONST(index) bytecode.m_constants[bytecode.m_blob[index]]
+#define GET_CONST(index) bytecode.constants[bytecode.blob[index]]
 
 		// Printing the source of the bytecode
 		std::cout << ANSICodes::BOLD << ANSICodes::WHITE;
-		std::cout << translationUnit.m_filepath << ANSICodes::RESET << std::endl;
+		std::cout << translationUnit.filepath << ANSICodes::RESET << std::endl;
 
-		for (m_ip = 0; m_ip < bytecode.m_blob.size(); m_ip++) {
-			switch (bytecode.m_blob[m_ip]) {
+		for (ip = 0; ip < bytecode.blob.size(); ip++) {
+			switch (bytecode.blob[ip]) {
 				case LDC: {
-					Object* val = GET_CONST(++m_ip).get();
-					printInstruction("LDC", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
+					Object* val = GET_CONST(++ip).get();
+					printInstruction("LDC", std::to_string((int) bytecode.blob[ip]), val->toString());
 					break;
 				}
 
 				case POP: printInstruction("POP"); break;
 
 				case POPN: {
-					printInstruction("POPN", std::to_string((int) bytecode.m_blob[++m_ip]));
+					printInstruction("POPN", std::to_string((int) bytecode.blob[++ip]));
 					break;
 				}
 
 				case DEFGL: {
-					Object* val = GET_CONST(++m_ip).get();
-					printInstruction("DEFGL", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
+					Object* val = GET_CONST(++ip).get();
+					printInstruction("DEFGL", std::to_string((int) bytecode.blob[ip]), val->toString());
 					break;
 				}
 
 				case LDGL: {
-					Object* val = GET_CONST(++m_ip).get();
-					printInstruction("LDGL", std::to_string((int) bytecode.m_blob[m_ip]), val->toString());
+					Object* val = GET_CONST(++ip).get();
+					printInstruction("LDGL", std::to_string((int) bytecode.blob[ip]), val->toString());
 					break;
 				}
 
 				case SETGL: {
-					Object *val = GET_CONST(++m_ip).get();
-					printInstruction("SETGL", std::to_string((int)bytecode.m_blob[m_ip]), val->toString());
+					Object *val = GET_CONST(++ip).get();
+					printInstruction("SETGL", std::to_string((int)bytecode.blob[ip]), val->toString());
 					break;
 				}
 
 				case LDLOCAL: {
-					printInstruction("LDLOCAL", std::to_string((int)bytecode.m_blob[++m_ip]));
+					printInstruction("LDLOCAL", std::to_string((int)bytecode.blob[++ip]));
 					break;
 				}
 
 				case SETLOCAL: {
-					printInstruction("SETLOCAL", std::to_string((int)bytecode.m_blob[++m_ip]));
+					printInstruction("SETLOCAL", std::to_string((int)bytecode.blob[++ip]));
 					break;
 				}
 
@@ -103,7 +103,7 @@ namespace Copper {
 
 	void Disassembler::printInstruction(const std::string& opcode,
 			const std::string& operands, const std::string& comment) {
-		std::cout << m_ip << " ";
+		std::cout << ip << " ";
 		std::cout << ANSICodes::BOLD << ANSICodes::GREEN;
 		printf("%-10s", opcode.c_str());
 		std::cout << ANSICodes::RESET;

@@ -28,17 +28,17 @@ namespace Copper {
 	class Parser {
 	public:
 		Parser(const TranslationUnit translationUnit, std::vector<Token> tokens) :
-			m_translationUnit(translationUnit), m_tokens(tokens) {}
+			translationUnit(translationUnit), tokens(tokens) {}
 
 		bool parse();
 		Bytecode getBytecode() const;
 	private:
-		const TranslationUnit m_translationUnit;
-		const std::vector<Token> m_tokens;
-		size_t m_curr { 0 }; 
+		const TranslationUnit translationUnit;
+		const std::vector<Token> tokens;
+		size_t curr { 0 }; 
 
-		Bytecode m_bytecode;
-		Environment m_env;
+		Bytecode bytecode;
+		Environment env;
 
 		const Token& previous() const;
 		const Token& peek() const;

@@ -114,21 +114,21 @@ namespace Copper {
     class Token {
     public:
         Token(std::string lexeme, TokenType type, int line, int column) :
-            m_lexeme(lexeme), m_type(type), m_line(line), m_column(column) {}
+            lexeme(lexeme), type(type), line(line), column(column) {}
         
         Token(TokenType type, int line, int column) :
-            m_type(type), m_line(line), m_column(column)  {}
+            type(type), line(line), column(column)  {}
 
-        const std::string& getLexeme() const { return m_lexeme; }
-        const TokenType& getType() const { return m_type; }
-        const int& getLine() const { return m_line; }
-        const int& getColumn() const { return m_column; }
+        const std::string& getLexeme() const { return lexeme; }
+        const TokenType& getType() const { return type; }
+        const int& getLine() const { return line; }
+        const int& getColumn() const { return column; }
     private:
-        const std::string m_lexeme;
-        const TokenType m_type;
+        const std::string lexeme;
+        const TokenType type;
 
-        const int m_line;
-        const int m_column;
+        const int line;
+        const int column;
     };
 
     static std::string toString(const TokenType& type) {

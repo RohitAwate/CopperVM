@@ -48,11 +48,11 @@ namespace Copper {
 	}
 
 	std::string TranslationUnit::getLine(int line) const {
-		size_t start = 0, end = m_contents.get()->size();
+		size_t start = 0, end = contents.get()->size();
 
 		int currentLine = 1;
-		for (size_t i = 0; i < m_contents.get()->size(); i++) {
-			if (m_contents.get()->at(i) == '\n') {
+		for (size_t i = 0; i < contents.get()->size(); i++) {
+			if (contents.get()->at(i) == '\n') {
 				currentLine++;
 
 				if (currentLine == line) {
@@ -63,7 +63,7 @@ namespace Copper {
 			}
 		}
 
-		return m_contents.get()->substr(start, end - start + 1);
+		return contents.get()->substr(start, end - start + 1);
 	}
 
 } // namespace Copper

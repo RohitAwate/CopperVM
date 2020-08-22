@@ -285,9 +285,9 @@ namespace Copper {
 		void addIdentifier(const std::string &, const bool isConst, unsigned int line, unsigned int column);
 		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
 	private:
-		std::vector<byte> m_blob;
-		std::map<unsigned int, std::vector<unsigned int>> m_locations;
-		std::vector<std::shared_ptr<Object>> m_constants;
+		std::vector<byte> blob;
+		std::map<unsigned int, std::vector<unsigned int>> locations;
+		std::vector<std::shared_ptr<Object>> constants;
 
 		void addInstructionLocation(const unsigned int &line, const unsigned int &column);
 

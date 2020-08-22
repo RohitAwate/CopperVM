@@ -34,15 +34,15 @@ namespace Copper {
 	}
 
 	Bytecode Parser::getBytecode() const {
-		return m_bytecode;
+		return bytecode;
 	}
 
 	const Token& Parser::previous() const {
-		if (m_curr > 0) return m_tokens[m_curr - 1];
+		if (curr > 0) return tokens[curr - 1];
 	}
 
 	const Token& Parser::peek() const {
-		return m_tokens[m_curr];
+		return tokens[curr];
 	}
 
 	const Token& Parser::next() {
@@ -50,7 +50,7 @@ namespace Copper {
 			return peek();
 		}
 
-		m_curr++;
+		curr++;
 		return previous();
 	}
 
@@ -144,13 +144,13 @@ namespace Copper {
 				return false;
 			}
 			
-			auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
-			m_bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
+			auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
+			bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
 		}
 
-		if (m_env.isGlobal())
-			m_bytecode.addIdentifier(identifierToken.getLexeme(), isConst, identifierToken.getLine(), identifierToken.getColumn());
-		else if (!m_env.addNewLocal(identifierToken.getLexeme(), isConst)) {
+		if (env.isGlobal())
+			bytecode.addIdentifier(identifierToken.getLexeme(), isConst, identifierToken.getLine(), identifierToken.getColumn());
+		else if (!env.addNewLocal(identifierToken.getLexeme(), isConst)) {
 			error("Redeclaration of local variable: " + identifierToken.getLexeme());
 			return false;
 		}
@@ -170,7 +170,7 @@ namespace Copper {
 		const auto& printToken = previous();
 
 		if(!expression()) return false;
-		m_bytecode.emit(OpCode::PRINT, printToken.getLine(), printToken.getColumn());
+		bytecode.emit(OpCode::PRINT, printToken.getLine(), printToken.getColumn());
 		
 		if (!match(TokenType::SEMICOLON)) {
 			error("Expect ';' after statement");
@@ -184,7 +184,7 @@ namespace Copper {
 		if (!expression()) return false;
 
 		if (match(TokenType::SEMICOLON)) {
-			m_bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
+			bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
 			return true;
 		}
 
@@ -193,7 +193,7 @@ namespace Copper {
 	}
 
 	bool Parser::block() {
-		m_env.beginScope();
+		env.beginScope();
 
 		while (!atEOF() && peek().getType() != TokenType::CLOSE_BRACE) {
 			if (!declaration()) return false;
@@ -204,8 +204,8 @@ namespace Copper {
 			return false;
 		}
 
-		auto popCount = m_env.closeScope();
-		m_bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		auto popCount = env.closeScope();
+		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
 		return true;
 	}
 
@@ -220,7 +220,7 @@ namespace Copper {
 			const auto& orToken = previous();
 			if (!logicalAND()) return false;
 
-			m_bytecode.emit(OpCode::OR, orToken.getLine(), orToken.getColumn());
+			bytecode.emit(OpCode::OR, orToken.getLine(), orToken.getColumn());
 		}
 
 		return true;
@@ -233,7 +233,7 @@ namespace Copper {
 			const auto &andToken = previous();
 			if (!equality()) return false;
 
-			m_bytecode.emit(OpCode::AND, andToken.getLine(), andToken.getColumn());
+			bytecode.emit(OpCode::AND, andToken.getLine(), andToken.getColumn());
 		}
 
 		return true;
@@ -250,10 +250,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::EQU:
-					m_bytecode.emit(OpCode::EQU, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::EQU, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::NEQ:
-					m_bytecode.emit(OpCode::NEQ, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::NEQ, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -277,16 +277,16 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::GRT:
-					m_bytecode.emit(OpCode::GRT, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::GRT, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::LST:
-					m_bytecode.emit(OpCode::LST, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::LST, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::GRE:
-					m_bytecode.emit(OpCode::GRE, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::GRE, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::LSE:
-					m_bytecode.emit(OpCode::LSE, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::LSE, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -308,10 +308,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::PLUS:
-					m_bytecode.emit(OpCode::ADD, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::ADD, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::MINUS:
-					m_bytecode.emit(OpCode::SUB, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::SUB, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -334,13 +334,13 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::MULTIPLY:
-					m_bytecode.emit(OpCode::MUL, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::MUL, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::DIVIDE:
-					m_bytecode.emit(OpCode::DIV, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::DIV, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::MODULO:
-					m_bytecode.emit(OpCode::MOD, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::MOD, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -360,7 +360,7 @@ namespace Copper {
 			// Process RHS of expression
 			if (!exponent()) return false;
 
-			m_bytecode.emit(OpCode::EXP, operatorToken.getLine(), operatorToken.getColumn());
+			bytecode.emit(OpCode::EXP, operatorToken.getLine(), operatorToken.getColumn());
 		}
 
 		return true;
@@ -375,10 +375,10 @@ namespace Copper {
 
 			switch (operatorToken.getType()) {
 				case TokenType::MINUS:
-					m_bytecode.emit(OpCode::NEG, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::NEG, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 				case TokenType::NEGATION:
-					m_bytecode.emit(OpCode::NOT, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::NOT, operatorToken.getLine(), operatorToken.getColumn());
 					break;
 			}
 			return true;
@@ -394,21 +394,21 @@ namespace Copper {
 				if (!grouping()) return false;
 				break;
 			case TokenType::NUMBER: {
-				auto const &constOffset = m_bytecode.addConstant(new NumberObject(primaryToken.getLexeme()));
-				m_bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				auto const &constOffset = bytecode.addConstant(new NumberObject(primaryToken.getLexeme()));
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 				next();
 				break;
 			}
 			case TokenType::TRUE:
 			case TokenType::FALSE: {
-				auto const &constOffset = m_bytecode.addConstant(new BooleanObject(primaryToken.getLexeme()));
-				m_bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				auto const &constOffset = bytecode.addConstant(new BooleanObject(primaryToken.getLexeme()));
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 				next();
 				break;
 			}
 			case TokenType::STRING: {
-				auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
-				m_bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				auto const &constOffset = bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 				next();
 				break;
 			}
@@ -426,44 +426,44 @@ namespace Copper {
 				return stringTemplate();
 			case TokenType::IDENTIFIER: {
 				consume();
-				auto stackIndex = m_env.resolveLocal(primaryToken.getLexeme());
+				auto stackIndex = env.resolveLocal(primaryToken.getLexeme());
 
 				if (stackIndex == -1) {
 					// possibly global
-					auto const &constOffset = m_bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
+					auto const &constOffset = bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
 
 					if (match(TokenType::ASSIGNMENT)) {
 						if (!expression()) return false;
-						m_bytecode.emit(OpCode::SETGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+						bytecode.emit(OpCode::SETGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 					} else {
-						m_bytecode.emit(OpCode::LDGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+						bytecode.emit(OpCode::LDGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 					}
 				} else {
 					// local
 					if (match(TokenType::ASSIGNMENT)) {
-						if (m_env.isLocalConst(stackIndex)) {
+						if (env.isLocalConst(stackIndex)) {
 							error("Assignment to const variable: " + primaryToken.getLexeme());
 							return false;
 						}
 
 						if (!expression()) return false;
-						m_bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+						bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 					} else {
-						m_bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+						bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 					}
 				}
 
 				break;
 			}
 			case TokenType::NULL_TYPE: {
-				auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
-				m_bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 				next();
 				break;
 			}
 			case TokenType::UNDEFINED: {
-				auto const &constOffset = m_bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
-				m_bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
 				next();
 				break;
 			}
@@ -521,11 +521,11 @@ namespace Copper {
 		const Token& currentToken = peek();
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
-		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
+		std::cout << ANSICodes::BOLD << translationUnit.filepath << ANSICodes::RESET << " ";
 		std::cout << "(line " << currentToken.getLine() << "): ";
 		std::cout << msg << std::endl;
 
-		std::string culpritLine = m_translationUnit.getLine(currentToken.getLine());
+		std::string culpritLine = translationUnit.getLine(currentToken.getLine());
 		std::cout << "\t" << culpritLine << std::endl;
 		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, currentToken.getColumn() - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;

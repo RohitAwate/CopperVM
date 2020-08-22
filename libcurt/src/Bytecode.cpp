@@ -21,7 +21,7 @@
 namespace Copper {
 
 	void Bytecode::emit(byte opcode, unsigned int line, unsigned int column) {
-		m_blob.push_back(opcode);
+		blob.push_back(opcode);
 		addInstructionLocation(line, column);
 	}
 
@@ -33,17 +33,17 @@ namespace Copper {
 	size_t Bytecode::addConstant(const Object* constant) {
 		switch (constant->type) {
 			case ObjectType::BOOLEAN:
-				m_constants.push_back(std::shared_ptr<BooleanObject>((BooleanObject*)constant));
+				constants.push_back(std::shared_ptr<BooleanObject>((BooleanObject*)constant));
 				break;
 			case ObjectType::NUMBER:
-				m_constants.push_back(std::shared_ptr<NumberObject>((NumberObject*)constant));
+				constants.push_back(std::shared_ptr<NumberObject>((NumberObject*)constant));
 				break;
 			case ObjectType::STRING:
-				m_constants.push_back(std::shared_ptr<StringObject>((StringObject*)constant));
+				constants.push_back(std::shared_ptr<StringObject>((StringObject*)constant));
 				break;
 			case ObjectType::UNDEFINED:
 			case ObjectType::NULL_TYPE:
-				m_constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject*)constant));
+				constants.push_back(std::shared_ptr<EmptyObject>((EmptyObject*)constant));
 				break;
 			default:
 				// TODO: Get rid of this eventually
@@ -51,7 +51,7 @@ namespace Copper {
 				std::exit(1);
 		}
 
-		return m_constants.size() - 1;
+		return constants.size() - 1;
 	}
 
 	void Bytecode::addIdentifier(const std::string &identifier, const bool isConst, unsigned int line, unsigned int column) {
@@ -62,7 +62,7 @@ namespace Copper {
 	}
 
 	std::pair<unsigned int, unsigned int> Bytecode::getSourceLocation(byte opcodeIndex) const {
-		for (auto lineItr = m_locations.begin(); lineItr != m_locations.end(); lineItr++) {
+		for (auto lineItr = locations.begin(); lineItr != locations.end(); lineItr++) {
 			auto& lineLocations = lineItr->second;
 
 			if (opcodeIndex < lineLocations.size()) {
@@ -76,11 +76,11 @@ namespace Copper {
 	}
 
 	void Bytecode::addInstructionLocation(const unsigned int& line, const unsigned int& column) {
-		if (m_locations.find(line) != m_locations.end()) {
-			m_locations[line].push_back(column);
+		if (locations.find(line) != locations.end()) {
+			locations[line].push_back(column);
 		} else {
-			m_locations[line] = {};
-			m_locations[line].push_back(column);
+			locations[line] = {};
+			locations[line].push_back(column);
 		}
 	}
 

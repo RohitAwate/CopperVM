@@ -27,22 +27,22 @@ namespace Copper {
 	class Tokenizer {
 	public:
 		Tokenizer(const TranslationUnit translationUnit)
-			: m_translationUnit(translationUnit) {}
+			: translationUnit(translationUnit) {}
 
 		bool tokenize();
 		std::vector<Token>& getTokens();
 	private:
-		const TranslationUnit m_translationUnit;
+		const TranslationUnit translationUnit;
 
 		void emitToken(const TokenType, int length);
 		void emitToken(const TokenType, std::string lexeme);
 
-		size_t m_curr   			= 0;
-		size_t m_line   			= 1;
-		size_t m_column 			= 1;
-		size_t m_interpolationDepth	= 0;
+		size_t curr   			= 0;
+		size_t line   			= 1;
+		size_t column 			= 1;
+		size_t interpolationDepth	= 0;
 
-		bool m_hadError = false;
+		bool hadError = false;
 
 		std::vector<Token> tokens;
 		

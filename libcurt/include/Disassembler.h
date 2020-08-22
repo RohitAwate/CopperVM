@@ -25,7 +25,7 @@ namespace Copper {
 	public:
 		void disassemble(const Bytecode&, const TranslationUnit&);
 	private:
-		size_t m_ip;
+		size_t ip;
 		void printInstruction(const std::string& opcode,
 									 const std::string& operands = "",
 							  		 const std::string& comment = "");

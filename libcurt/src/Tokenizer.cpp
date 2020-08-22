@@ -38,13 +38,13 @@
 namespace Copper {
 
 	void Tokenizer::emitToken(const TokenType type, int tokenLen = 1) {
-		tokens.push_back(Token(type, m_line, m_column));
-		m_column += tokenLen;
+		tokens.push_back(Token(type, line, column));
+		column += tokenLen;
 	}
 
 	void Tokenizer::emitToken(const TokenType type, std::string lexeme) {
-		tokens.push_back(Token(lexeme, type, m_line, m_column));
-		m_column += lexeme.size();
+		tokens.push_back(Token(lexeme, type, line, column));
+		column += lexeme.size();
 	}
 
 	static const std::unordered_map<std::string, TokenType> KEYWORDS = {
@@ -88,7 +88,7 @@ namespace Copper {
 
 	bool Tokenizer::tokenize() {
 		run();
-		return !m_hadError;
+		return !hadError;
 	}
 
 	std::vector<Token>& Tokenizer::getTokens() {
@@ -163,7 +163,7 @@ namespace Copper {
 						scanning the rest of the string.
 					*/
 					emitToken(TokenType::CLOSE_BRACE);
-					if (m_interpolationDepth > 0 && bracesOpened == 0) {
+					if (interpolationDepth > 0 && bracesOpened == 0) {
 						advance();
 						return;
 					} else {
@@ -258,19 +258,19 @@ namespace Copper {
 							}
 							
 							if (peek() == '\n') {
-								m_line++;
-								m_column = 1;
+								line++;
+								column = 1;
 							}
 							break;
 						case '*':
 							// Multi line comment
 							while (!atEOF()) {
 								advance();
-								m_column++;
+								column++;
 
 								if (peek() == '\n') {
-									m_line++;
-									m_column = 0;
+									line++;
+									column = 0;
 									continue;
 								}
 
@@ -280,12 +280,12 @@ namespace Copper {
 							}
 
 							if (peek() == '*' && peekNext() == '/') {
-								m_curr += 2;
-								m_column += 2;
+								curr += 2;
+								column += 2;
 								continue;
 							} else {
 								if (atEOF()) {
-									m_line--;
+									line--;
 								}
 
 								error("Unterminated multi-line comment");
@@ -325,7 +325,7 @@ namespace Copper {
 					emitToken(TokenType::STRING, string());
 					
 					// adjust for the opening and closing quotes
-					m_column += 2;
+					column += 2;
 					break;
 
 				// Back tick
@@ -339,7 +339,7 @@ namespace Copper {
 				default:
 					// TODO: This is just disgustingly bad and inefficient
 					error("Invalid or unexpected token: '"+ std::string(1, peek()) + "'");
-					m_column++;
+					column++;
 			}
 
 			advance();
@@ -355,12 +355,12 @@ namespace Copper {
 				case '\t':
 				case '\r':
 					advance();
-					m_column++;
+					column++;
 					break;
 				case '\n':
 					advance();
-					m_line++;
-					m_column = 1;
+					line++;
+					column = 1;
 					break;
 				default:
 					return;
@@ -373,31 +373,31 @@ namespace Copper {
 			return EOF;
 		}
 
-		return m_translationUnit.m_contents.get()->at(m_curr);
+		return translationUnit.contents.get()->at(curr);
 	}
 
 	char Tokenizer::peekNext() const {
-		if (m_curr + 1 >= m_translationUnit.m_contents->size()) {
+		if (curr + 1 >= translationUnit.contents->size()) {
 			return '\0';
 		}
 
-		return m_translationUnit.m_contents->at(m_curr + 1);
+		return translationUnit.contents->at(curr + 1);
 	}
 
 	bool Tokenizer::matchNext(char expected) {
 		if (atEOF()) return false;
 		if (peekNext() != expected) return false;
 
-		m_curr++;
+		curr++;
 		return true;
 	}
 
 	void Tokenizer::advance() {
-		m_curr++;
+		curr++;
 	}
 
 	bool Tokenizer::atEOF() const {
-		return m_curr >= m_translationUnit.m_contents->size();
+		return curr >= translationUnit.contents->size();
 	}
 
 	inline bool Tokenizer::isDigit(char c) {
@@ -406,7 +406,7 @@ namespace Copper {
 
 	std::string Tokenizer::number() {
 		size_t len = 0;
-		size_t start = m_curr;
+		size_t start = curr;
 
 		while (isDigit(peek())) {
 			advance();
@@ -423,7 +423,7 @@ namespace Copper {
 			}	
 		}
 
-		return m_translationUnit.m_contents->substr(start, len);
+		return translationUnit.contents->substr(start, len);
 	}
 
 	inline bool Tokenizer::isAlpha(char c) {
@@ -436,14 +436,14 @@ namespace Copper {
 		// consume the current character,
 		// which has already been verified to be
 		// alpha by the isAlpha() call in run()
-		size_t start = m_curr;
+		size_t start = curr;
 		advance(); len++;
 
 		while (isAlpha(peek()) || isDigit(peek())) {
 			advance(); len++;
 		}
 
-		return m_translationUnit.m_contents->substr(start, len);
+		return translationUnit.contents->substr(start, len);
 	}
 
 	std::string Tokenizer::string() {
@@ -457,7 +457,7 @@ namespace Copper {
 		// consume the opening quotation mark
 		advance();
 
-		size_t start = m_curr;
+		size_t start = curr;
 
 		while (!atEOF() && peek() != openingQuote && peek() != '\n') {
 			advance(); len++;
@@ -467,7 +467,7 @@ namespace Copper {
 			error("Unterminated string literal");
 		}
 
-		return m_translationUnit.m_contents->substr(start, len);
+		return translationUnit.contents->substr(start, len);
 	}
 
 	void Tokenizer::stringTemplate() {
@@ -475,68 +475,68 @@ namespace Copper {
 		advance();	// consume `
 
 		size_t len = 0;
-		size_t start = m_curr;
+		size_t start = curr;
 
 		while (!atEOF()) {
 			switch (peek()) {
 				case '$': {
 					if (peekNext() == '{') {
-						auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
+						auto const &stringLiteral = translationUnit.contents->substr(start, len);
 
 						// We don't use emitToken() for emitting the string literal since it could
-						// be multi-line. emitToken() automatically increments m_column based on
+						// be multi-line. emitToken() automatically increments column based on
 						// the length of the lexeme to be emitted. This, obviously poses a problem when
 						// emitting a multi-line string. Hence, we do it manually.
-						tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column - stringLiteral.length()));
+						tokens.push_back(Token(stringLiteral, TokenType::STRING, line, column - stringLiteral.length()));
 						emitToken(TokenType::PLUS, 0);
 
 						emitToken(TokenType::INTERPOLATION_START, 2);
 						advance(); advance();	// consume ${
 				
-						m_interpolationDepth++;
+						interpolationDepth++;
 						run();	// scan expression
-						m_interpolationDepth--;
+						interpolationDepth--;
 						emitToken(TokenType::PLUS, 0);
 
 						len = 0;
-						start = m_curr;
+						start = curr;
 					}
 					break;
 				}
 				case '`': {
-					auto const &stringLiteral = m_translationUnit.m_contents->substr(start, len);
+					auto const &stringLiteral = translationUnit.contents->substr(start, len);
 					// Not using emitToken for the same reason as above
-					tokens.push_back(Token(stringLiteral, TokenType::STRING, m_line, m_column - stringLiteral.length()));
+					tokens.push_back(Token(stringLiteral, TokenType::STRING, line, column - stringLiteral.length()));
 					emitToken(TokenType::BACK_TICK);
 					return;
 				}
 
 				case '\n':
 					advance();
-					m_line++;
-					m_column = 1;
+					line++;
+					column = 1;
 					len++;
 					break;
 
 				default:
 					advance();
-					m_column++;
+					column++;
 					len++;
 			}
 		}
 	}
 
 	void Tokenizer::error(const std::string& msg) {
-		m_hadError = true;
+		hadError = true;
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
-		std::cout << ANSICodes::BOLD << m_translationUnit.m_filepath << ANSICodes::RESET << " ";
-		std::cout << "(line " << m_line << "): ";
+		std::cout << ANSICodes::BOLD << translationUnit.filepath << ANSICodes::RESET << " ";
+		std::cout << "(line " << line << "): ";
 		std::cout << msg << std::endl;
 
-		std::string culpritLine = m_translationUnit.getLine(m_line);
+		std::string culpritLine = translationUnit.getLine(line);
 		std::cout << "\t" << culpritLine << std::endl;
-		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, m_column - 1);
+		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, column - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 
