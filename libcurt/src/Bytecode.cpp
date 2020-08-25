@@ -75,6 +75,12 @@ namespace Copper {
 		return {0, 0};
 	}
 
+	void Bytecode::patch(const size_t offset, const byte b) {
+		if (offset < blob.size()) {
+			blob[offset] = b;
+		}
+	}
+
 	void Bytecode::addInstructionLocation(const unsigned int& line, const unsigned int& column) {
 		if (locations.find(line) != locations.end()) {
 			locations[line].push_back(column);

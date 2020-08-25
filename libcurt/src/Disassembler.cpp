@@ -72,6 +72,16 @@ namespace Copper {
 					break;
 				}
 
+				case JMP: {
+					printInstruction("JMP", std::to_string((int) bytecode.blob[++ip]));
+					break;
+				}
+
+				case JNT: {
+					printInstruction("JNT", std::to_string((int) bytecode.blob[++ip]));
+					break;
+				}
+
 				// Arithmetic
 				case ADD: printInstruction("ADD"); break;
 				case SUB: printInstruction("SUB"); break;
@@ -103,7 +113,7 @@ namespace Copper {
 
 	void Disassembler::printInstruction(const std::string& opcode,
 			const std::string& operands, const std::string& comment) {
-		std::cout << ip << " ";
+		printf("%5zu ", ip - 1);
 		std::cout << ANSICodes::BOLD << ANSICodes::GREEN;
 		printf("%-10s", opcode.c_str());
 		std::cout << ANSICodes::RESET;

@@ -98,8 +98,6 @@ namespace Copper {
 			return declarationList(false);
 		} else if (match(TokenType::CONST)) {
 			return declarationList(true);
-		} else if (match(TokenType::PRINT)) {
-			return printStatement();
 		}
 
 		return statement();
@@ -159,6 +157,10 @@ namespace Copper {
 	bool Parser::statement() {
 		if (match(TokenType::OPEN_BRACE)) {
 			return block();
+		} else if (match(TokenType::PRINT)) {
+			return printStatement();
+		} else if (match(TokenType::IF)) {
+			return ifStatement();
 		}
 
 		return expressionStatement();
@@ -204,6 +206,43 @@ namespace Copper {
 
 		auto popCount = env.closeScope();
 		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		return true;
+	}
+
+	bool Parser::ifStatement() {
+		if (!match(TokenType::OPEN_PAREN)) {
+			error("Expect '(' before if condition");
+			return false;
+		}
+
+		auto expressionStartToken = peek();
+		if (!expression()) return false;
+
+		bytecode.emit(OpCode::JNT, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		auto jntOffset = bytecode.size() - 1;
+		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+
+		if (!match(TokenType::CLOSE_PAREN)) {
+			error("Expect ')' after if condition");
+			return false;
+		}
+
+		if (!statement()) return false;
+
+		bytecode.emit(OpCode::JMP, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		auto jmpOffset = bytecode.size() - 1;
+		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+
+		auto afterIfBodyOffset = bytecode.size();
+		bytecode.patch(jntOffset, afterIfBodyOffset);
+
+		if (match(TokenType::ELSE)) {
+			if (!statement()) return false;
+		}
+
+		auto afterElseBodyOffset = bytecode.size();
+		bytecode.patch(jmpOffset, afterElseBodyOffset);
+
 		return true;
 	}
 

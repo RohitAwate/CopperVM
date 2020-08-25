@@ -23,6 +23,20 @@
 
 namespace Copper {
 
+    static bool isTruthy(std::shared_ptr<Object> obj) {
+        switch (obj->type) {
+            case ObjectType::BOOLEAN:
+                return std::dynamic_pointer_cast<BooleanObject>(obj)->get();
+            case ObjectType::NUMBER:
+                return std::dynamic_pointer_cast<NumberObject>(obj)->get() != 0;
+            case ObjectType::STRING:
+                return std::dynamic_pointer_cast<StringObject>(obj)->get().length() != 0;
+            case ObjectType::NULL_TYPE:
+            case ObjectType::UNDEFINED:
+                return false;
+        }
+    }
+
     void VM::error(const TranslationUnit& translationUnit, const Bytecode& bytecode, const std::string& msg) const {
         std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
         std::cout << ANSICodes::BOLD << translationUnit.filepath << ANSICodes::RESET << " ";
@@ -203,6 +217,23 @@ namespace Copper {
                     stack[stackIndex] = stack.top();
                     break;
                 }
+
+                case JMP: {
+                    // decrementing to offset for the loop increment
+                    auto jumpOffset = READ_OPERAND() - 1;
+                    ip = jumpOffset;
+                    break;
+                }
+
+                case JNT: {
+                    // decrementing to offset for the loop increment
+                    auto jumpOffset = READ_OPERAND() - 1;
+                    if (!isTruthy(stack.top())) {
+                        ip = jumpOffset;
+                    }
+
+                    break;
+                }
                 
                 // Basic arithmetic
                 case NEG: {
@@ -314,6 +345,7 @@ namespace Copper {
 #undef EQUALITY_OP
 #undef GET_CONST
 #undef GET_STRING
+#undef READ_OPERAND
 
         return 0;
     }

@@ -191,6 +191,49 @@ namespace Copper {
 		SETLOCAL,
 
 		/**
+		 * NAME:
+		 * Jump to Offset
+		 * 
+		 * DESCRIPTION:
+		 * Jumps to the offset indicated by the operand.
+		 * 
+		 * PRE-CONDITIONS:
+		 * None.
+		 * 
+		 * OPERATION:
+		 * - IP is set to the bytecode offset indicated by the operand.
+		 * 
+		 * OPERANDS:
+		 * (1) - bytecode offset to jump to
+		 */
+		JMP,
+
+		/**
+		 * NAME:
+		 * Jump If Not True
+		 * 
+		 * DESCRIPTION:
+		 * Checks the stack top and if it is truthy, jumps to the offset
+		 * indicated by the operand.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The stack must have at least one value.
+		 * 
+		 * OPERATION:
+		 * - The value at the top of the stack is checked.
+		 * - If truthy, IP is set to the bytecode offset indicated by the operand.
+		 * - Truthiness for various Object types is evaluated as follows:
+		 *    - Boolean: The underlying Boolean value is checked.
+		 *    - Number: False if zero, true otherwise.
+		 *    - String: False if length is zero, true otherwise.
+		 *    - Null and Undefined: Always false.
+		 * 
+		 * OPERANDS:
+		 * (1) - bytecode offset to jump to
+		 */
+		JNT,
+
+		/**
 		 * ARITHMETIC ADDITION & STRING CONCATENATION
 		 * 
 		 * DESCRIPTION:
@@ -284,6 +327,8 @@ namespace Copper {
 		size_t addConstant(const Object *);
 		void addIdentifier(const std::string &, const bool isConst, unsigned int line, unsigned int column);
 		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
+		size_t size() const { return blob.size(); }
+		void patch(const size_t offset, const byte b);
 	private:
 		std::vector<byte> blob;
 		std::map<unsigned int, std::vector<unsigned int>> locations;
