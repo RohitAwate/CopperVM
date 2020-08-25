@@ -23,7 +23,7 @@
 
 namespace Copper {
 
-    static bool isTruthy(std::shared_ptr<Object> obj) {
+    static bool isTruthy(const std::shared_ptr<Object>& obj) {
         switch (obj->type) {
             case ObjectType::BOOLEAN:
                 return std::dynamic_pointer_cast<BooleanObject>(obj)->get();
@@ -201,8 +201,6 @@ namespace Copper {
                     }
 
                     globals[identifier->get()].first = stack.top();
-                    stack.pop();
-
                     break;
                 }
 
@@ -323,7 +321,7 @@ namespace Copper {
                 }
 
                 case PRINT: {
-                    std::cout << ANSICodes::BOLD << ANSICodes::WHITE <<
+                    std::cout << ANSICodes::WHITE <<
                         stack.top()->toString() << ANSICodes::RESET << std::endl;
                     stack.pop();
                     break;
@@ -346,6 +344,11 @@ namespace Copper {
 #undef GET_CONST
 #undef GET_STRING
 #undef READ_OPERAND
+
+        while (!stack.empty()) {
+            std::cout << ANSICodes::WHITE << stack.top()->toString() << ANSICodes::RESET << std::endl;
+            stack.pop();
+        }
 
         return 0;
     }
