@@ -161,8 +161,10 @@ namespace Copper {
 			return printStatement();
 		} else if (match(TokenType::IF)) {
 			return ifStatement();
+		} else if (match(TokenType::WHILE)) {
+			return whileStatement();
 		}
-
+ 
 		return expressionStatement();
 	}
 
@@ -231,17 +233,46 @@ namespace Copper {
 
 		bytecode.emit(OpCode::JMP, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
 		auto jmpOffset = bytecode.size() - 1;
-		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 
 		auto afterIfBodyOffset = bytecode.size();
 		bytecode.patch(jntOffset, afterIfBodyOffset);
 
+		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 		if (match(TokenType::ELSE)) {
 			if (!statement()) return false;
 		}
 
 		auto afterElseBodyOffset = bytecode.size();
 		bytecode.patch(jmpOffset, afterElseBodyOffset);
+
+		return true;
+	}
+
+	bool Parser::whileStatement() {
+		if (!match(TokenType::OPEN_PAREN)) {
+			error("Expect '(' before while condition");
+			return false;
+		}
+
+		auto loopStart = bytecode.size();
+
+		auto expressionStartToken = peek();
+		if (!expression()) return false;
+
+		bytecode.emit(OpCode::JNT, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		auto jntOffset = bytecode.size() - 1;
+		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+
+		if (!match(TokenType::CLOSE_PAREN)) {
+			error("Expect ')' after while condition");
+			return false;
+		}
+
+		if (!statement()) return false;
+
+		bytecode.emit(OpCode::JMP, loopStart, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.patch(jntOffset, bytecode.size());
+		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 
 		return true;
 	}

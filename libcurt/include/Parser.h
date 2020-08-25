@@ -57,6 +57,7 @@ namespace Copper {
 		bool expressionStatement();
 		bool block();
 		bool ifStatement();
+		bool whileStatement();
 
 		/*
 			These Boolean return values form the synchronization
