@@ -87,6 +87,7 @@ namespace Copper {
 				case SUB: printInstruction("SUB"); break;
 				case MUL: printInstruction("MUL"); break;
 				case DIV: printInstruction("DIV"); break;
+				case MOD: printInstruction("MOD"); break;
 				case EXP: printInstruction("EXP"); break;
 				case NEG: printInstruction("NEG"); break;
 

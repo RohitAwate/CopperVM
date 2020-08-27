@@ -339,18 +339,19 @@ namespace Copper {
                 }
             }
         }
-#undef BINARY_OP
-#undef BINARY_MATH_H
-#undef EQUALITY_OP
-#undef GET_CONST
-#undef GET_STRING
-#undef READ_OPERAND
 
         // Print stack residue
         while (!stack.empty()) {
             std::cout << ANSICodes::RED << stack.top()->toString() << ANSICodes::RESET << std::endl;
             stack.pop();
         }
+
+#undef BINARY_OP
+#undef BINARY_MATH_H
+#undef EQUALITY_OP
+#undef GET_CONST
+#undef GET_STRING
+#undef READ_OPERAND
 
         return 0;
     }
