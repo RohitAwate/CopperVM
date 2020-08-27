@@ -89,7 +89,7 @@ namespace Copper {
 		bool term();
 		bool factor();
 		bool exponent();
-		bool unary();
+		bool preUnary();
 		bool primary();
 		bool grouping();
 		bool stringTemplate();

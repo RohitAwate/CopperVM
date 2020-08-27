@@ -305,6 +305,26 @@ namespace Copper {
                     break;
                 }
 
+                case INCR: {
+                    if (stack.top()->type != ObjectType::NUMBER) {
+                        error(translationUnit, bytecode, "Cannot increment non-numeric type");
+                        return false;
+                    }
+
+                    std::dynamic_pointer_cast<NumberObject>(stack.top())->increment();
+                    break;
+                }
+
+                case DECR: {
+                    if (stack.top()->type != ObjectType::NUMBER) {
+                        error(translationUnit, bytecode, "Cannot decrement non-numeric type");
+                        return false;
+                    }
+
+                    std::dynamic_pointer_cast<NumberObject>(stack.top())->decrement();
+                    break;
+                }
+
                 // Arithmetic comparison
                 case GRT: BINARY_OP(>, BooleanObject); break;
                 case LST: BINARY_OP(<, BooleanObject); break;

@@ -513,7 +513,7 @@ namespace Copper {
 	}
 
 	bool Parser::exponent() {
-		if (!unary()) return false;
+		if (!preUnary()) return false;
 
 		if (match(TokenType::EXPONENT)) {
 			const auto& operatorToken = previous();
@@ -527,22 +527,42 @@ namespace Copper {
 		return true;
 	}
 
-	bool Parser::unary() {
-		if (peek().getType() == TokenType::MINUS || peek().getType() == TokenType::NEGATION) {
-			// Consume the operator
-			const auto& operatorToken = next();
+	bool Parser::preUnary() {
+		switch (peek().getType()) {
+			case TokenType::PLUS_PLUS:
+			case TokenType::MINUS_MINUS: {
+				OpCode op = next().getType() == TokenType::PLUS_PLUS ? OpCode::INCR : OpCode::DECR;
 
-			if (!unary()) return false;
+				const auto& identifierToken = next();
+				auto stackIndex = env.resolveLocal(identifierToken.getLexeme());
 
-			switch (operatorToken.getType()) {
-				case TokenType::MINUS:
-					bytecode.emit(OpCode::NEG, operatorToken.getLine(), operatorToken.getColumn());
-					break;
-				case TokenType::NEGATION:
-					bytecode.emit(OpCode::NOT, operatorToken.getLine(), operatorToken.getColumn());
-					break;
+				if (stackIndex == -1) {
+					// possibly global, will only know at runtime
+					auto const &constOffset = bytecode.addConstant(new StringObject(identifierToken.getLexeme()));
+
+					bytecode.emit(OpCode::LDGL, constOffset, identifierToken.getLine(), identifierToken.getColumn());
+					bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
+					bytecode.emit(OpCode::SETGL, constOffset, identifierToken.getLine(), identifierToken.getColumn());
+				} else {
+					bytecode.emit(OpCode::LDLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+					bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
+					bytecode.emit(OpCode::SETLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+				}
+
+				return true;
 			}
-			return true;
+
+			case TokenType::MINUS:
+			case TokenType::NEGATION: {
+				const auto& operatorToken = next();
+				OpCode op = operatorToken.getType() == TokenType::MINUS ? OpCode::NEG : OpCode::NOT;
+
+				if (!preUnary()) return false;
+
+				bytecode.emit(op, operatorToken.getLine(), operatorToken.getColumn());
+			
+				return true;
+			}
 		}
 
 		return primary();
@@ -590,7 +610,7 @@ namespace Copper {
 				auto stackIndex = env.resolveLocal(primaryToken.getLexeme());
 
 				if (stackIndex == -1) {
-					// possibly global
+					// possibly global, will only know at runtime
 					auto const &constOffset = bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
 
 					if (match(TokenType::ASSIGNMENT)) {

@@ -79,6 +79,8 @@ namespace Copper {
 			
 		std::string toString() const;
 		double get() const { return val; }
+		void increment() { val++; }
+		void decrement() { val--; }
 
 		NumberObject operator+(NumberObject& o) { return { val + o.val, false }; }
 		NumberObject operator-(NumberObject& o) { return { val - o.val, false }; }

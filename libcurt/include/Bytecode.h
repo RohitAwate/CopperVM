@@ -282,6 +282,25 @@ namespace Copper {
 		EXP,
 
 		/**
+		 * INCREMENT & DECREMENT
+		 * 
+		 * DESCRIPTION:
+		 * Increment/Decrement the value of the stack top.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The stack must have at least one value.
+		 * 
+		 * OPERATION:
+		 * - The object type is checked, error if non-numeric.
+		 * - The increment/decrement operation is performed.
+		 * 
+		 * OPERANDS:
+		 * None. Required operands are popped from the stack.
+		 */
+		INCR,
+		DECR,
+
+		/**
 		 * DESCRIPTION:
 		 * Negates a numeric value.
 		 * 

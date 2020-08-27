@@ -91,6 +91,9 @@ namespace Copper {
 				case EXP: printInstruction("EXP"); break;
 				case NEG: printInstruction("NEG"); break;
 
+				case INCR: printInstruction("INCR"); break;
+				case DECR: printInstruction("DECR"); break;
+
 				// Comparison
 				case GRT: printInstruction("GRT"); break;
 				case LST: printInstruction("LST"); break;
