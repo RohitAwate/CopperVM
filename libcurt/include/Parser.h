@@ -47,6 +47,8 @@ namespace Copper {
 		bool match(TokenType);
 		bool atEOF() const;
 
+		byte emitJump(OpCode);
+
 		void synchronize();
 
 		bool declaration();
@@ -57,6 +59,7 @@ namespace Copper {
 		bool expressionStatement();
 		bool block();
 		bool ifStatement();
+		bool forStatement();
 		bool whileStatement();
 
 		/*

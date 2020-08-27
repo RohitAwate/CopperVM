@@ -71,6 +71,11 @@ namespace Copper {
 		return peek().getType() == TokenType::EOF_TYPE;
 	}
 
+	byte Parser::emitJump(OpCode op) {
+		bytecode.emit(op, 0, peek().getLine(), peek().getColumn());
+		return bytecode.size() - 1;
+	}
+
 	void Parser::synchronize() {
 		while (!atEOF()) {
 			switch (peek().getType()) {
@@ -161,7 +166,9 @@ namespace Copper {
 			return printStatement();
 		} else if (match(TokenType::IF)) {
 			return ifStatement();
-		} else if (match(TokenType::WHILE)) {
+		} else if (match(TokenType::FOR)) {
+			return forStatement();
+		}  else if (match(TokenType::WHILE)) {
 			return whileStatement();
 		}
  
@@ -248,6 +255,80 @@ namespace Copper {
 		return true;
 	}
 
+	bool Parser::forStatement() {
+		env.beginScope();
+		if (!match(TokenType::OPEN_PAREN)) {
+			error("Expect '(' before for initializer");
+			return false;
+		}
+
+		/*
+			Initializer may be:
+			- empty
+			- let or const declaration
+			- assignment
+		*/
+		if (match(TokenType::SEMICOLON)) {
+			// Empty initializer
+		} else if (match(TokenType::LET) || match(TokenType::CONST)) {
+			if (!declarationList(previous().getType() == TokenType::CONST)) return false;
+		} else {
+			if (!expressionStatement()) return false;
+		}
+
+		byte nextIteration = bytecode.size();
+		int toEndOfLoop = -1;
+
+		// Exit condition is optional
+		if (!match(TokenType::SEMICOLON)) {
+			if (!expression()) return false;
+
+			if (!match(TokenType::SEMICOLON)) {
+				error("Expect ';' after for exit condition");
+				return false;
+			}
+
+			toEndOfLoop = emitJump(OpCode::JNT);
+			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
+		}
+
+		byte toIncrement = nextIteration;
+		int toBody = -1;
+
+		// Increment expression is optional
+		if (!match(TokenType::CLOSE_PAREN)) {
+			toBody = emitJump(OpCode::JMP);
+			toIncrement = bytecode.size();
+
+			if (!expression()) return false;
+
+			if (!match(TokenType::CLOSE_PAREN)) {
+				error("Expect ')' after for declaration");
+				return false;
+			}
+
+			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::JMP, nextIteration, peek().getLine(), peek().getColumn());
+		}
+
+		if (toBody != -1) {
+			bytecode.patch(toBody, bytecode.size());
+		}
+
+		if (!statement()) return false;
+		
+		bytecode.emit(OpCode::JMP, toIncrement, peek().getLine(), peek().getColumn());
+		
+		if (toEndOfLoop != -1) {
+			bytecode.patch(toEndOfLoop, bytecode.size());
+			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
+		}
+
+		auto popCount = env.closeScope();
+		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		return true;
+	}
+
 	bool Parser::whileStatement() {
 		if (!match(TokenType::OPEN_PAREN)) {
 			error("Expect '(' before while condition");
@@ -259,8 +340,7 @@ namespace Copper {
 		auto expressionStartToken = peek();
 		if (!expression()) return false;
 
-		bytecode.emit(OpCode::JNT, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
-		auto jntOffset = bytecode.size() - 1;
+		byte toEndOfLoop = emitJump(OpCode::JNT);
 		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 
 		if (!match(TokenType::CLOSE_PAREN)) {
@@ -271,7 +351,7 @@ namespace Copper {
 		if (!statement()) return false;
 
 		bytecode.emit(OpCode::JMP, loopStart, expressionStartToken.getLine(), expressionStartToken.getColumn());
-		bytecode.patch(jntOffset, bytecode.size());
+		bytecode.patch(toEndOfLoop, bytecode.size());
 		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 
 		return true;
