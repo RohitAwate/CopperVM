@@ -146,6 +146,17 @@ namespace Copper {
         auto const& code = bytecode.blob;
 
         for (ip = 0; ip < code.size(); ip++) {
+
+#ifdef TRACE_EXECUTION
+    printf("\n%s%s%5zu%s | ", ANSICodes::BOLD, ANSICodes::BLUE, ip, ANSICodes::RESET);
+
+    for (const auto& stackItem : stack) {
+        std::cout << stackItem->toString() << ", ";
+    }
+
+    std::cout << std::endl;
+#endif
+
             switch (code[ip]) {
                 case LDC: {
                     stack.push(GET_CONST());
@@ -327,16 +338,6 @@ namespace Copper {
                     break;
                 }
             }
-
-#ifdef TRACE_EXECUTION
-    printf("\n%s%s%5zu%s | ", ANSICodes::BOLD, ANSICodes::BLUE, ip, ANSICodes::RESET);
-
-    for (const auto& stackItem : stack) {
-        std::cout << stackItem->toString() << ", ";
-    }
-
-    std::cout << std::endl;
-#endif
         }
 #undef BINARY_OP
 #undef BINARY_MATH_H
@@ -345,8 +346,9 @@ namespace Copper {
 #undef GET_STRING
 #undef READ_OPERAND
 
+        // Print stack residue
         while (!stack.empty()) {
-            std::cout << ANSICodes::WHITE << stack.top()->toString() << ANSICodes::RESET << std::endl;
+            std::cout << ANSICodes::RED << stack.top()->toString() << ANSICodes::RESET << std::endl;
             stack.pop();
         }
 
