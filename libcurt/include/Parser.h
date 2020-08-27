@@ -35,7 +35,29 @@ namespace Copper {
 	private:
 		const TranslationUnit translationUnit;
 		const std::vector<Token> tokens;
-		size_t curr { 0 }; 
+		size_t curr { 0 };
+
+		struct {
+			int nextIteration;
+			std::vector<byte> breakPatches;
+
+			void init() {
+				inside = true;
+			}
+
+			void reset() {
+				inside = false;
+				nextIteration = -1;
+				breakPatches.clear();
+			}
+
+			bool isInside() {
+				return inside;
+			}
+
+		private:
+			bool inside;
+		} insideLoop;
 
 		Bytecode bytecode;
 		Environment env;

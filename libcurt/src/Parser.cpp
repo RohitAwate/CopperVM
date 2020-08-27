@@ -24,6 +24,8 @@ namespace Copper {
 	// TODO: parse always returns true
 	// return actual return value from declaration
 	bool Parser::parse() {
+		insideLoop.reset();
+
 		while (!atEOF()) {
 			if (!declaration()) {
 				synchronize();
@@ -315,14 +317,21 @@ namespace Copper {
 			bytecode.patch(toBody, bytecode.size());
 		}
 
+		insideLoop.init();
+		insideLoop.nextIteration = toIncrement;
 		if (!statement()) return false;
-		
+
 		bytecode.emit(OpCode::JMP, toIncrement, peek().getLine(), peek().getColumn());
-		
+
 		if (toEndOfLoop != -1) {
 			bytecode.patch(toEndOfLoop, bytecode.size());
 			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
 		}
+
+		for (const auto& breakPatch : insideLoop.breakPatches) {
+			bytecode.patch(breakPatch, bytecode.size());
+		}
+		insideLoop.reset();
 
 		auto popCount = env.closeScope();
 		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
@@ -335,7 +344,7 @@ namespace Copper {
 			return false;
 		}
 
-		auto loopStart = bytecode.size();
+		auto nextIteration = bytecode.size();
 
 		auto expressionStartToken = peek();
 		if (!expression()) return false;
@@ -348,11 +357,19 @@ namespace Copper {
 			return false;
 		}
 
+		insideLoop.init();
+		insideLoop.nextIteration = nextIteration;
 		if (!statement()) return false;
 
-		bytecode.emit(OpCode::JMP, loopStart, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::JMP, nextIteration, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		
 		bytecode.patch(toEndOfLoop, bytecode.size());
 		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+
+		for (const auto& breakPatch : insideLoop.breakPatches) {
+			bytecode.patch(breakPatch, bytecode.size());
+		}
+		insideLoop.reset();
 
 		return true;
 	}
@@ -606,15 +623,33 @@ namespace Copper {
 			case TokenType::NULL_TYPE: {
 				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
 				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
-				next();
+				consume();
 				break;
 			}
 			case TokenType::UNDEFINED: {
 				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
 				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
-				next();
+				consume();
 				break;
 			}
+			case TokenType::BREAK:
+				if (!insideLoop.isInside()) {
+					error("Illegal break statement");
+					return false;
+				}
+
+				insideLoop.breakPatches.push_back(emitJump(OpCode::JMP));
+				consume();
+				break;
+			case TokenType::CONTINUE:
+				if (!insideLoop.isInside()) {
+					error("Illegal continue statement, no enclosing iteration statement");
+					return false;
+				}
+
+				bytecode.emit(OpCode::JMP, insideLoop.nextIteration, peek().getLine(), peek().getColumn());
+				consume();
+				break;
 			case TokenType::EOF_TYPE:
 				error("Unexpected end-of-file, expect expression");
 				return false;
