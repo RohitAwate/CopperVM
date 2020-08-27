@@ -24,8 +24,6 @@ namespace Copper {
 	// TODO: parse always returns true
 	// return actual return value from declaration
 	bool Parser::parse() {
-		insideLoop.reset();
-
 		while (!atEOF()) {
 			if (!declaration()) {
 				synchronize();
@@ -317,8 +315,7 @@ namespace Copper {
 			bytecode.patch(toBody, bytecode.size());
 		}
 
-		insideLoop.init();
-		insideLoop.nextIteration = toIncrement;
+		loopStack.push(LoopJumpOffsets(toIncrement));
 		if (!statement()) return false;
 
 		bytecode.emit(OpCode::JMP, toIncrement, peek().getLine(), peek().getColumn());
@@ -328,10 +325,10 @@ namespace Copper {
 			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
 		}
 
-		for (const auto& breakPatch : insideLoop.breakPatches) {
+		for (const auto& breakPatch : loopStack.top().breakPatches) {
 			bytecode.patch(breakPatch, bytecode.size());
 		}
-		insideLoop.reset();
+		loopStack.pop();
 
 		auto popCount = env.closeScope();
 		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
@@ -357,8 +354,7 @@ namespace Copper {
 			return false;
 		}
 
-		insideLoop.init();
-		insideLoop.nextIteration = nextIteration;
+		loopStack.push(LoopJumpOffsets(nextIteration));
 		if (!statement()) return false;
 
 		bytecode.emit(OpCode::JMP, nextIteration, expressionStartToken.getLine(), expressionStartToken.getColumn());
@@ -366,10 +362,10 @@ namespace Copper {
 		bytecode.patch(toEndOfLoop, bytecode.size());
 		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
 
-		for (const auto& breakPatch : insideLoop.breakPatches) {
+		for (const auto& breakPatch : loopStack.top().breakPatches) {
 			bytecode.patch(breakPatch, bytecode.size());
 		}
-		insideLoop.reset();
+		loopStack.pop();
 
 		return true;
 	}
@@ -633,21 +629,21 @@ namespace Copper {
 				break;
 			}
 			case TokenType::BREAK:
-				if (!insideLoop.isInside()) {
+				if (!insideLoop()) {
 					error("Illegal break statement");
 					return false;
 				}
 
-				insideLoop.breakPatches.push_back(emitJump(OpCode::JMP));
+				loopStack.top().breakPatches.push_back(emitJump(OpCode::JMP));
 				consume();
 				break;
 			case TokenType::CONTINUE:
-				if (!insideLoop.isInside()) {
+				if (!insideLoop()) {
 					error("Illegal continue statement, no enclosing iteration statement");
 					return false;
 				}
 
-				bytecode.emit(OpCode::JMP, insideLoop.nextIteration, peek().getLine(), peek().getColumn());
+				bytecode.emit(OpCode::JMP, loopStack.top().continueOffset, peek().getLine(), peek().getColumn());
 				consume();
 				break;
 			case TokenType::EOF_TYPE:

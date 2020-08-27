@@ -17,6 +17,7 @@
 #pragma once
 
 #include <vector>
+#include <stack>
 
 #include "Bytecode.h"
 #include "Environment.h"
@@ -35,29 +36,19 @@ namespace Copper {
 	private:
 		const TranslationUnit translationUnit;
 		const std::vector<Token> tokens;
-		size_t curr { 0 };
+		size_t curr = 0;
 
-		struct {
-			int nextIteration;
+		struct LoopJumpOffsets {
+			byte continueOffset;
 			std::vector<byte> breakPatches;
 
-			void init() {
-				inside = true;
-			}
+			LoopJumpOffsets(const byte& continueOffset) :
+				continueOffset(continueOffset) {}
+		};
 
-			void reset() {
-				inside = false;
-				nextIteration = -1;
-				breakPatches.clear();
-			}
+		std::stack<LoopJumpOffsets> loopStack;
 
-			bool isInside() {
-				return inside;
-			}
-
-		private:
-			bool inside;
-		} insideLoop;
+		bool insideLoop() const { return !loopStack.empty(); }
 
 		Bytecode bytecode;
 		Environment env;
