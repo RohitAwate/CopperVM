@@ -24,12 +24,15 @@ namespace Copper {
 	// TODO: parse always returns true
 	// return actual return value from declaration
 	bool Parser::parse() {
+		env.beginScope();
 		while (!atEOF()) {
 			if (!declaration()) {
 				synchronize();
 			}
 		}
 
+		size_t popCount = env.closeScope();
+		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
 		return true;
 	}
 
@@ -147,10 +150,8 @@ namespace Copper {
 			bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
 		}
 
-		if (env.isGlobal())
-			bytecode.addIdentifier(identifierToken.getLexeme(), isConst, identifierToken.getLine(), identifierToken.getColumn());
-		else if (!env.addNewLocal(identifierToken.getLexeme(), isConst)) {
-			error("Redeclaration of local variable: " + identifierToken.getLexeme());
+		if (!env.addNewLocal(identifierToken.getLexeme(), isConst)) {
+			error("Redeclaration of variable: " + identifierToken.getLexeme());
 			return false;
 		}
 
@@ -535,17 +536,13 @@ namespace Copper {
 				auto stackIndex = env.resolveLocal(identifierToken.getLexeme());
 
 				if (stackIndex == -1) {
-					// possibly global, will only know at runtime
-					auto const &constOffset = bytecode.addConstant(new StringObject(identifierToken.getLexeme()));
-
-					bytecode.emit(OpCode::LDGL, constOffset, identifierToken.getLine(), identifierToken.getColumn());
-					bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
-					bytecode.emit(OpCode::SETGL, constOffset, identifierToken.getLine(), identifierToken.getColumn());
-				} else {
-					bytecode.emit(OpCode::LDLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
-					bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
-					bytecode.emit(OpCode::SETLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+					error("Undefined variable: " + identifierToken.getLexeme());
+					return false;
 				}
+				
+				bytecode.emit(OpCode::LDLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+				bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
+				bytecode.emit(OpCode::SETLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
 
 				return true;
 			}
@@ -628,28 +625,20 @@ namespace Copper {
 				auto stackIndex = env.resolveLocal(primaryToken.getLexeme());
 
 				if (stackIndex == -1) {
-					// possibly global, will only know at runtime
-					auto const &constOffset = bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
+					error("Undefined variable: " + primaryToken.getLexeme());
+					return false;
+				}
 
-					if (match(TokenType::ASSIGNMENT)) {
-						if (!expression()) return false;
-						bytecode.emit(OpCode::SETGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
-					} else {
-						bytecode.emit(OpCode::LDGL, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				if (match(TokenType::ASSIGNMENT)) {
+					if (env.isLocalConst(stackIndex)) {
+						error("Assignment to const variable: " + primaryToken.getLexeme());
+						return false;
 					}
+
+					if (!expression()) return false;
+					bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 				} else {
-					// local
-					if (match(TokenType::ASSIGNMENT)) {
-						if (env.isLocalConst(stackIndex)) {
-							error("Assignment to const variable: " + primaryToken.getLexeme());
-							return false;
-						}
-
-						if (!expression()) return false;
-						bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
-					} else {
-						bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
-					}
+					bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 				}
 
 				break;
