@@ -54,13 +54,6 @@ namespace Copper {
 		return constants.size() - 1;
 	}
 
-	void Bytecode::addIdentifier(const std::string &identifier, const bool isConst, unsigned int line, unsigned int column) {
-		auto const &identifierOffset = addConstant(new StringObject(identifier, isConst));
-				
-		// This might need to change for locals
-		emit(OpCode::DEFGL, identifierOffset, line, column);
-	}
-
 	std::pair<unsigned int, unsigned int> Bytecode::getSourceLocation(byte opcodeIndex) const {
 		for (auto lineItr = locations.begin(); lineItr != locations.end(); lineItr++) {
 			auto& lineLocations = lineItr->second;

@@ -174,47 +174,6 @@ namespace Copper {
                     break;
                 }
 
-                case DEFGL: {
-                    auto identifier = GET_STRING();
-                    if (globals.find(identifier->get()) != globals.end()) {
-                        error(translationUnit, bytecode, "Redeclaration of variable: " + identifier->get());
-                        return 1;
-                    }
-                    
-                    globals[identifier->get()].first = stack.top();
-                    globals[identifier->get()].second = identifier->isConst;
-                    stack.pop();
-                    break;
-                }
-
-                case LDGL: {
-                    auto identifier = GET_STRING();
-                    if (globals.find(identifier->get()) == globals.end()) {
-                        error(translationUnit, bytecode, "Undefined variable: " + identifier->get());
-                        return 1;
-                    }
-
-                    stack.push(globals[identifier->get()].first);
-                    break;
-                }
-
-                case SETGL: {
-                    auto identifier = GET_STRING();
-                    if (globals.find(identifier->get()) == globals.end()) {
-                        error(translationUnit, bytecode, "Undefined variable: " + identifier->get());
-                        return 1;
-                    }
-
-                    // check if const
-                    if (globals[identifier->get()].second) {
-                        error(translationUnit, bytecode, "Assignment to const variable: "+ identifier->get());
-                        return 1;
-                    }
-
-                    globals[identifier->get()].first = stack.top();
-                    break;
-                }
-
                 case LDLOCAL: {
                     auto stackIndex = READ_OPERAND();
                     stack.push(stack[stackIndex]);

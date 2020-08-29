@@ -45,13 +45,6 @@ namespace Copper {
 	private:
 		Stack<std::shared_ptr<Object>> stack;
 
-		/**
-		 * Stores the global variables.
-		 * Map from identifier to a pair constituting the actual object
-		 * and a flag indicating if the variable is const.
-		 */ 
-		std::unordered_map<std::string, std::pair<std::shared_ptr<Object>, bool>> globals;
-
 		size_t ip = 0;
 
 		void error(const TranslationUnit&, const Bytecode& bytecode, const std::string& msg) const;

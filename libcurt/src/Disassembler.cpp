@@ -44,24 +44,6 @@ namespace Copper {
 					break;
 				}
 
-				case DEFGL: {
-					Object* val = GET_CONST(++ip).get();
-					printInstruction("DEFGL", std::to_string((int) bytecode.blob[ip]), val->toString());
-					break;
-				}
-
-				case LDGL: {
-					Object* val = GET_CONST(++ip).get();
-					printInstruction("LDGL", std::to_string((int) bytecode.blob[ip]), val->toString());
-					break;
-				}
-
-				case SETGL: {
-					Object *val = GET_CONST(++ip).get();
-					printInstruction("SETGL", std::to_string((int)bytecode.blob[ip]), val->toString());
-					break;
-				}
-
 				case LDLOCAL: {
 					printInstruction("LDLOCAL", std::to_string((int)bytecode.blob[++ip]));
 					break;

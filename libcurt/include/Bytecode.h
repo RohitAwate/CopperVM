@@ -83,75 +83,6 @@ namespace Copper {
 
 		/**
 		 * NAME:
-		 * Define Global
-		 * 
-		 * DESCRIPTION:
-		 * Defines a new global variable.
-		 * 
-		 * PRE-CONDITIONS:
-		 * - The identifier string must already be loaded by LDC.
-		 * - The variable's value must already be loaded by LDC.
-		 * 
-		 * OPERATION:
-		 * - The identifier string is loaded from the constants pool.
-		 * - Checks if identifier has been already defined.
-		 * - Adds identifier and corresponding value to the VM's global
-		 *   symbol table along with the constness of the variable.
-		 * - We now pop the value from the stack.
-		 *  
-		 * OPERANDS:
-		 * (1) - identifier offset into the bytecode's constant pool
-		 */
-		DEFGL,
-
-		/**
-		 * NAME:
-		 * Load Global Variable
-		 * 
-		 * DESCRIPTION:
-		 * Loads the value of a global variable on the stack.
-		 * 
-		 * PRE-CONDITIONS:
-		 * - The variable must already be defined.
-		 * - The identifier string must already be loaded by LDC.
-		 * 
-		 * OPERATION:
-		 * - The identifier string is loaded from the constants pool.
-		 * - Checks if identifier has actually been defined.
-		 * - Pushes the value of the variable onto the stack.
-		 * - We now pop the value from the stack.
-		 *  
-		 * OPERANDS:
-		 * (1) - identifier offset into the bytecode's constant pool
-		 */
-		LDGL,
-
-		/**
-		 * NAME:
-		 * Set Global Variable
-		 * 
-		 * DESCRIPTION:
-		 * Sets the value of a global variable.
-		 * 
-		 * PRE-CONDITIONS:
-		 * - The variable must already be defined.
-		 * - The identifier string must already be loaded by LDC.
-		 * - The variable's value must already be loaded by LDC.
-		 * 
-		 * OPERATION:
-		 * - The identifier string is loaded from the constants pool.
-		 * - Checks if variable has actually been defined.
-		 * - Checks if the variable is non-const.
-		 * - New value is assigned to the variable.
-		 * - We now pop the value from the stack.
-		 *  
-		 * OPERANDS:
-		 * (1) - identifier offset into the bytecode's constant pool
-		 */
-		SETGL,
-
-		/**
-		 * NAME:
 		 * Load Local Variable
 		 * 
 		 * DESCRIPTION:
@@ -385,7 +316,6 @@ namespace Copper {
 		void emit(byte opcode, unsigned int line, unsigned int column);
 		void emit(byte b1, byte b2, unsigned int line, unsigned int column);
 		size_t addConstant(const Object *);
-		void addIdentifier(const std::string &, const bool isConst, unsigned int line, unsigned int column);
 		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
 		size_t size() const { return blob.size(); }
 		void patch(const size_t offset, const byte b);

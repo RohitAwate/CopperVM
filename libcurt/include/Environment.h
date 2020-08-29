@@ -42,7 +42,6 @@ namespace Copper {
 		void beginScope();
 		size_t closeScope();
 
-		bool isGlobal() const { return currScope == 0; }
 		bool isLocalInScope(const std::string& identifier) const;
 		bool isLocalConst(const size_t stackIndex) const;
 	private:
