@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 
 #include "Object.h"
 
@@ -54,6 +55,66 @@ namespace Copper {
 
 	std::string StringObject::toString() const {
 		return val;
+	}
+
+	std::string ArrayObject::toString() const {
+		std::ostringstream buffer;
+		buffer << "[";
+
+		for (auto itr = val.begin(); itr != val.end(); itr++) {
+			buffer << itr->get()->toString();
+
+			if (itr + 1 != val.end()) {
+				buffer << ", ";
+			}
+		}
+
+		buffer << "]";
+
+		return buffer.str();
+	}
+
+	std::shared_ptr<Object> ArrayObject::operator[](const size_t index) const {
+		if (index < val.size()) {
+			return val[index];
+		}
+
+		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
+	}
+
+	std::shared_ptr<Object> ArrayObject::operator[](const std::shared_ptr<Object>& property) const  {
+		switch (property->type) {
+			case ObjectType::NUMBER: {
+				auto index = std::dynamic_pointer_cast<NumberObject>(property)->get();
+				if (index < val.size()) {
+					return val[index];
+				}
+				break;
+			}
+			case ObjectType::ARRAY: {
+				auto arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
+				if (arr.size() == 1) {
+					const auto& index = arr[0];
+					return (*this)[index];
+				}
+
+				break;
+			}
+			case ObjectType::STRING: {
+				auto str = std::dynamic_pointer_cast<StringObject>(property)->get();
+				try {
+					auto index = std::stod(str);
+
+					if (index < val.size()) {
+						return val[index];
+					}
+				} catch(std::invalid_argument err) {}
+
+				break;
+			}
+		}
+
+		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Object& obj) {

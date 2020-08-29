@@ -192,6 +192,47 @@ namespace Copper {
 
 		/**
 		 * NAME:
+		 * Create New Array
+		 * 
+		 * DESCRIPTION:
+		 * Creates a new array of the specified initial size.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The specified number of values must be loaded on the stack.
+		 * 
+		 * OPERATION:
+		 * - Pushes the top n elements into the array, with the
+		 * bottom-most one going in first.
+		 * - Pops the n elements from the stack.
+		 * 
+		 * OPERANDS:
+		 * (1) - initial size of array
+		 */
+		ARRNEW,
+
+		/**
+		 * NAME:
+		 * Load Object Property
+		 * 
+		 * DESCRIPTION:
+		 * Loads a certain object property onto the stack.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The object and the property identifier must be loaded on the stack.
+		 * 
+		 * OPERATION:
+		 * - Pops the property identifier and the object from the stack.
+		 * - If object is not an array or a JavaScript Object, undefined is pushed
+		 * onto the stack.
+		 * - Else, an attempt to load the property from the object is made.
+		 * 
+		 * OPERANDS:
+		 * None. Required operands are read from the stack.
+		 */
+		LDPROP,
+
+		/**
+		 * NAME:
 		 * Jump to Offset
 		 * 
 		 * DESCRIPTION:

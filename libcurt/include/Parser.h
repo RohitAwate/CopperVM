@@ -90,8 +90,10 @@ namespace Copper {
 		bool factor();
 		bool exponent();
 		bool preUnary();
+		bool memberAccess();
 		bool primary();
 		bool grouping();
+		bool array();
 		bool stringTemplate();
 
 		void error(const std::string&) const;

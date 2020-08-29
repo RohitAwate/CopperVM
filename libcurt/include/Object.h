@@ -18,7 +18,9 @@
 
 #include <iostream>
 #include <cmath>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace Copper {
 
@@ -26,6 +28,7 @@ namespace Copper {
 		BOOLEAN,
 		NUMBER,
 		STRING,
+		ARRAY,
 		UNDEFINED,
 		NULL_TYPE,
 	};
@@ -113,6 +116,22 @@ namespace Copper {
 		BooleanObject operator!=(StringObject &o) { return {val != o.val, false}; }
 	private:
 		std::string val;
+	};
+
+	class ArrayObject : public Object {
+	public:
+		ArrayObject(const bool& isConst = true)
+			: Object(ObjectType::ARRAY, isConst) {}
+
+		std::string toString() const;
+		std::vector<std::shared_ptr<Object>> get() const { return val; }
+
+		void push(const std::shared_ptr<Object>& obj) { val.push_back(obj); }
+		size_t length() const { return val.size(); }
+		std::shared_ptr<Object> operator[] (const size_t index) const;
+		std::shared_ptr<Object> operator[] (const std::shared_ptr<Object>& property) const;
+	private:
+		std::vector<std::shared_ptr<Object>> val;
 	};
 
 } // namespace Copper

@@ -88,9 +88,7 @@ namespace Copper {
 				case TokenType::WHILE:
 				case TokenType::DO:
 				case TokenType::TRY:
-					return;
-				case TokenType::SEMICOLON:
-					consume();
+				case TokenType::PRINT:
 					return;
 				default:
 					consume();
@@ -565,7 +563,24 @@ namespace Copper {
 			}
 		}
 
-		return primary();
+		return memberAccess();
+	}
+
+	bool Parser::memberAccess() {
+		if (!primary()) return false;
+
+		while (match(TokenType::OPEN_SQUARE_BRACKET)) {
+			if (!expression()) return false;
+			
+			if (!match(TokenType::CLOSE_SQUARE_BRACKET)) {
+				error("Expect ']' after member access");
+				return false;
+			}
+
+			bytecode.emit(OpCode::LDPROP, previous().getLine(), previous().getColumn());
+		}
+
+		return true;
 	}
 
 	bool Parser::primary() {
@@ -573,6 +588,9 @@ namespace Copper {
 		switch (primaryToken.getType()) {
 			case TokenType::OPEN_PAREN:
 				if (!grouping()) return false;
+				break;
+			case TokenType::OPEN_SQUARE_BRACKET:
+				if (!array()) return false;
 				break;
 			case TokenType::NUMBER: {
 				auto const &constOffset = bytecode.addConstant(new NumberObject(primaryToken.getLexeme()));
@@ -691,6 +709,37 @@ namespace Copper {
 		else
 			error("Expect ')'");
 		
+		return false;
+	}
+
+	bool Parser::array() {
+		// We have already checked for the opening sqauare bracker '[',
+		// so directly consume it here.
+		consume();
+
+		byte arraySize = 0;
+
+		while (!atEOF() && !match(TokenType::CLOSE_SQUARE_BRACKET)) {
+			if (!expression()) return false;
+			arraySize++;
+			if (!match(TokenType::COMMA)) {
+				if (!match(TokenType::CLOSE_SQUARE_BRACKET)) {
+					error("Expect ',' between array members");
+					return false;
+				}
+
+				break;
+			}
+		}
+
+		if (previous().getType() == TokenType::CLOSE_SQUARE_BRACKET) {
+			bytecode.emit(OpCode::ARRNEW, arraySize, peek().getLine(), peek().getColumn());
+			return true;
+		} else if (atEOF())
+			error("Unexpected end-of-file, expect ']'");
+		else
+			error("Expect ']' after array declaration");
+
 		return false;
 	}
 

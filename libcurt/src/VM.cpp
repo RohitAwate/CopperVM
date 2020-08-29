@@ -227,6 +227,37 @@ namespace Copper {
                     break;
                 }
 
+                case ARRNEW: {
+                    auto arraySize = READ_OPERAND();
+
+                    auto arrObj = std::make_shared<ArrayObject>();
+                    for (size_t i = 0; i < arraySize; i++) {
+                        arrObj->push(stack[stack.size() - arraySize + i]);
+                    }
+
+                    stack.multipop(arraySize);
+                    stack.push(arrObj);
+
+                    break;
+                }
+
+                case LDPROP: {
+                    const auto property = stack.top();
+                    stack.pop();
+                    
+                    const auto object = stack.top();
+                    stack.pop();
+
+                    if (object->type != ObjectType::ARRAY) {
+                        stack.push(std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED)));
+                    } else {
+                        const auto& arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
+                        stack.push((*arr)[property]);
+                    }
+
+                    break;
+                }
+
                 case JMP: {
                     // decrementing to offset for the loop increment
                     auto jumpOffset = READ_OPERAND() - 1;

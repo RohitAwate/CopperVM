@@ -72,6 +72,13 @@ namespace Copper {
 					break;
 				}
 
+				case ARRNEW: {
+					printInstruction("ARRNEW", std::to_string((int)bytecode.blob[++ip]));
+					break;
+				}
+
+				case LDPROP: printInstruction("LDPROP"); break;
+
 				case JMP: {
 					printInstruction("JMP", std::to_string((int) bytecode.blob[++ip]));
 					break;
