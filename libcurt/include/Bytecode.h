@@ -83,10 +83,10 @@ namespace Copper {
 
 		/**
 		 * NAME:
-		 * Load Local Variable
+		 * Load Variable
 		 * 
 		 * DESCRIPTION:
-		 * Loads the value of a local variable on the stack.
+		 * Loads the value of a variable on the stack.
 		 * 
 		 * PRE-CONDITIONS:
 		 * - The value must already be loaded by LDC.
@@ -99,14 +99,14 @@ namespace Copper {
 		 * OPERANDS:
 		 * (1) - stack offset to the variable
 		 */
-		LDLOCAL,
+		LDVAR,
 
 		/**
 		 * NAME:
-		 * Set Local Variable
+		 * Set Variable
 		 * 
 		 * DESCRIPTION:
-		 * Sets the value of a local variable on the stack.
+		 * Sets the value of a variable on the stack.
 		 * 
 		 * PRE-CONDITIONS:
 		 * - The new value must already be loaded by LDC on the top of the stack.
@@ -119,7 +119,7 @@ namespace Copper {
 		 * OPERANDS:
 		 * (1) - stack offset to the variable
 		 */
-		SETLOCAL,
+		SETVAR,
 
 		/**
 		 * NAME:

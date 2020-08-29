@@ -174,13 +174,13 @@ namespace Copper {
                     break;
                 }
 
-                case LDLOCAL: {
+                case LDVAR: {
                     auto stackIndex = READ_OPERAND();
                     stack.push(stack[stackIndex]);
                     break;
                 }
 
-                case SETLOCAL: {
+                case SETVAR: {
                     auto stackIndex = READ_OPERAND();
                     stack[stackIndex] = stack.top();
                     break;

@@ -150,7 +150,7 @@ namespace Copper {
 			bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
 		}
 
-		if (!env.addNewLocal(identifierToken.getLexeme(), isConst)) {
+		if (!env.newVariable(identifierToken.getLexeme(), isConst)) {
 			error("Redeclaration of variable: " + identifierToken.getLexeme());
 			return false;
 		}
@@ -533,16 +533,16 @@ namespace Copper {
 				OpCode op = next().getType() == TokenType::PLUS_PLUS ? OpCode::INCR : OpCode::DECR;
 
 				const auto& identifierToken = next();
-				auto stackIndex = env.resolveLocal(identifierToken.getLexeme());
+				auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
 
 				if (stackIndex == -1) {
 					error("Undefined variable: " + identifierToken.getLexeme());
 					return false;
 				}
 				
-				bytecode.emit(OpCode::LDLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+				bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
 				bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
-				bytecode.emit(OpCode::SETLOCAL, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+				bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
 
 				return true;
 			}
@@ -622,7 +622,7 @@ namespace Copper {
 				return stringTemplate();
 			case TokenType::IDENTIFIER: {
 				consume();
-				auto stackIndex = env.resolveLocal(primaryToken.getLexeme());
+				auto stackIndex = env.resolveVariable(primaryToken.getLexeme());
 
 				if (stackIndex == -1) {
 					error("Undefined variable: " + primaryToken.getLexeme());
@@ -630,15 +630,15 @@ namespace Copper {
 				}
 
 				if (match(TokenType::ASSIGNMENT)) {
-					if (env.isLocalConst(stackIndex)) {
+					if (env.isVariableConst(stackIndex)) {
 						error("Assignment to const variable: " + primaryToken.getLexeme());
 						return false;
 					}
 
 					if (!expression()) return false;
-					bytecode.emit(OpCode::SETLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+					bytecode.emit(OpCode::SETVAR, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 				} else {
-					bytecode.emit(OpCode::LDLOCAL, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
+					bytecode.emit(OpCode::LDVAR, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
 				}
 
 				break;

@@ -21,12 +21,12 @@
 
 namespace Copper {
 
-	struct LocalVariable {
+	struct Variable {
 	public:
 		std::string identifier;
 		bool isConst;
 
-		LocalVariable(const std::string identifier, const bool isConst) :
+		Variable(const std::string identifier, const bool isConst) :
 			identifier(identifier), isConst(isConst) {}
 
 		void markInitialized() { initialized = true; }
@@ -37,15 +37,15 @@ namespace Copper {
 
 	class Environment {
 	public:
-		bool addNewLocal(const std::string& identifier, const bool isConst);
-		int resolveLocal(const std::string& identifier);
+		bool newVariable(const std::string& identifier, const bool isConst);
+		int resolveVariable(const std::string& identifier);
 		void beginScope();
 		size_t closeScope();
 
-		bool isLocalInScope(const std::string& identifier) const;
-		bool isLocalConst(const size_t stackIndex) const;
+		bool isVariableInScope(const std::string& identifier) const;
+		bool isVariableConst(const size_t stackIndex) const;
 	private:
-		std::vector<LocalVariable> locals;
+		std::vector<Variable> variables;
 		std::vector<unsigned int> scopeBoundaries;
 
 		size_t currScope = 0;

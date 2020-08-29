@@ -44,13 +44,13 @@ namespace Copper {
 					break;
 				}
 
-				case LDLOCAL: {
-					printInstruction("LDLOCAL", std::to_string((int)bytecode.blob[++ip]));
+				case LDVAR: {
+					printInstruction("LDVAR", std::to_string((int)bytecode.blob[++ip]));
 					break;
 				}
 
-				case SETLOCAL: {
-					printInstruction("SETLOCAL", std::to_string((int)bytecode.blob[++ip]));
+				case SETVAR: {
+					printInstruction("SETVAR", std::to_string((int)bytecode.blob[++ip]));
 					break;
 				}
 

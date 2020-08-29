@@ -18,20 +18,20 @@
 
 namespace Copper {
 
-	bool Environment::addNewLocal(const std::string &identifier, const bool isConst) {
-		if (isLocalInScope(identifier)) {
+	bool Environment::newVariable(const std::string &identifier, const bool isConst) {
+		if (isVariableInScope(identifier)) {
 			return false;
 		}
 
-		locals.push_back({ identifier, isConst });
+		variables.push_back({ identifier, isConst });
 		return true;
 	}
 
-	int Environment::resolveLocal(const std::string &identifier) {
-		if (locals.empty()) return -1;
+	int Environment::resolveVariable(const std::string &identifier) {
+		if (variables.empty()) return -1;
 
-		for (int i = locals.size() - 1; i >= 0; i--) {
-			if (locals[i].identifier == identifier) return i;
+		for (int i = variables.size() - 1; i >= 0; i--) {
+			if (variables[i].identifier == identifier) return i;
 		}
 
 		return -1;
@@ -39,20 +39,20 @@ namespace Copper {
 
 	void Environment::beginScope() {
 		currScope++;
-		scopeBoundaries.push_back(locals.size());
+		scopeBoundaries.push_back(variables.size());
 	}
 
 	size_t Environment::closeScope() {
 		currScope--;
-		size_t popCount = locals.size() - scopeBoundaries[currScope];
-		locals.erase(locals.begin() + scopeBoundaries[currScope], locals.end());
+		size_t popCount = variables.size() - scopeBoundaries[currScope];
+		variables.erase(variables.begin() + scopeBoundaries[currScope], variables.end());
 		scopeBoundaries.pop_back();
 		return popCount;
 	}
 
-	bool Environment::isLocalInScope(const std::string &identifier) const {
-		for (size_t i = scopeBoundaries[currScope - 1]; i < locals.size(); i++) {
-			if (locals[i].identifier == identifier) {
+	bool Environment::isVariableInScope(const std::string &identifier) const {
+		for (size_t i = scopeBoundaries[currScope - 1]; i < variables.size(); i++) {
+			if (variables[i].identifier == identifier) {
 				return true;
 			}
 		}
@@ -60,9 +60,9 @@ namespace Copper {
 		return false;
 	}
 
-	bool Environment::isLocalConst(const size_t stackIndex) const {
-		if (stackIndex >= locals.size()) return false;
-		return locals[stackIndex].isConst;
+	bool Environment::isVariableConst(const size_t stackIndex) const {
+		if (stackIndex >= variables.size()) return false;
+		return variables[stackIndex].isConst;
 	}
 
 }	// namespace Copper
