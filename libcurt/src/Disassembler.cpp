@@ -59,6 +59,7 @@ namespace Copper {
 					break;
 				}
 
+				case SETPROP: printInstruction("SETPROP"); break;
 				case LDPROP: printInstruction("LDPROP"); break;
 
 				case JMP: {

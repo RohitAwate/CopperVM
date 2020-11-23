@@ -128,8 +128,10 @@ namespace Copper {
 
 		void push(const std::shared_ptr<Object>& obj) { val.push_back(obj); }
 		size_t length() const { return val.size(); }
-		std::shared_ptr<Object> operator[] (const size_t index) const;
-		std::shared_ptr<Object> operator[] (const std::shared_ptr<Object>& property) const;
+
+		const std::shared_ptr<Object> operator[] (const size_t index) const;
+		const std::shared_ptr<Object> operator[](const std::shared_ptr<Object>& property) const;
+		std::shared_ptr<Object>& operator[](const std::shared_ptr<Object>& property);
 	private:
 		std::vector<std::shared_ptr<Object>> val;
 	};

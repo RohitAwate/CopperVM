@@ -74,26 +74,33 @@ namespace Copper {
 		return buffer.str();
 	}
 
-	std::shared_ptr<Object> ArrayObject::operator[](const size_t index) const {
+	const std::shared_ptr<Object> ArrayObject::operator[](const size_t index) const {
 		if (index < val.size()) {
 			return val[index];
 		}
 
-		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
+		return std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
 	}
 
-	std::shared_ptr<Object> ArrayObject::operator[](const std::shared_ptr<Object>& property) const  {
+	const std::shared_ptr<Object> ArrayObject::operator[](const std::shared_ptr<Object>& property) const {
 		switch (property->type) {
 			case ObjectType::NUMBER: {
 				auto index = std::dynamic_pointer_cast<NumberObject>(property)->get();
-				if (index < val.size()) {
+				if (index >= 0 && index < val.size()) {
 					return val[index];
 				}
+
 				break;
 			}
 			case ObjectType::ARRAY: {
-				auto arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
+				const auto& arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
 				if (arr.size() == 1) {
+					/*
+						Emulating the following JS behaviour:
+
+						let arr = [1, 2, 3];
+						arr[[1]] -> 2
+					*/
 					const auto& index = arr[0];
 					return (*this)[index];
 				}
@@ -105,7 +112,7 @@ namespace Copper {
 				try {
 					auto index = std::stod(str);
 
-					if (index < val.size()) {
+					if (index >= 0 && index < val.size()) {
 						return val[index];
 					}
 				} catch(std::invalid_argument err) {}
@@ -114,7 +121,62 @@ namespace Copper {
 			}
 		}
 
-		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
+		return std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+	}
+
+	std::shared_ptr<Object>& ArrayObject::operator[](const std::shared_ptr<Object>& property) {
+		switch (property->type) {
+			case ObjectType::NUMBER: {
+				auto index = std::dynamic_pointer_cast<NumberObject>(property)->get();
+				if (index >= 0 && index < val.size()) {
+					return val[index];
+				} else {
+					// TODO: Proper resizing
+					// This doesn't guarantee that the index will fit
+					// within double capacity.
+					val.resize(val.size() * 2);
+					return val[index];
+				}
+
+				break;
+			}
+			case ObjectType::ARRAY: {
+				const auto& arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
+				if (arr.size() == 1) {
+					/*
+						Emulating the following JS behaviour:
+
+						let arr = [1, 2, 3];
+						arr[[1]] -> 2
+					*/
+					const auto& index = arr[0];
+					return (*this)[index];
+				}
+
+				break;
+			}
+			case ObjectType::STRING: {
+				auto str = std::dynamic_pointer_cast<StringObject>(property)->get();
+				try {
+					auto index = std::stod(str);
+
+					if (index >= 0 && index < val.size()) {
+						return val[index];
+					} else {
+						// TODO: Proper resizing
+						// This doesn't guarantee that the index will fit
+						// within double capacity.
+						val.resize(val.size() * 2);
+						return val[index];
+					}
+				} catch(std::invalid_argument err) {}
+
+				break;
+			}
+		}
+
+		// TODO: Save to a separate map or whatever like V8 does
+		return val[0];
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Object& obj) {

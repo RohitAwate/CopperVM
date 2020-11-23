@@ -38,6 +38,7 @@ namespace Copper {
 		const std::vector<Token> tokens;
 		size_t curr = 0;
 
+		// TODO: Documentation needed
 		struct LoopJumpOffsets {
 			byte continueOffset;
 			std::vector<byte> breakPatches;
@@ -90,13 +91,15 @@ namespace Copper {
 		bool factor();
 		bool exponent();
 		bool preUnary();
-		bool memberAccess();
 		bool primary();
 		bool grouping();
 		bool array();
 		bool stringTemplate();
+		bool identifier();
+		bool memberAccess(const Token& identifierToken);
+		bool variableReference(const Token& identifierToken);
 
-		void error(const std::string&) const;
+		void error(const std::string &) const;
 	};
 
 } // namespace Copper
