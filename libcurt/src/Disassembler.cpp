@@ -54,8 +54,8 @@ namespace Copper {
 					break;
 				}
 
-				case ARRNEW: {
-					printInstruction("ARRNEW", std::to_string((int)bytecode.blob[++ip]));
+				case NEWARR: {
+					printInstruction("NEWARR", std::to_string((int)bytecode.blob[++ip]));
 					break;
 				}
 

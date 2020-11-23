@@ -186,7 +186,7 @@ namespace Copper {
                     break;
                 }
 
-                case ARRNEW: {
+                case NEWARR: {
                     auto arraySize = READ_OPERAND();
 
                     auto arrObj = std::make_shared<ArrayObject>();

@@ -139,7 +139,8 @@ namespace Copper {
 		 * OPERANDS:
 		 * (1) - initial size of array
 		 */
-		ARRNEW,
+		NEWARR,
+
 
 		/**
 		 * NAME:

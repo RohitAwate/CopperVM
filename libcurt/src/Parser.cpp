@@ -722,7 +722,7 @@ namespace Copper {
 		}
 
 		if (previous().getType() == TokenType::CLOSE_SQUARE_BRACKET) {
-			bytecode.emit(OpCode::ARRNEW, arraySize, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::NEWARR, arraySize, peek().getLine(), peek().getColumn());
 			return true;
 		} else if (atEOF())
 			error("Unexpected end-of-file, expect ']'");
