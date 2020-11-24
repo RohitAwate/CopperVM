@@ -131,10 +131,9 @@ namespace Copper {
 				if (index >= 0 && index < val.size()) {
 					return val[index];
 				} else {
-					// TODO: Proper resizing
-					// This doesn't guarantee that the index will fit
-					// within double capacity.
-					val.resize(val.size() * 2);
+					// Resize to double of the required index + 1 to handle
+					// the base case of when required index is 0.
+					val.resize((index + 1) * 2, std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
 					return val[index];
 				}
 
@@ -163,10 +162,9 @@ namespace Copper {
 					if (index >= 0 && index < val.size()) {
 						return val[index];
 					} else {
-						// TODO: Proper resizing
-						// This doesn't guarantee that the index will fit
-						// within double capacity.
-						val.resize(val.size() * 2);
+						// Resize to double of the required index + 1 to handle
+						// the base case of when required index is 0.
+						val.resize((index + 1) * 2, std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
 						return val[index];
 					}
 				} catch(std::invalid_argument err) {}
