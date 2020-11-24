@@ -64,7 +64,21 @@ namespace Copper {
 		for (auto itr = val.begin(); itr != val.end(); itr++) {
 			buffer << itr->get()->toString();
 
-			if (itr + 1 != val.end()) {
+			if (itr + 1 != val.end() || props.size() != 0) {
+				buffer << ", ";
+			}
+		}
+
+		for (auto itr = props.begin(); itr != props.end(); itr++) {
+			buffer << "'" << itr->first << "': ";
+			buffer << itr->second->toString();
+
+			// itr + 1 works for std::vector because their iterators
+			// are random access. std::unordered_map has a forward iterator
+			// thus we need this hack.
+			//
+			// Reference: https://stackoverflow.com/a/28278854
+			if (std::next(itr) != props.end()) {
 				buffer << ", ";
 			}
 		}
@@ -103,6 +117,8 @@ namespace Copper {
 					*/
 					const auto& index = arr[0];
 					return (*this)[index];
+				} else {
+					return props.at(property->toString());
 				}
 
 				break;
@@ -150,6 +166,10 @@ namespace Copper {
 					*/
 					const auto& index = arr[0];
 					return (*this)[index];
+				} else {
+					const auto& propStr = property->toString();
+					props[propStr] = std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+					return props[propStr];
 				}
 
 				break;
@@ -173,8 +193,9 @@ namespace Copper {
 			}
 		}
 
-		// TODO: Save to a separate map or whatever like V8 does
-		return val[0];
+		const auto& propStr = property->toString();
+		props[propStr] = std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+		return props[propStr];
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Object& obj) {

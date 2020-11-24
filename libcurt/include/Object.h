@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -134,6 +135,7 @@ namespace Copper {
 		std::shared_ptr<Object>& operator[](const std::shared_ptr<Object>& property);
 	private:
 		std::vector<std::shared_ptr<Object>> val;
+		std::unordered_map<std::string, std::shared_ptr<Object>> props;
 	};
 
 } // namespace Copper
