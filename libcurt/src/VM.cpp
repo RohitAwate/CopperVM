@@ -201,10 +201,10 @@ namespace Copper {
                 }
 
                 case SETPROP: { 
-                    const auto& newVal = stack.top();
+                    const auto newVal = stack.top();
                     stack.pop();
 
-                    const auto& property = stack.top();
+                    const auto property = stack.top();
                     stack.pop();
 
                     const auto& object = stack.top();
@@ -223,10 +223,10 @@ namespace Copper {
                 }
 
                 case LDPROP: {
-                    const auto& property = stack.top();
+                    const auto property = stack.top();
                     stack.pop();
                     
-                    const auto& object = stack.top();
+                    const auto object = stack.top();
                     stack.pop();
 
                     switch (object->type) {
