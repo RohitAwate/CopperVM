@@ -139,7 +139,28 @@ namespace Copper {
 		 * OPERANDS:
 		 * (1) - initial size of array
 		 */
-		ARRNEW,
+		NEWARR,
+
+		/**
+		 * NAME:
+		 * Set Object Property
+		 * 
+		 * DESCRIPTION:
+		 * Sets the specified property in the object to the
+		 * object on the top of the stack.
+		 * 
+		 * PRE-CONDITIONS:
+		 * - The object, the target property and the new value must be loaded onto
+		 * the stack in this (LIFO) order.
+		 * 
+		 * OPERATION:
+		 * - Pops the new value and the target property from the stack.
+		 * - Sets the target property within the object to the new value.
+		 * 
+		 * OPERANDS:
+		 * None. Required operands are read from the stack.
+		 */
+		SETPROP,
 
 		/**
 		 * NAME:
@@ -149,10 +170,10 @@ namespace Copper {
 		 * Loads a certain object property onto the stack.
 		 * 
 		 * PRE-CONDITIONS:
-		 * - The object and the property identifier must be loaded on the stack.
+		 * - The object and the property must be loaded on the stack.
 		 * 
 		 * OPERATION:
-		 * - Pops the property identifier and the object from the stack.
+		 * - Pops the property and the object from the stack.
 		 * - If object is not an array or a JavaScript Object, undefined is pushed
 		 * onto the stack.
 		 * - Else, an attempt to load the property from the object is made.

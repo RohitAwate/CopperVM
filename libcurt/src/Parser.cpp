@@ -560,24 +560,7 @@ namespace Copper {
 			}
 		}
 
-		return memberAccess();
-	}
-
-	bool Parser::memberAccess() {
-		if (!primary()) return false;
-
-		while (match(TokenType::OPEN_SQUARE_BRACKET)) {
-			if (!expression()) return false;
-			
-			if (!match(TokenType::CLOSE_SQUARE_BRACKET)) {
-				error("Expect ']' after member access");
-				return false;
-			}
-
-			bytecode.emit(OpCode::LDPROP, previous().getLine(), previous().getColumn());
-		}
-
-		return true;
+		return primary();
 	}
 
 	bool Parser::primary() {
@@ -620,29 +603,8 @@ namespace Copper {
 			// String Template Literal aka String Interpolation
 			case TokenType::BACK_TICK:
 				return stringTemplate();
-			case TokenType::IDENTIFIER: {
-				consume();
-				auto stackIndex = env.resolveVariable(primaryToken.getLexeme());
-
-				if (stackIndex == -1) {
-					error("Undefined variable: " + primaryToken.getLexeme());
-					return false;
-				}
-
-				if (match(TokenType::ASSIGNMENT)) {
-					if (env.isVariableConst(stackIndex)) {
-						error("Assignment to const variable: " + primaryToken.getLexeme());
-						return false;
-					}
-
-					if (!expression()) return false;
-					bytecode.emit(OpCode::SETVAR, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
-				} else {
-					bytecode.emit(OpCode::LDVAR, stackIndex, primaryToken.getLine(), primaryToken.getColumn());
-				}
-
-				break;
-			}
+			case TokenType::IDENTIFIER:
+				return identifier();
 			case TokenType::NULL_TYPE: {
 				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
 				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
@@ -722,7 +684,7 @@ namespace Copper {
 		}
 
 		if (previous().getType() == TokenType::CLOSE_SQUARE_BRACKET) {
-			bytecode.emit(OpCode::ARRNEW, arraySize, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::NEWARR, arraySize, peek().getLine(), peek().getColumn());
 			return true;
 		} else if (atEOF())
 			error("Unexpected end-of-file, expect ']'");
@@ -751,6 +713,67 @@ namespace Copper {
 		}
 		
 		consume();	// the back tick `
+		return true;
+	}
+
+	bool Parser::identifier() {
+		const auto& identifierToken = next();
+		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
+
+		if (stackIndex == -1) {
+			error("Undefined variable: " + identifierToken.getLexeme());
+			return false;
+		}
+
+		// TODO: Also pass the stack index of the identifierToken
+		// since it is recomputed in the functions called by
+		// both branches.
+		if (peek().getType() == TokenType::OPEN_SQUARE_BRACKET) {
+			return memberAccess(identifierToken);
+		} else {
+			return variableReference(identifierToken);
+		}
+	}
+
+	bool Parser::memberAccess(const Token& identifierToken) {
+		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+
+		while (match(TokenType::OPEN_SQUARE_BRACKET)) {
+			if (!expression()) return false;
+			
+			if (!match(TokenType::CLOSE_SQUARE_BRACKET)) {
+				error("Expect ']' after member access");
+				return false;
+			}
+
+			if (!match(TokenType::ASSIGNMENT)) {
+				bytecode.emit(OpCode::LDPROP, previous().getLine(), previous().getColumn());
+			}
+		}
+		
+		if (previous().getType() == TokenType::ASSIGNMENT) {
+			if (!expression()) return false;
+			bytecode.emit(OpCode::SETPROP, peek().getLine(), peek().getColumn());
+		}
+
+		return true;
+	}
+
+	bool Parser::variableReference(const Token& identifierToken) {
+		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
+		if (match(TokenType::ASSIGNMENT)) {
+			if (env.isVariableConst(stackIndex)) {
+				error("Assignment to const variable: " + identifierToken.getLexeme());
+				return false;
+			}
+
+			if (!expression()) return false;
+			bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		} else {
+			bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		}
+
 		return true;
 	}
 

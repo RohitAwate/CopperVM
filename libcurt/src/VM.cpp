@@ -186,7 +186,7 @@ namespace Copper {
                     break;
                 }
 
-                case ARRNEW: {
+                case NEWARR: {
                     auto arraySize = READ_OPERAND();
 
                     auto arrObj = std::make_shared<ArrayObject>();
@@ -200,6 +200,28 @@ namespace Copper {
                     break;
                 }
 
+                case SETPROP: { 
+                    const auto newVal = stack.top();
+                    stack.pop();
+
+                    const auto property = stack.top();
+                    stack.pop();
+
+                    const auto& object = stack.top();
+
+                    switch (object->type) {
+                        case ObjectType::ARRAY: {
+                            const auto arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
+                            (*arr)[property] = newVal;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
+
                 case LDPROP: {
                     const auto property = stack.top();
                     stack.pop();
@@ -207,11 +229,14 @@ namespace Copper {
                     const auto object = stack.top();
                     stack.pop();
 
-                    if (object->type != ObjectType::ARRAY) {
-                        stack.push(std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED)));
-                    } else {
-                        const auto& arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
-                        stack.push((*arr)[property]);
+                    switch (object->type) {
+                        case ObjectType::ARRAY: {
+                            const auto& arr = *std::dynamic_pointer_cast<ArrayObject>(object).get();
+                            stack.push(arr[property]);
+                            break;
+                        }
+                        default:
+                            stack.push(std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
                     }
 
                     break;
@@ -248,6 +273,7 @@ namespace Copper {
                     stack.push(std::make_shared<NumberObject>(-*numObj));
                     break;
                 }
+
                 case ADD: {
                     auto rightVal = stack.top();
                     stack.pop();
@@ -270,6 +296,7 @@ namespace Copper {
 
                     break;
                 }
+                
                 case SUB: BINARY_OP(-, NumberObject); break;
                 case MUL: BINARY_OP(*, NumberObject); break;
                 case DIV: BINARY_OP(/, NumberObject); break;

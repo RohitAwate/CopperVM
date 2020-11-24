@@ -64,7 +64,21 @@ namespace Copper {
 		for (auto itr = val.begin(); itr != val.end(); itr++) {
 			buffer << itr->get()->toString();
 
-			if (itr + 1 != val.end()) {
+			if (itr + 1 != val.end() || props.size() != 0) {
+				buffer << ", ";
+			}
+		}
+
+		for (auto itr = props.begin(); itr != props.end(); itr++) {
+			buffer << "'" << itr->first << "': ";
+			buffer << itr->second->toString();
+
+			// itr + 1 works for std::vector because their iterators
+			// are random access. std::unordered_map has a forward iterator
+			// thus we need this hack.
+			//
+			// Reference: https://stackoverflow.com/a/28278854
+			if (std::next(itr) != props.end()) {
 				buffer << ", ";
 			}
 		}
@@ -74,28 +88,37 @@ namespace Copper {
 		return buffer.str();
 	}
 
-	std::shared_ptr<Object> ArrayObject::operator[](const size_t index) const {
+	const std::shared_ptr<Object> ArrayObject::operator[](const size_t index) const {
 		if (index < val.size()) {
 			return val[index];
 		}
 
-		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
+		return std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
 	}
 
-	std::shared_ptr<Object> ArrayObject::operator[](const std::shared_ptr<Object>& property) const  {
+	const std::shared_ptr<Object> ArrayObject::operator[](const std::shared_ptr<Object>& property) const {
 		switch (property->type) {
 			case ObjectType::NUMBER: {
 				auto index = std::dynamic_pointer_cast<NumberObject>(property)->get();
-				if (index < val.size()) {
+				if (index >= 0 && index < val.size()) {
 					return val[index];
 				}
+
 				break;
 			}
 			case ObjectType::ARRAY: {
-				auto arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
+				const auto& arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
 				if (arr.size() == 1) {
+					/*
+						Emulating the following JS behaviour:
+
+						let arr = [1, 2, 3];
+						arr[[1]] -> 2
+					*/
 					const auto& index = arr[0];
 					return (*this)[index];
+				} else {
+					return props.at(property->toString());
 				}
 
 				break;
@@ -105,7 +128,7 @@ namespace Copper {
 				try {
 					auto index = std::stod(str);
 
-					if (index < val.size()) {
+					if (index >= 0 && index < val.size()) {
 						return val[index];
 					}
 				} catch(std::invalid_argument err) {}
@@ -114,7 +137,65 @@ namespace Copper {
 			}
 		}
 
-		return std::shared_ptr<EmptyObject>(new EmptyObject(ObjectType::UNDEFINED));
+		return std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+	}
+
+	std::shared_ptr<Object>& ArrayObject::operator[](const std::shared_ptr<Object>& property) {
+		switch (property->type) {
+			case ObjectType::NUMBER: {
+				auto index = std::dynamic_pointer_cast<NumberObject>(property)->get();
+				if (index >= 0 && index < val.size()) {
+					return val[index];
+				} else {
+					// Resize to double of the required index + 1 to handle
+					// the base case of when required index is 0.
+					val.resize((index + 1) * 2, std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
+					return val[index];
+				}
+
+				break;
+			}
+			case ObjectType::ARRAY: {
+				const auto& arr = std::dynamic_pointer_cast<ArrayObject>(property)->get();
+				if (arr.size() == 1) {
+					/*
+						Emulating the following JS behaviour:
+
+						let arr = [1, 2, 3];
+						arr[[1]] -> 2
+					*/
+					const auto& index = arr[0];
+					return (*this)[index];
+				} else {
+					const auto& propStr = property->toString();
+					props[propStr] = std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+					return props[propStr];
+				}
+
+				break;
+			}
+			case ObjectType::STRING: {
+				auto str = std::dynamic_pointer_cast<StringObject>(property)->get();
+				try {
+					auto index = std::stod(str);
+
+					if (index >= 0 && index < val.size()) {
+						return val[index];
+					} else {
+						// Resize to double of the required index + 1 to handle
+						// the base case of when required index is 0.
+						val.resize((index + 1) * 2, std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
+						return val[index];
+					}
+				} catch(std::invalid_argument err) {}
+
+				break;
+			}
+		}
+
+		const auto& propStr = property->toString();
+		props[propStr] = std::make_shared<EmptyObject>(ObjectType::UNDEFINED);
+		return props[propStr];
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Object& obj) {
