@@ -216,7 +216,7 @@ namespace Copper {
                             break;
                         }
                         default:
-                            stack.push(std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
+                            break;
                     }
 
                     break;
