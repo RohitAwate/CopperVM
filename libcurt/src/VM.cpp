@@ -211,10 +211,10 @@ namespace Copper {
 
                     switch (object->type) {
                         case ObjectType::ARRAY: {
-                                auto arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
-                                (*arr)[property] = newVal;
-                                break;
-                            }
+                            const auto arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
+                            (*arr)[property] = newVal;
+                            break;
+                        }
                         default:
                             stack.push(std::make_shared<EmptyObject>(ObjectType::UNDEFINED));
                     }
@@ -231,8 +231,8 @@ namespace Copper {
 
                     switch (object->type) {
                         case ObjectType::ARRAY: {
-                            const auto arr = std::dynamic_pointer_cast<ArrayObject>(object).get();
-                            stack.push((*arr)[property]);
+                            const auto& arr = *std::dynamic_pointer_cast<ArrayObject>(object).get();
+                            stack.push(arr[property]);
                             break;
                         }
                         default:
@@ -273,6 +273,7 @@ namespace Copper {
                     stack.push(std::make_shared<NumberObject>(-*numObj));
                     break;
                 }
+
                 case ADD: {
                     auto rightVal = stack.top();
                     stack.pop();
@@ -295,6 +296,7 @@ namespace Copper {
 
                     break;
                 }
+                
                 case SUB: BINARY_OP(-, NumberObject); break;
                 case MUL: BINARY_OP(*, NumberObject); break;
                 case DIV: BINARY_OP(/, NumberObject); break;
