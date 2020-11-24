@@ -21,19 +21,20 @@
 
 namespace Copper {
 
-	// TODO: parse always returns true
-	// return actual return value from declaration
 	bool Parser::parse() {
+		bool success = true;
+
 		env.beginScope();
 		while (!atEOF()) {
 			if (!declaration()) {
+				success = false;
 				synchronize();
 			}
 		}
 
 		size_t popCount = env.closeScope();
 		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
-		return true;
+		return success;
 	}
 
 	Bytecode Parser::getBytecode() const {
