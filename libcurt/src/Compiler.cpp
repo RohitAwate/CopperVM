@@ -18,7 +18,6 @@
 
 #include "Compiler.h"
 #include "Disassembler.h"
-#include "Parser.h"
 #include "Tokenizer.h"
 
 namespace Copper {
@@ -28,7 +27,7 @@ namespace Copper {
 		std::exit(1);
 	}
 
-	Bytecode Compiler::compile(const TranslationUnit& translationUnit) {
+	Bytecode Compiler::compile(TranslationUnit& translationUnit) {
 		Tokenizer tokenizer(translationUnit);
 		if (!tokenizer.tokenize()) errorAndExit();
 		auto tokens = tokenizer.getTokens();
@@ -42,9 +41,8 @@ namespace Copper {
 			std::cout << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
 		}
 #endif
-
-		Parser parser(translationUnit, tokens);
-		if (!parser.parse()) errorAndExit();
+		parser.reset();
+		if (!parser.parse(translationUnit, tokens)) errorAndExit();
 		auto bytecode = parser.getBytecode();
 #ifdef DISASSEMBLE
 		Copper::Disassembler disassembler;

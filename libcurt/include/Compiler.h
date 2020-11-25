@@ -17,6 +17,7 @@
 #pragma once
 
 #include "Bytecode.h"
+#include "Parser.h"
 #include "TranslationUnit.h"
 
 // #define TOKENIZE
@@ -25,8 +26,10 @@
 namespace Copper {
 
 	class Compiler {
+	private:
+		Parser parser;
 	public:
-		Bytecode compile(const TranslationUnit&);
+		Bytecode compile(TranslationUnit&);
 	};
 
 } // namespace Copper
