@@ -41,11 +41,13 @@ namespace Copper {
 		int resolveVariable(const std::string& identifier);
 		void beginScope();
 		size_t closeScope();
+		void clear();
 
 		bool isVariableInScope(const std::string& identifier) const;
 		bool isVariableConst(const size_t stackIndex) const;
 	private:
 		std::vector<Variable> variables;
+		std::vector<Variable> globals;
 		std::vector<unsigned int> scopeBoundaries;
 
 		size_t currScope = 0;

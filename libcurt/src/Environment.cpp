@@ -23,15 +23,25 @@ namespace Copper {
 			return false;
 		}
 
-		variables.push_back({ identifier, isConst });
+		const auto newVar = Variable(identifier, isConst);
+		variables.push_back(newVar);
+		
+		// Store globals separately so that they can be referenced
+		// in REPL sessions.
+		if (currScope == 1) globals.push_back(newVar);
+
 		return true;
 	}
 
 	int Environment::resolveVariable(const std::string &identifier) {
-		if (variables.empty()) return -1;
+		if (variables.empty() && globals.empty()) return -1;
 
 		for (int i = variables.size() - 1; i >= 0; i--) {
 			if (variables[i].identifier == identifier) return i;
+		}
+
+		for (int i = globals.size() - 1; i >= 0; i--) {
+			if (globals[i].identifier == identifier) return i;
 		}
 
 		return -1;
@@ -50,9 +60,19 @@ namespace Copper {
 		return popCount;
 	}
 
+	void Environment::clear() {
+		currScope = 0;
+	}
+
 	bool Environment::isVariableInScope(const std::string &identifier) const {
 		for (size_t i = scopeBoundaries[currScope - 1]; i < variables.size(); i++) {
 			if (variables[i].identifier == identifier) {
+				return true;
+			}
+		}
+
+		for (const auto& global : globals) {
+			if (global.identifier == identifier) {
 				return true;
 			}
 		}

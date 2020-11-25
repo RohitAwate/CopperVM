@@ -20,8 +20,11 @@
 #include "Parser.h"
 
 namespace Copper {
+	
+	bool Parser::parse(TranslationUnit& translationUnit, std::vector<Token>& tokens) {
+		this->translationUnit = &translationUnit;
+		this->tokens.swap(tokens);
 
-	bool Parser::parse() {
 		bool success = true;
 
 		env.beginScope();
@@ -32,9 +35,17 @@ namespace Copper {
 			}
 		}
 
-		size_t popCount = env.closeScope();
-		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
 		return success;
+	}
+
+	void Parser::reset() {
+		curr = 0;
+
+		while (!loopStack.empty())
+			loopStack.pop();
+
+		bytecode.clear();
+		env.clear();
 	}
 
 	Bytecode Parser::getBytecode() const {
@@ -782,11 +793,11 @@ namespace Copper {
 		const Token& currentToken = peek();
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
-		std::cout << ANSICodes::BOLD << translationUnit.filepath << ANSICodes::RESET << " ";
+		std::cout << ANSICodes::BOLD << translationUnit->filepath << ANSICodes::RESET << " ";
 		std::cout << "(line " << currentToken.getLine() << "): ";
 		std::cout << msg << std::endl;
 
-		std::string culpritLine = translationUnit.getLine(currentToken.getLine());
+		std::string culpritLine = translationUnit->getLine(currentToken.getLine());
 		std::cout << "\t" << culpritLine << std::endl;
 		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, currentToken.getColumn() - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
