@@ -29,7 +29,8 @@ namespace Copper {
 	private:
 		Parser parser;
 	public:
-		Bytecode compile(TranslationUnit&);
+		bool compile(TranslationUnit&);
+		Bytecode getBytecode() { return parser.getBytecode(); }
 	};
 
 } // namespace Copper

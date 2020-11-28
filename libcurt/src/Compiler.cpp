@@ -22,14 +22,17 @@
 
 namespace Copper {
 
-	static void errorAndExit() {
+	static void error() {
 		std::cout << "Compilation failed." << std::endl;
-		std::exit(1);
 	}
 
-	Bytecode Compiler::compile(TranslationUnit& translationUnit) {
+	bool Compiler::compile(TranslationUnit& translationUnit) {
 		Tokenizer tokenizer(translationUnit);
-		if (!tokenizer.tokenize()) errorAndExit();
+		if (!tokenizer.tokenize()) {
+			error();
+			return false;
+		}
+
 		auto tokens = tokenizer.getTokens();
 
 #ifdef TOKENIZE
@@ -41,14 +44,19 @@ namespace Copper {
 			std::cout << " [" << token.getLine() << ":" << token.getColumn() << "]" << std::endl;
 		}
 #endif
+
 		parser.reset();
-		if (!parser.parse(translationUnit, tokens)) errorAndExit();
-		auto bytecode = parser.getBytecode();
+		if (!parser.parse(translationUnit, tokens)) {
+			error();
+			return false;
+		}
+
 #ifdef DISASSEMBLE
 		Copper::Disassembler disassembler;
 		disassembler.disassemble(bytecode, translationUnit);
 #endif
-		return bytecode;
+
+		return true;
 	}
 
 } // namespace Copper

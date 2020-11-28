@@ -15,7 +15,6 @@
  */
 
 #include <iostream>
-#include <memory>
 
 #include "Compiler.h"
 #include "VM.h"
@@ -38,13 +37,15 @@ int main(int argc, const char* argv[]) {
 			}
 
 			auto translationUnit = Copper::TranslationUnit("<stdin>", input);
-			auto bytecode = compiler.compile(translationUnit);
-			vm.run(bytecode, translationUnit);
+			if (compiler.compile(translationUnit))
+				vm.run(compiler.getBytecode(), translationUnit);
 		}
 	} else if (argc == 2) {
 		auto translationUnit = Copper::TranslationUnit(argv[1]);
-		auto bytecode = compiler.compile(translationUnit);
-		return vm.run(bytecode, translationUnit);
+		if (compiler.compile(translationUnit))
+			return vm.run(compiler.getBytecode(), translationUnit);
+		else
+			return 1;
 	} else {
 		std::cout << "Usage:" << std::endl;
 		std::cout << "REPL: copper" << std::endl;
