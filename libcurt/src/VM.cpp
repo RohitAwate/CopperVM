@@ -374,6 +374,10 @@ namespace Copper {
                     stack.pop();
                     break;
                 }
+
+                default:
+                    printf("%sVM Error: Invalid instruction (%d)\n%s", ANSICodes::RED, code[ip], ANSICodes::RESET);
+                    return 1;
             }
         }
 #ifdef UNWIND_STACK
