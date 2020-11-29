@@ -26,7 +26,7 @@
 // #define TRACE_EXECUTION
 // #define UNWIND_STACK
 
-namespace Copper {
+namespace cu {
 
 	template <typename T>
 	class Stack : public std::vector<T> {
@@ -51,4 +51,4 @@ namespace Copper {
 		void error(const TranslationUnit&, const Bytecode& bytecode, const std::string& msg) const;
 	};
 
-} // namespace Copper
+} // namespace cu

@@ -16,7 +16,7 @@
 
 #pragma once
 
-namespace Copper {
+namespace cu {
 
 	namespace ANSICodes {
 		// Color codes
@@ -34,4 +34,4 @@ namespace Copper {
 		static const char* UNDERLINE = "\u001b[4m";
 	}
 	
-} // namespace Copper
+} // namespace cu

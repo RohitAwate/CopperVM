@@ -19,7 +19,7 @@
 #include "Colors.h"
 #include "TranslationUnit.h"
 
-namespace Copper {
+namespace cu {
 
 	std::string TranslationUnit::readFile(const std::string &path) {
 		std::ifstream fd;
@@ -66,4 +66,4 @@ namespace Copper {
 		return contents.get()->substr(start, end - start + 1);
 	}
 
-} // namespace Copper
+} // namespace cu

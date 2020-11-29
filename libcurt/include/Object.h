@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace Copper {
+namespace cu {
 
     enum class ObjectType {
 		BOOLEAN,
@@ -138,4 +138,4 @@ namespace Copper {
 		std::unordered_map<std::string, std::shared_ptr<Object>> props;
 	};
 
-} // namespace Copper
+} // namespace cu

@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace Copper {
+namespace cu {
 
 	struct Variable {
 	public:
@@ -53,4 +53,4 @@ namespace Copper {
 		size_t currScope = 0;
 	};
 
-}	// namespace Copper
+}	// namespace cu

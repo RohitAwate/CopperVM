@@ -19,7 +19,7 @@
 #include "Bytecode.h"
 #include "TranslationUnit.h"
 
-namespace Copper {
+namespace cu {
 
 	class Disassembler {
 	public:
@@ -31,4 +31,4 @@ namespace Copper {
 							  		 const std::string& comment = "");
 	};
 
-} // namespace Copper
+} // namespace cu

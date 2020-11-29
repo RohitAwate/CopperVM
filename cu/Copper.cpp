@@ -20,8 +20,8 @@
 #include "VM.h"
 
 int main(int argc, const char* argv[]) {
-	Copper::Compiler compiler;
-	Copper::VM vm;
+	cu::Compiler compiler;
+	cu::VM vm;
 
 	if (argc == 1) {
 		printf("CopperVM %s (%s %s on %s)\n", COPPER_VERSION, COMPILER_NAME, COMPILER_VERSION, PLATFORM);
@@ -36,12 +36,12 @@ int main(int argc, const char* argv[]) {
 				return 0;
 			}
 
-			auto translationUnit = Copper::TranslationUnit("<stdin>", input);
+			auto translationUnit = cu::TranslationUnit("<stdin>", input);
 			if (compiler.compile(translationUnit))
 				vm.run(compiler.getBytecode(), translationUnit);
 		}
 	} else if (argc == 2) {
-		auto translationUnit = Copper::TranslationUnit(argv[1]);
+		auto translationUnit = cu::TranslationUnit(argv[1]);
 		if (compiler.compile(translationUnit))
 			return vm.run(compiler.getBytecode(), translationUnit);
 		else

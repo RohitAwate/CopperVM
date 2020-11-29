@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 
-namespace Copper {
+namespace cu {
 
 	struct TranslationUnit {
 		TranslationUnit(const std::string& filepath) :
@@ -37,4 +37,4 @@ namespace Copper {
 		std::string getLine(int) const;
 	};
 
-} // namespace Copper
+} // namespace cu

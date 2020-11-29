@@ -19,7 +19,7 @@
 #include "Colors.h"
 #include "Parser.h"
 
-namespace Copper {
+namespace cu {
 	
 	bool Parser::parse(TranslationUnit& translationUnit, std::vector<Token>& tokens) {
 		this->translationUnit = &translationUnit;
@@ -840,4 +840,4 @@ namespace Copper {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 
-} // namespace Copper
+} // namespace cu

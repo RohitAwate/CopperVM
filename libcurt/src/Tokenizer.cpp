@@ -35,7 +35,7 @@
 		break;                                                                  \
 	}
 
-namespace Copper {
+namespace cu {
 
 	void Tokenizer::emitToken(const TokenType type, int tokenLen = 1) {
 		tokens.push_back(Token(type, line, column));
@@ -540,4 +540,4 @@ namespace Copper {
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 
-} // namespace Copper
+} // namespace cu

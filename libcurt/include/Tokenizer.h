@@ -22,7 +22,7 @@
 #include "Token.h"
 #include "TranslationUnit.h"
 
-namespace Copper {
+namespace cu {
 	
 	class Tokenizer {
 	public:
@@ -67,4 +67,4 @@ namespace Copper {
 		void error(const std::string& msg);
 	};
 
-}   // namespace Copper
+}   // namespace cu

@@ -100,7 +100,7 @@
     TYPE_MACRO(INTERPOLATION_START)  \
     TYPE_MACRO(EOF_TYPE)
 
-namespace Copper {
+namespace cu {
 
     enum class TokenType {
 #define TYPE_MACRO(type) \
@@ -143,4 +143,4 @@ namespace Copper {
         }
     }
 
-} // namespace Copper
+} // namespace cu

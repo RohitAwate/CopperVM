@@ -21,7 +21,7 @@
 #include "Object.h"
 #include "VM.h"
 
-namespace Copper {
+namespace cu {
 
     static bool isTruthy(const std::shared_ptr<Object>& obj) {
         switch (obj->type) {
@@ -398,4 +398,4 @@ namespace Copper {
         return 0;
     }
 
-} // namespace Copper
+} // namespace cu

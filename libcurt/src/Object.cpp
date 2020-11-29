@@ -19,7 +19,7 @@
 
 #include "Object.h"
 
-namespace Copper {
+namespace cu {
 
 	std::string EmptyObject::toString() const {
 		switch (type) {
@@ -203,4 +203,4 @@ namespace Copper {
 		return stream;
 	}
 
-} // namespace Copper
+} // namespace cu

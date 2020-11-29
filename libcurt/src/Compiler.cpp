@@ -20,7 +20,7 @@
 #include "Disassembler.h"
 #include "Tokenizer.h"
 
-namespace Copper {
+namespace cu {
 
 	static void error() {
 		std::cout << "Compilation failed." << std::endl;
@@ -52,11 +52,11 @@ namespace Copper {
 		}
 
 #ifdef DISASSEMBLE
-		Copper::Disassembler disassembler;
+		cu::Disassembler disassembler;
 		disassembler.disassemble(parser.getBytecode(), translationUnit);
 #endif
 
 		return true;
 	}
 
-} // namespace Copper
+} // namespace cu

@@ -22,7 +22,7 @@
 
 #include "Object.h"
 
-namespace Copper {
+namespace cu {
 
 	enum OpCode {
 
@@ -350,4 +350,4 @@ namespace Copper {
 
 	};
 
-} // namespace Copper
+} // namespace cu

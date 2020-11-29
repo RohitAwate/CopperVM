@@ -24,7 +24,7 @@
 #include "Token.h"
 #include "TranslationUnit.h"
 
-namespace Copper {
+namespace cu {
 	
 	class Parser {
 	public:
@@ -101,4 +101,4 @@ namespace Copper {
 		void error(const std::string &) const;
 	};
 
-} // namespace Copper
+} // namespace cu

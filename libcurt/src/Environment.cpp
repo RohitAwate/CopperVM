@@ -16,7 +16,7 @@
 
 #include "Environment.h"
 
-namespace Copper {
+namespace cu {
 
 	bool Environment::newVariable(const std::string &identifier, const bool isConst) {
 		if (isVariableInScope(identifier)) {
@@ -85,4 +85,4 @@ namespace Copper {
 		return variables[stackIndex].isConst;
 	}
 
-}	// namespace Copper
+}	// namespace cu

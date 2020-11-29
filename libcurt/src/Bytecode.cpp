@@ -18,7 +18,7 @@
 
 #include "Bytecode.h"
 
-namespace Copper {
+namespace cu {
 
 	void Bytecode::emit(byte opcode, unsigned int line, unsigned int column) {
 		blob.push_back(opcode);
@@ -89,4 +89,4 @@ namespace Copper {
 		}
 	}
 
-} // namespace Copper
+} // namespace cu

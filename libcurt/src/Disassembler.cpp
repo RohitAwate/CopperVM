@@ -19,7 +19,7 @@
 #include "Colors.h"
 #include "Disassembler.h"
 
-namespace Copper {
+namespace cu {
 
 	void Disassembler::disassemble(const Bytecode &bytecode, const TranslationUnit &translationUnit) {
 
@@ -126,4 +126,4 @@ namespace Copper {
 		std::cout << std::endl;
 	}
 
-} // namespace Copper
+} // namespace cu

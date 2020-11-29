@@ -23,7 +23,7 @@
 // #define TOKENIZE
 // #define DISASSEMBLE
 
-namespace Copper {
+namespace cu {
 
 	class Compiler {
 	private:
@@ -33,4 +33,4 @@ namespace Copper {
 		Bytecode getBytecode() { return parser.getBytecode(); }
 	};
 
-} // namespace Copper
+} // namespace cu
