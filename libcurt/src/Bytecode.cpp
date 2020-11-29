@@ -74,6 +74,12 @@ namespace Copper {
 		}
 	}
 
+	void Bytecode::clear() {
+		blob.clear();
+		locations.clear();
+		constants.clear();
+	}
+
 	void Bytecode::addInstructionLocation(const unsigned int& line, const unsigned int& column) {
 		if (locations.find(line) != locations.end()) {
 			locations[line].push_back(column);

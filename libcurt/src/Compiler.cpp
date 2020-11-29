@@ -18,19 +18,21 @@
 
 #include "Compiler.h"
 #include "Disassembler.h"
-#include "Parser.h"
 #include "Tokenizer.h"
 
 namespace Copper {
 
-	static void errorAndExit() {
+	static void error() {
 		std::cout << "Compilation failed." << std::endl;
-		std::exit(1);
 	}
 
-	Bytecode Compiler::compile(const TranslationUnit& translationUnit) {
+	bool Compiler::compile(TranslationUnit& translationUnit) {
 		Tokenizer tokenizer(translationUnit);
-		if (!tokenizer.tokenize()) errorAndExit();
+		if (!tokenizer.tokenize()) {
+			error();
+			return false;
+		}
+
 		auto tokens = tokenizer.getTokens();
 
 #ifdef TOKENIZE
@@ -43,14 +45,18 @@ namespace Copper {
 		}
 #endif
 
-		Parser parser(translationUnit, tokens);
-		if (!parser.parse()) errorAndExit();
-		auto bytecode = parser.getBytecode();
+		parser.reset();
+		if (!parser.parse(translationUnit, tokens)) {
+			error();
+			return false;
+		}
+
 #ifdef DISASSEMBLE
 		Copper::Disassembler disassembler;
 		disassembler.disassemble(bytecode, translationUnit);
 #endif
-		return bytecode;
+
+		return true;
 	}
 
 } // namespace Copper

@@ -28,14 +28,12 @@ namespace Copper {
 	
 	class Parser {
 	public:
-		Parser(const TranslationUnit translationUnit, std::vector<Token> tokens) :
-			translationUnit(translationUnit), tokens(tokens) {}
-
-		bool parse();
+		bool parse(TranslationUnit& translationUnit, std::vector<Token>& tokens);
+		void reset();
 		Bytecode getBytecode() const;
 	private:
-		const TranslationUnit translationUnit;
-		const std::vector<Token> tokens;
+		TranslationUnit* translationUnit;
+		std::vector<Token> tokens;
 		size_t curr = 0;
 
 		// TODO: Documentation needed

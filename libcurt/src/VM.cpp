@@ -374,14 +374,19 @@ namespace Copper {
                     stack.pop();
                     break;
                 }
+
+                default:
+                    printf("%sVM Error: Invalid instruction (%d)\n%s", ANSICodes::RED, code[ip], ANSICodes::RESET);
+                    return 1;
             }
         }
-
+#ifdef UNWIND_STACK
         // Print stack residue
         while (!stack.empty()) {
             std::cout << ANSICodes::RED << stack.top()->toString() << ANSICodes::RESET << std::endl;
             stack.pop();
         }
+#endif
 
 #undef BINARY_OP
 #undef BINARY_MATH_H

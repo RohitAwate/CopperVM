@@ -24,6 +24,7 @@
 #include "TranslationUnit.h"
 
 // #define TRACE_EXECUTION
+// #define UNWIND_STACK
 
 namespace Copper {
 

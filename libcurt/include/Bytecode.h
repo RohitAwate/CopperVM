@@ -340,6 +340,7 @@ namespace Copper {
 		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
 		size_t size() const { return blob.size(); }
 		void patch(const size_t offset, const byte b);
+		void clear();
 	private:
 		std::vector<byte> blob;
 		std::map<unsigned int, std::vector<unsigned int>> locations;
