@@ -782,9 +782,46 @@ namespace Copper {
 
 			if (!expression()) return false;
 			bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		} else if (match(TokenType::PLUS_PLUS) || match(TokenType::MINUS_MINUS)) {
+			return postUnary(identifierToken);
 		} else {
 			bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
 		}
+
+		return true;
+	}
+
+	bool Parser::postUnary(const Token& identifierToken) {
+		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
+		/*
+			Pushing the value twice on the stack because we need to make two states of this variable
+			- pre-increment value
+			- prepare the new incremented/decremented value that would then be assigned to the original
+				via SETVAR and then be popped off
+		*/
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+
+		/*
+			We don't use the INCR/DECR instructions because they operate on the object at the top of
+			the stack. When we push the target value on the stack using LDVAR as above, it is
+			a reference to the original value. Thus, any increment/decrement will affect all such
+			references, including the pre-increment value which should preserve the original value.
+
+			Thus, we need to produce a new value on the stack and not just increment this copy. Thus,
+			we push 1 on the stack, perform ADD/SUB which then pushes a new result value onto the stack,
+			without affecting the pre-increment copy.
+
+			We then set this new value to the original using SETVAR and pop it off so that the pre-increment
+			value remains at the top of the stack as would be expected as the result of this expression.
+		*/
+		auto constOffset = bytecode.addConstant(new NumberObject(1, true));
+		bytecode.emit(OpCode::LDC, constOffset, previous().getLine(), previous().getColumn());
+		OpCode op = previous().getType() == TokenType::PLUS_PLUS ? OpCode::ADD : OpCode::SUB;
+		bytecode.emit(op, previous().getLine(), previous().getColumn());
+
+		bytecode.emit(OpCode::SETVAR, stackIndex, previous().getLine(), previous().getColumn());
+		bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
 
 		return true;
 	}

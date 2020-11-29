@@ -53,7 +53,7 @@ namespace Copper {
 
 #ifdef DISASSEMBLE
 		Copper::Disassembler disassembler;
-		disassembler.disassemble(bytecode, translationUnit);
+		disassembler.disassemble(parser.getBytecode(), translationUnit);
 #endif
 
 		return true;

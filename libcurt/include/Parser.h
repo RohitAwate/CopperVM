@@ -96,6 +96,7 @@ namespace Copper {
 		bool identifier();
 		bool memberAccess(const Token& identifierToken);
 		bool variableReference(const Token& identifierToken);
+		bool postUnary(const Token& identifierToken);
 
 		void error(const std::string &) const;
 	};
