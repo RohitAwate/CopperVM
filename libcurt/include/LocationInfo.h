@@ -21,14 +21,19 @@
 
 namespace cu {
 
+	struct Location {
+		const unsigned int line;
+		const unsigned int column;
+	};
+
 	class LocationInfo {
 	public:
-		void add(const unsigned int& line, const unsigned int& col) {
-			if (lines.find(line) == lines.end()) {
-				lines[line] = {};
+		void add(const Location& loc) {
+			if (lines.find(loc.line) == lines.end()) {
+				lines[loc.line] = {};
 			}
 
-			lines[line].addColumn(col);
+			lines[loc.line].addColumn(loc.column);
 		}
 
 		void print() const {
@@ -45,8 +50,7 @@ namespace cu {
 			}
 		}
 
-		std::pair<unsigned int, unsigned int>
-		getLocation(size_t& bytecodeOffset) const {
+		Location get(size_t& bytecodeOffset) const {
 			for (auto lineItr = lines.begin(); lineItr != lines.end(); lineItr++) {
 				auto lineInfo = lineItr->second;
 

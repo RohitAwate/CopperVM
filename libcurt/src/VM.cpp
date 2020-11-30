@@ -42,12 +42,12 @@ namespace cu {
         std::cout << ANSICodes::BOLD << translationUnit.filepath << ANSICodes::RESET << " ";
         
         const auto& location = bytecode.getSourceLocation(ip);
-        std::cout << "(line " << location.first << "): ";
+        std::cout << "(line " << location.line << "): ";
         std::cout << msg << std::endl;
 
-        const auto& culpritLine = translationUnit.getLine(location.first);
+        const auto& culpritLine = translationUnit.getLine(location.line);
         std::cout << "\t" << culpritLine << std::endl;
-        std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, location.second - 1);
+        std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, location.column - 1);
         std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
     }
 

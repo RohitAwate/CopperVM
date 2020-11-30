@@ -20,14 +20,14 @@
 
 namespace cu {
 
-	void Bytecode::emit(byte opcode, unsigned int line, unsigned int column) {
+	void Bytecode::emit(byte opcode, const Location& loc) {
 		blob.push_back(opcode);
-		locationInfo.add(line, column);
+		locationInfo.add(loc);
 	}
 
-	void Bytecode::emit(byte b1, byte b2, unsigned int line, unsigned int column) {
-		emit(b1, line, column);
-		emit(b2, line, column);
+	void Bytecode::emit(byte b1, byte b2, const Location& loc) {
+		emit(b1, loc);
+		emit(b2, loc);
 	}
 
 	size_t Bytecode::addConstant(const Object* constant) {
@@ -54,9 +54,8 @@ namespace cu {
 		return constants.size() - 1;
 	}
 
-	std::pair<unsigned int, unsigned int>
-	Bytecode::getSourceLocation(byte bytecodeOffset) const {
-		return locationInfo.getLocation(bytecodeOffset);
+	Location Bytecode::getSourceLocation(byte bytecodeOffset) const {
+		return locationInfo.get(bytecodeOffset);
 	}
 
 	void Bytecode::patch(const size_t offset, const byte b) {
