@@ -144,6 +144,7 @@ namespace cu {
 #define READ_OPERAND() code[++ip]
 
         auto const& code = bytecode.blob;
+        std::cout << bytecode.getCompressionRatio() << '%' << std::endl;
 
         for (ip = 0; ip < code.size(); ip++) {
 

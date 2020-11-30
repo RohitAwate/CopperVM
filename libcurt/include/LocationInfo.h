@@ -23,7 +23,7 @@ namespace cu {
 
 	class LocationInfo {
 	public:
-		void addLocation(const unsigned int& line, const unsigned int& col) {
+		void add(const unsigned int& line, const unsigned int& col) {
 			if (lines.find(line) == lines.end()) {
 				lines[line] = {};
 			}
