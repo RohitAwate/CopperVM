@@ -339,7 +339,6 @@ namespace cu {
 		std::pair<unsigned int, unsigned int> getSourceLocation(byte bytecodeOffset) const;
 		size_t size() const { return blob.size(); }
 		void patch(const size_t offset, const byte b);
-		double getCompressionRatio() const;
 		void clear();
 	private:
 		std::vector<byte> blob;

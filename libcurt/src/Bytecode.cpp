@@ -65,10 +65,6 @@ namespace cu {
 		}
 	}
 
-	double Bytecode::getCompressionRatio() const {
-		return 100 - (((double) locationInfo.size() / (double) blob.size()) * 100);
-	}
-
 	void Bytecode::clear() {
 		blob.clear();
 		locationInfo.clear();
