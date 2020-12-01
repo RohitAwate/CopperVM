@@ -551,7 +551,12 @@ namespace cu {
 					error("Undefined variable: " + identifierToken.getLexeme());
 					return false;
 				}
-				
+
+				if (env.isVariableConst(stackIndex)) {
+					error("Assignment to const variable: " + identifierToken.getLexeme());
+					return false;
+				}
+
 				bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
 				bytecode.emit(op, identifierToken.getLocation());
 				bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLocation());
@@ -793,6 +798,11 @@ namespace cu {
 
 	bool Parser::postUnary(const Token& identifierToken) {
 		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
+		if (env.isVariableConst(stackIndex)) {
+			error("Assignment to const variable: " + identifierToken.getLexeme());
+			return false;
+		}
+
 		/*
 			Pushing the value twice on the stack because we need to make two states of this variable
 			- pre-increment value
