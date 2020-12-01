@@ -20,14 +20,14 @@
 
 namespace cu {
 
-	void Bytecode::emit(byte opcode, unsigned int line, unsigned int column) {
+	void Bytecode::emit(byte opcode, const Location& loc) {
 		blob.push_back(opcode);
-		addInstructionLocation(line, column);
+		locationInfo.add(loc);
 	}
 
-	void Bytecode::emit(byte b1, byte b2, unsigned int line, unsigned int column) {
-		emit(b1, line, column);
-		emit(b2, line, column);
+	void Bytecode::emit(byte b1, byte b2, const Location& loc) {
+		emit(b1, loc);
+		emit(b2, loc);
 	}
 
 	size_t Bytecode::addConstant(const Object* constant) {
@@ -54,18 +54,8 @@ namespace cu {
 		return constants.size() - 1;
 	}
 
-	std::pair<unsigned int, unsigned int> Bytecode::getSourceLocation(byte opcodeIndex) const {
-		for (auto lineItr = locations.begin(); lineItr != locations.end(); lineItr++) {
-			auto& lineLocations = lineItr->second;
-
-			if (opcodeIndex < lineLocations.size()) {
-				return {lineItr->first, lineLocations[opcodeIndex]};
-			} else {
-				opcodeIndex -= lineLocations.size();
-			}
-		}
-
-		return {0, 0};
+	Location Bytecode::getSourceLocation(byte bytecodeOffset) const {
+		return locationInfo.get(bytecodeOffset);
 	}
 
 	void Bytecode::patch(const size_t offset, const byte b) {
@@ -76,17 +66,8 @@ namespace cu {
 
 	void Bytecode::clear() {
 		blob.clear();
-		locations.clear();
+		locationInfo.clear();
 		constants.clear();
-	}
-
-	void Bytecode::addInstructionLocation(const unsigned int& line, const unsigned int& column) {
-		if (locations.find(line) != locations.end()) {
-			locations[line].push_back(column);
-		} else {
-			locations[line] = {};
-			locations[line].push_back(column);
-		}
 	}
 
 } // namespace cu

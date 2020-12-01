@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include "LocationInfo.h"
+
 #define TOKEN_TYPES                  \
     /* Keywords */                   \
     TYPE_MACRO(LET)                  \
@@ -113,22 +115,20 @@ namespace cu {
     
     class Token {
     public:
-        Token(std::string lexeme, TokenType type, int line, int column) :
-            lexeme(lexeme), type(type), line(line), column(column) {}
+        Token(std::string lexeme, TokenType type, unsigned int line, unsigned int column) :
+            lexeme(lexeme), type(type), loc({ line, column }) {}
         
-        Token(TokenType type, int line, int column) :
-            type(type), line(line), column(column)  {}
+        Token(TokenType type, unsigned int line, unsigned int column) :
+            type(type), loc({ line, column })  {}
 
         const std::string& getLexeme() const { return lexeme; }
         const TokenType& getType() const { return type; }
-        const int& getLine() const { return line; }
-        const int& getColumn() const { return column; }
+        const Location& getLocation() const { return loc; }
     private:
         const std::string lexeme;
         const TokenType type;
 
-        const int line;
-        const int column;
+        Location loc;
     };
 
     static std::string toString(const TokenType& type) {

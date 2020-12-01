@@ -87,7 +87,7 @@ namespace cu {
 	}
 
 	byte Parser::emitJump(OpCode op) {
-		bytecode.emit(op, 0, peek().getLine(), peek().getColumn());
+		bytecode.emit(op, 0, peek().getLocation());
 		return bytecode.size() - 1;
 	}
 
@@ -159,7 +159,7 @@ namespace cu {
 			}
 			
 			auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
-			bytecode.emit(OpCode::LDC, constOffset, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::LDC, constOffset, peek().getLocation());
 		}
 
 		if (!env.newVariable(identifierToken.getLexeme(), isConst)) {
@@ -190,7 +190,7 @@ namespace cu {
 		const auto& printToken = previous();
 
 		if(!expression()) return false;
-		bytecode.emit(OpCode::PRINT, printToken.getLine(), printToken.getColumn());
+		bytecode.emit(OpCode::PRINT, printToken.getLocation());
 		
 		if (!match(TokenType::SEMICOLON)) {
 			error("Expect ';' after statement");
@@ -204,7 +204,7 @@ namespace cu {
 		if (!expression()) return false;
 
 		if (match(TokenType::SEMICOLON)) {
-			bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
+			bytecode.emit(OpCode::POP, previous().getLocation());
 			return true;
 		}
 
@@ -225,7 +225,7 @@ namespace cu {
 		}
 
 		auto popCount = env.closeScope();
-		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		bytecode.emit(OpCode::POPN, popCount, previous().getLocation());
 		return true;
 	}
 
@@ -238,9 +238,9 @@ namespace cu {
 		auto expressionStartToken = peek();
 		if (!expression()) return false;
 
-		bytecode.emit(OpCode::JNT, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::JNT, 0, expressionStartToken.getLocation());
 		auto jntOffset = bytecode.size() - 1;
-		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::POP, expressionStartToken.getLocation());
 
 		if (!match(TokenType::CLOSE_PAREN)) {
 			error("Expect ')' after if condition");
@@ -249,13 +249,13 @@ namespace cu {
 
 		if (!statement()) return false;
 
-		bytecode.emit(OpCode::JMP, 0, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::JMP, 0, expressionStartToken.getLocation());
 		auto jmpOffset = bytecode.size() - 1;
 
 		auto afterIfBodyOffset = bytecode.size();
 		bytecode.patch(jntOffset, afterIfBodyOffset);
 
-		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::POP, expressionStartToken.getLocation());
 		if (match(TokenType::ELSE)) {
 			if (!statement()) return false;
 		}
@@ -300,7 +300,7 @@ namespace cu {
 			}
 
 			toEndOfLoop = emitJump(OpCode::JNT);
-			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::POP, peek().getLocation());
 		}
 
 		byte toIncrement = nextIteration;
@@ -318,8 +318,8 @@ namespace cu {
 				return false;
 			}
 
-			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
-			bytecode.emit(OpCode::JMP, nextIteration, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::POP, peek().getLocation());
+			bytecode.emit(OpCode::JMP, nextIteration, peek().getLocation());
 		}
 
 		if (toBody != -1) {
@@ -329,11 +329,11 @@ namespace cu {
 		loopStack.push(LoopJumpOffsets(toIncrement));
 		if (!statement()) return false;
 
-		bytecode.emit(OpCode::JMP, toIncrement, peek().getLine(), peek().getColumn());
+		bytecode.emit(OpCode::JMP, toIncrement, peek().getLocation());
 
 		if (toEndOfLoop != -1) {
 			bytecode.patch(toEndOfLoop, bytecode.size());
-			bytecode.emit(OpCode::POP, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::POP, peek().getLocation());
 		}
 
 		for (const auto& breakPatch : loopStack.top().breakPatches) {
@@ -342,7 +342,7 @@ namespace cu {
 		loopStack.pop();
 
 		auto popCount = env.closeScope();
-		bytecode.emit(OpCode::POPN, popCount, previous().getLine(), previous().getColumn());
+		bytecode.emit(OpCode::POPN, popCount, previous().getLocation());
 		return true;
 	}
 
@@ -358,7 +358,7 @@ namespace cu {
 		if (!expression()) return false;
 
 		byte toEndOfLoop = emitJump(OpCode::JNT);
-		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::POP, expressionStartToken.getLocation());
 
 		if (!match(TokenType::CLOSE_PAREN)) {
 			error("Expect ')' after while condition");
@@ -368,10 +368,10 @@ namespace cu {
 		loopStack.push(LoopJumpOffsets(nextIteration));
 		if (!statement()) return false;
 
-		bytecode.emit(OpCode::JMP, nextIteration, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::JMP, nextIteration, expressionStartToken.getLocation());
 		
 		bytecode.patch(toEndOfLoop, bytecode.size());
-		bytecode.emit(OpCode::POP, expressionStartToken.getLine(), expressionStartToken.getColumn());
+		bytecode.emit(OpCode::POP, expressionStartToken.getLocation());
 
 		for (const auto& breakPatch : loopStack.top().breakPatches) {
 			bytecode.patch(breakPatch, bytecode.size());
@@ -392,7 +392,7 @@ namespace cu {
 			const auto& orToken = previous();
 			if (!logicalAND()) return false;
 
-			bytecode.emit(OpCode::OR, orToken.getLine(), orToken.getColumn());
+			bytecode.emit(OpCode::OR, orToken.getLocation());
 		}
 
 		return true;
@@ -405,7 +405,7 @@ namespace cu {
 			const auto &andToken = previous();
 			if (!equality()) return false;
 
-			bytecode.emit(OpCode::AND, andToken.getLine(), andToken.getColumn());
+			bytecode.emit(OpCode::AND, andToken.getLocation());
 		}
 
 		return true;
@@ -422,10 +422,10 @@ namespace cu {
 
 			switch (operatorToken.getType()) {
 				case TokenType::EQU:
-					bytecode.emit(OpCode::EQU, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::EQU, operatorToken.getLocation());
 					break;
 				case TokenType::NEQ:
-					bytecode.emit(OpCode::NEQ, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::NEQ, operatorToken.getLocation());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -449,16 +449,16 @@ namespace cu {
 
 			switch (operatorToken.getType()) {
 				case TokenType::GRT:
-					bytecode.emit(OpCode::GRT, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::GRT, operatorToken.getLocation());
 					break;
 				case TokenType::LST:
-					bytecode.emit(OpCode::LST, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::LST, operatorToken.getLocation());
 					break;
 				case TokenType::GRE:
-					bytecode.emit(OpCode::GRE, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::GRE, operatorToken.getLocation());
 					break;
 				case TokenType::LSE:
-					bytecode.emit(OpCode::LSE, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::LSE, operatorToken.getLocation());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -480,10 +480,10 @@ namespace cu {
 
 			switch (operatorToken.getType()) {
 				case TokenType::PLUS:
-					bytecode.emit(OpCode::ADD, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::ADD, operatorToken.getLocation());
 					break;
 				case TokenType::MINUS:
-					bytecode.emit(OpCode::SUB, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::SUB, operatorToken.getLocation());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -506,13 +506,13 @@ namespace cu {
 
 			switch (operatorToken.getType()) {
 				case TokenType::MULTIPLY:
-					bytecode.emit(OpCode::MUL, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::MUL, operatorToken.getLocation());
 					break;
 				case TokenType::DIVIDE:
-					bytecode.emit(OpCode::DIV, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::DIV, operatorToken.getLocation());
 					break;
 				case TokenType::MODULO:
-					bytecode.emit(OpCode::MOD, operatorToken.getLine(), operatorToken.getColumn());
+					bytecode.emit(OpCode::MOD, operatorToken.getLocation());
 					break;
 				default:
 					error("Invalid or unexpected token");
@@ -532,7 +532,7 @@ namespace cu {
 			// Process RHS of expression
 			if (!exponent()) return false;
 
-			bytecode.emit(OpCode::EXP, operatorToken.getLine(), operatorToken.getColumn());
+			bytecode.emit(OpCode::EXP, operatorToken.getLocation());
 		}
 
 		return true;
@@ -552,9 +552,9 @@ namespace cu {
 					return false;
 				}
 				
-				bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
-				bytecode.emit(op, identifierToken.getLine(), identifierToken.getColumn());
-				bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+				bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
+				bytecode.emit(op, identifierToken.getLocation());
+				bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLocation());
 
 				return true;
 			}
@@ -566,7 +566,7 @@ namespace cu {
 
 				if (!preUnary()) return false;
 
-				bytecode.emit(op, operatorToken.getLine(), operatorToken.getColumn());
+				bytecode.emit(op, operatorToken.getLocation());
 			
 				return true;
 			}
@@ -586,20 +586,20 @@ namespace cu {
 				break;
 			case TokenType::NUMBER: {
 				auto const &constOffset = bytecode.addConstant(new NumberObject(primaryToken.getLexeme()));
-				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLocation());
 				next();
 				break;
 			}
 			case TokenType::TRUE:
 			case TokenType::FALSE: {
 				auto const &constOffset = bytecode.addConstant(new BooleanObject(primaryToken.getLexeme()));
-				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLocation());
 				next();
 				break;
 			}
 			case TokenType::STRING: {
 				auto const &constOffset = bytecode.addConstant(new StringObject(primaryToken.getLexeme()));
-				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLocation());
 				next();
 				break;
 			}
@@ -619,13 +619,13 @@ namespace cu {
 				return identifier();
 			case TokenType::NULL_TYPE: {
 				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::NULL_TYPE));
-				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLocation());
 				consume();
 				break;
 			}
 			case TokenType::UNDEFINED: {
 				auto const &constOffset = bytecode.addConstant(new EmptyObject(ObjectType::UNDEFINED));
-				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLine(), primaryToken.getColumn());
+				bytecode.emit(OpCode::LDC, constOffset, primaryToken.getLocation());
 				consume();
 				break;
 			}
@@ -644,7 +644,7 @@ namespace cu {
 					return false;
 				}
 
-				bytecode.emit(OpCode::JMP, loopStack.top().continueOffset, peek().getLine(), peek().getColumn());
+				bytecode.emit(OpCode::JMP, loopStack.top().continueOffset, peek().getLocation());
 				consume();
 				break;
 			case TokenType::EOF_TYPE:
@@ -696,7 +696,7 @@ namespace cu {
 		}
 
 		if (previous().getType() == TokenType::CLOSE_SQUARE_BRACKET) {
-			bytecode.emit(OpCode::NEWARR, arraySize, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::NEWARR, arraySize, peek().getLocation());
 			return true;
 		} else if (atEOF())
 			error("Unexpected end-of-file, expect ']'");
@@ -749,7 +749,7 @@ namespace cu {
 
 	bool Parser::memberAccess(const Token& identifierToken) {
 		auto stackIndex = env.resolveVariable(identifierToken.getLexeme());
-		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
 
 		while (match(TokenType::OPEN_SQUARE_BRACKET)) {
 			if (!expression()) return false;
@@ -760,13 +760,13 @@ namespace cu {
 			}
 
 			if (!match(TokenType::ASSIGNMENT)) {
-				bytecode.emit(OpCode::LDPROP, previous().getLine(), previous().getColumn());
+				bytecode.emit(OpCode::LDPROP, previous().getLocation());
 			}
 		}
 		
 		if (previous().getType() == TokenType::ASSIGNMENT) {
 			if (!expression()) return false;
-			bytecode.emit(OpCode::SETPROP, peek().getLine(), peek().getColumn());
+			bytecode.emit(OpCode::SETPROP, peek().getLocation());
 		}
 
 		return true;
@@ -781,11 +781,11 @@ namespace cu {
 			}
 
 			if (!expression()) return false;
-			bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+			bytecode.emit(OpCode::SETVAR, stackIndex, identifierToken.getLocation());
 		} else if (match(TokenType::PLUS_PLUS) || match(TokenType::MINUS_MINUS)) {
 			return postUnary(identifierToken);
 		} else {
-			bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+			bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
 		}
 
 		return true;
@@ -799,8 +799,8 @@ namespace cu {
 			- prepare the new incremented/decremented value that would then be assigned to the original
 				via SETVAR and then be popped off
 		*/
-		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
-		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLine(), identifierToken.getColumn());
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
+		bytecode.emit(OpCode::LDVAR, stackIndex, identifierToken.getLocation());
 
 		/*
 			We don't use the INCR/DECR instructions because they operate on the object at the top of
@@ -816,12 +816,12 @@ namespace cu {
 			value remains at the top of the stack as would be expected as the result of this expression.
 		*/
 		auto constOffset = bytecode.addConstant(new NumberObject(1, true));
-		bytecode.emit(OpCode::LDC, constOffset, previous().getLine(), previous().getColumn());
+		bytecode.emit(OpCode::LDC, constOffset, previous().getLocation());
 		OpCode op = previous().getType() == TokenType::PLUS_PLUS ? OpCode::ADD : OpCode::SUB;
-		bytecode.emit(op, previous().getLine(), previous().getColumn());
+		bytecode.emit(op, previous().getLocation());
 
-		bytecode.emit(OpCode::SETVAR, stackIndex, previous().getLine(), previous().getColumn());
-		bytecode.emit(OpCode::POP, previous().getLine(), previous().getColumn());
+		bytecode.emit(OpCode::SETVAR, stackIndex, previous().getLocation());
+		bytecode.emit(OpCode::POP, previous().getLocation());
 
 		return true;
 	}
@@ -831,12 +831,12 @@ namespace cu {
 
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "error: " << ANSICodes::RESET;
 		std::cout << ANSICodes::BOLD << translationUnit->filepath << ANSICodes::RESET << " ";
-		std::cout << "(line " << currentToken.getLine() << "): ";
+		std::cout << "(line " << currentToken.getLocation().line << "): ";
 		std::cout << msg << std::endl;
 
-		std::string culpritLine = translationUnit->getLine(currentToken.getLine());
+		std::string culpritLine = translationUnit->getLine(currentToken.getLocation().line);
 		std::cout << "\t" << culpritLine << std::endl;
-		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, currentToken.getColumn() - 1);
+		std::cout << "\t" << TranslationUnit::getOffsetString(culpritLine, currentToken.getLocation().column - 1);
 		std::cout << ANSICodes::RED << ANSICodes::BOLD << "↑" << ANSICodes::RESET << std::endl;
 	}
 

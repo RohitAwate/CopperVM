@@ -16,10 +16,9 @@
 
 #pragma once
 
-#include <memory>
 #include <vector>
-#include <map>
 
+#include "LocationInfo.h"
 #include "Object.h"
 
 namespace cu {
@@ -334,20 +333,17 @@ namespace cu {
 		friend class Disassembler;
 		friend class VM;
 	public:
-		void emit(byte opcode, unsigned int line, unsigned int column);
-		void emit(byte b1, byte b2, unsigned int line, unsigned int column);
+		void emit(const byte opcode, const Location& loc);
+		void emit(const byte b1, const byte b2, const Location& loc);
 		size_t addConstant(const Object *);
-		std::pair<unsigned int, unsigned int> getSourceLocation(byte opcodeIndex) const;
+		Location getSourceLocation(byte bytecodeOffset) const;
 		size_t size() const { return blob.size(); }
 		void patch(const size_t offset, const byte b);
 		void clear();
 	private:
 		std::vector<byte> blob;
-		std::map<unsigned int, std::vector<unsigned int>> locations;
+		LocationInfo locationInfo;
 		std::vector<std::shared_ptr<Object>> constants;
-
-		void addInstructionLocation(const unsigned int &line, const unsigned int &column);
-
 	};
 
 } // namespace cu
