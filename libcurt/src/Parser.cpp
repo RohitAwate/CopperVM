@@ -825,7 +825,7 @@ namespace cu {
 			We then set this new value to the original using SETVAR and pop it off so that the pre-increment
 			value remains at the top of the stack as would be expected as the result of this expression.
 		*/
-		auto constOffset = bytecode.addConstant(new NumberObject(1, true));
+		auto constOffset = bytecode.addConstant(new NumberObject(1));
 		bytecode.emit(OpCode::LDC, constOffset, previous().getLocation());
 		OpCode op = previous().getType() == TokenType::PLUS_PLUS ? OpCode::ADD : OpCode::SUB;
 		bytecode.emit(op, previous().getLocation());

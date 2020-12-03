@@ -53,82 +53,82 @@ namespace cu {
 
     int VM::run(const Bytecode& bytecode, const TranslationUnit& translationUnit) {
 
-#define BINARY_OP(op, ResultObjectType)                                      \
-    do                                                                       \
-    {                                                                        \
-        auto rightVal = stack.top();                                       \
-        if (rightVal->type != ObjectType::NUMBER)                            \
-        {                                                                    \
-            error(translationUnit, bytecode, "Operand must be a number.");   \
-            return 1;                                                        \
-        }                                                                    \
-        stack.pop();                                                       \
-                                                                             \
-        auto leftVal = stack.top();                                        \
-        if (leftVal->type != ObjectType::NUMBER)                             \
-        {                                                                    \
-            error(translationUnit, bytecode, "Operand must be a number.");   \
-            return 1;                                                        \
-        }                                                                    \
-        stack.pop();                                                       \
-                                                                             \
-        auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);        \
-        auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);      \
-        stack.push(std::make_shared<ResultObjectType>((*left)op(*right))); \
+#define BINARY_OP(op, ResultObjectType)                                              \
+    do                                                                               \
+    {                                                                                \
+        auto rightVal = stack.top();                                                 \
+        if (rightVal->type != ObjectType::NUMBER)                                    \
+        {                                                                            \
+            error(translationUnit, bytecode, "Operand must be a number.");           \
+            return 1;                                                                \
+        }                                                                            \
+        stack.pop();                                                                 \
+                                                                                     \
+        auto leftVal = stack.top();                                                  \
+        if (leftVal->type != ObjectType::NUMBER)                                     \
+        {                                                                            \
+            error(translationUnit, bytecode, "Operand must be a number.");           \
+            return 1;                                                                \
+        }                                                                            \
+        stack.pop();                                                                 \
+                                                                                     \
+        auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);                \
+        auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);              \
+        stack.push(std::make_shared<ResultObjectType>(left->get() op right->get())); \
     } while (false)
 
-#define EQUALITY_OP(op)                                                                            \
-    do                                                                                             \
-    {                                                                                              \
-        auto rightVal = stack.top();                                                             \
-        stack.pop();                                                                             \
-        auto leftVal = stack.top();                                                              \
-        stack.pop();                                                                             \
-                                                                                                   \
-        if (leftVal->type != rightVal->type)                                                       \
-            stack.push(std::make_shared<BooleanObject>(leftVal->type op rightVal->type, false)); \
-        else if (leftVal->type == ObjectType::BOOLEAN)                                             \
-        {                                                                                          \
-            auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);                         \
-            auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);                       \
-            stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
-        }                                                                                          \
-        else if (leftVal->type == ObjectType::NUMBER)                                              \
-        {                                                                                          \
-            auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);                          \
-            auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);                        \
-            stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
-        }                                                                                          \
-        else if (leftVal->type == ObjectType::STRING)                                              \
-        {                                                                                          \
-            auto left = std::dynamic_pointer_cast<StringObject>(leftVal);                          \
-            auto right = std::dynamic_pointer_cast<StringObject>(rightVal);                        \
-            stack.push(std::make_shared<BooleanObject>((*left)op(*right)));                      \
-        }                                                                                          \
+#define EQUALITY_OP(op)                                                                   \
+    do                                                                                    \
+    {                                                                                     \
+        auto rightVal = stack.top();                                                      \
+        stack.pop();                                                                      \
+        auto leftVal = stack.top();                                                       \
+        stack.pop();                                                                      \
+                                                                                          \
+        if (leftVal->type != rightVal->type)                                              \
+            stack.push(std::make_shared<BooleanObject>(leftVal->type op rightVal->type)); \
+        else if (leftVal->type == ObjectType::BOOLEAN)                                    \
+        {                                                                                 \
+            auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);                \
+            auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);              \
+            stack.push(std::make_shared<BooleanObject>(left->get() op right->get()));     \
+        }                                                                                 \
+        else if (leftVal->type == ObjectType::NUMBER)                                     \
+        {                                                                                 \
+            auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);                 \
+            auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);               \
+            stack.push(std::make_shared<BooleanObject>(left->get() op right->get()));     \
+        }                                                                                 \
+        else if (leftVal->type == ObjectType::STRING)                                     \
+        {                                                                                 \
+            auto left = std::dynamic_pointer_cast<StringObject>(leftVal);                 \
+            auto right = std::dynamic_pointer_cast<StringObject>(rightVal);               \
+            stack.push(std::make_shared<BooleanObject>(left->get() op right->get()));     \
+        }                                                                                 \
     } while (false)
 
-#define BINARY_LOGICAL_OP(op)                                               \
-    do                                                                      \
-    {                                                                       \
-        auto rightVal = stack.top();                                      \
-        if (rightVal->type != ObjectType::BOOLEAN)                          \
-        {                                                                   \
-            error(translationUnit, bytecode, "Operand must be a boolean."); \
-            return 1;                                                       \
-        }                                                                   \
-        stack.pop();                                                      \
-                                                                            \
-        auto leftVal = stack.top();                                       \
-        if (leftVal->type != ObjectType::BOOLEAN)                           \
-        {                                                                   \
-            error(translationUnit, bytecode, "Operand must be a boolean."); \
-            return 1;                                                       \
-        }                                                                   \
-        stack.pop();                                                      \
-                                                                            \
-        auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);      \
-        auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);    \
-        stack.push(std::make_shared<BooleanObject>((*left)op(*right)));   \
+#define BINARY_LOGICAL_OP(op)                                                    \
+    do                                                                           \
+    {                                                                            \
+        auto rightVal = stack.top();                                             \
+        if (rightVal->type != ObjectType::BOOLEAN)                               \
+        {                                                                        \
+            error(translationUnit, bytecode, "Operand must be a boolean.");      \
+            return 1;                                                            \
+        }                                                                        \
+        stack.pop();                                                             \
+                                                                                 \
+        auto leftVal = stack.top();                                              \
+        if (leftVal->type != ObjectType::BOOLEAN)                                \
+        {                                                                        \
+            error(translationUnit, bytecode, "Operand must be a boolean.");      \
+            return 1;                                                            \
+        }                                                                        \
+        stack.pop();                                                             \
+                                                                                 \
+        auto left = std::dynamic_pointer_cast<BooleanObject>(leftVal);           \
+        auto right = std::dynamic_pointer_cast<BooleanObject>(rightVal);         \
+        stack.push(std::make_shared<BooleanObject>(left->get() op right->get())); \
     } while (false)
 
 /*
@@ -270,7 +270,7 @@ namespace cu {
                     stack.pop();
 
                     auto numObj = std::dynamic_pointer_cast<NumberObject>(obj);
-                    stack.push(std::make_shared<NumberObject>(-*numObj));
+                    stack.push(std::make_shared<NumberObject>(-numObj->get()));
                     break;
                 }
 
@@ -283,13 +283,11 @@ namespace cu {
                     if (leftVal->type == ObjectType::STRING || rightVal->type == ObjectType::STRING) {
                         auto concat = leftVal->toString() + rightVal->toString();
                         stack.push(std::make_shared<StringObject>(concat));
-                    }
-                    else if (leftVal->type == ObjectType::NUMBER && rightVal->type == ObjectType::NUMBER) {
+                    } else if (leftVal->type == ObjectType::NUMBER && rightVal->type == ObjectType::NUMBER) {
                         auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);
                         auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);
-                        stack.push(std::make_shared<NumberObject>((*left) + (*right)));
-                    }
-                    else {
+                        stack.push(std::make_shared<NumberObject>(left->get() + right->get()));
+                    } else {
                         error(translationUnit, bytecode, "Invalid operand types for operator +");
                         return 1;
                     }
@@ -300,7 +298,28 @@ namespace cu {
                 case SUB: BINARY_OP(-, NumberObject); break;
                 case MUL: BINARY_OP(*, NumberObject); break;
                 case DIV: BINARY_OP(/, NumberObject); break;
-                case MOD: BINARY_OP(%, NumberObject); break;
+                case MOD: {
+                    auto rightVal = stack.top();
+                    if (rightVal->type != ObjectType::NUMBER)
+                    {
+                        error(translationUnit, bytecode, "Operand must be a number.");
+                        return 1;
+                    }
+                    stack.pop();
+
+                    auto leftVal = stack.top();
+                    if (leftVal->type != ObjectType::NUMBER)
+                    {
+                        error(translationUnit, bytecode, "Operand must be a number.");
+                        return 1;
+                    }
+                    stack.pop();
+
+                    auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);
+                    auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);
+                    stack.push(std::make_shared<NumberObject>(std::fmod(left->get(), right->get())));
+                    break;
+                };
                 case EXP: {
                     auto rightVal = stack.top();
                     if (rightVal->type != ObjectType::NUMBER) {
@@ -318,14 +337,14 @@ namespace cu {
 
                     auto left = std::dynamic_pointer_cast<NumberObject>(leftVal);
                     auto right = std::dynamic_pointer_cast<NumberObject>(rightVal);
-                    stack.push(std::make_shared<NumberObject>(left->toPower(*right)));  
+                    stack.push(std::make_shared<NumberObject>(std::pow(left->get(), right->get())));  
                     break;
                 }
 
                 case INCR: {
                     if (stack.top()->type != ObjectType::NUMBER) {
                         error(translationUnit, bytecode, "Cannot increment non-numeric type");
-                        return false;
+                        return 1;
                     }
 
                     std::dynamic_pointer_cast<NumberObject>(stack.top())->increment();
@@ -335,7 +354,7 @@ namespace cu {
                 case DECR: {
                     if (stack.top()->type != ObjectType::NUMBER) {
                         error(translationUnit, bytecode, "Cannot decrement non-numeric type");
-                        return false;
+                        return 1;
                     }
 
                     std::dynamic_pointer_cast<NumberObject>(stack.top())->decrement();
@@ -364,7 +383,7 @@ namespace cu {
 
                     stack.pop();
                     auto numObj = std::dynamic_pointer_cast<BooleanObject>(obj);
-                    stack.push(std::make_shared<BooleanObject>(!*numObj));
+                    stack.push(std::make_shared<BooleanObject>(!numObj->get()));
                     break;
                 }
 
@@ -376,7 +395,7 @@ namespace cu {
                 }
 
                 default:
-                    printf("%sVM Error: Invalid instruction (%d)\n%s", ANSICodes::RED, code[ip], ANSICodes::RESET);
+                    printf("%sVM Error: Invalid instruction (%li)\n%s", ANSICodes::RED, code[ip], ANSICodes::RESET);
                     return 1;
             }
         }
