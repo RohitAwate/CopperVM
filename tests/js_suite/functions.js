@@ -1,31 +1,33 @@
+// cutest-ignore
+
 let alertCounter = 1;
 
 function showAlert(msg) {
-	console.log("Alert #" + alertCounter + ": " + msg);
+	print("Alert #" + alertCounter + ": " + msg);
 	alertCounter++;
 }
 
 const sayHello = function(name) {
-	console.log("Hello, " + name + "!");
+	print("Hello, " + name + "!");
 }
 
 let helloWorld = function() {
-	console.log(arguments);
-	console.log("hello, world!");	
+	print(arguments);
+	print("hello, world!");	
 }
 
 const arrowFunc = (arg) => {
-	console.log(arg);
+	print(arg);
 	return arg;
 }
 
-const arrowExpression = (arg) => console.log(arg);
+const arrowExpression = (arg) => print(arg);
 
 const closureFunc = function() {
 	const prefix = 'hello';
 
 	function f(arg) {
-		console.log(prefix + arg);
+		print(prefix + arg);
 	}
 	
 	f(14);	
@@ -35,7 +37,7 @@ const closureArrow = () => {
 	const prefix = 'bye';
 
 	let f = (arg) => {
-		console.log(prefix + arg);
+		print(prefix + arg);
 	}
 	
 	f(78);	

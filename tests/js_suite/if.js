@@ -1,22 +1,22 @@
 const age = 18;
 
 if (age >= 18) {
-	console.log("Allowed");
+	print("Allowed");
 } else {
-	console.log("Not allowed");
+	print("Not allowed");
 }
 
 // if > else if > else if > else
 const color = "red";
 
 // == also performs type-aware comparison
-if (color == "green") {
-	console.log("tree");
+if (color === "green") {
+	print("tree");
 // === can also be used for the same job 
-} else if (color === "yellow") {
-	console.log("sun");
+} else if (color == "yellow") {
+	print("sun");
 } else if (color == "blue") {
-	console.log("blue");
+	print("blue");
 } else {
-	console.log("apple");
+	print("apple");
 }

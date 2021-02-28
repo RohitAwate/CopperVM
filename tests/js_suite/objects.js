@@ -1,3 +1,5 @@
+// cutest-ignore
+
 // Object with non-strings as keys
 const config = {
 	port: 8080,
